@@ -1,0 +1,21 @@
+.separator {
+    -fx-background-color: black;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+}
+
+#tools {
+    -fx-background-color: #a6cce2;
+}
+
+#drawForm {
+    -fx-background: whitesmoke;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: red;
+}
+
+.scroll-bar {
+    -fx-background-color: black;
+}
