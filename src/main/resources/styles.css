@@ -1,3 +1,19 @@
+#butt1:hover {
+    -fx-background-color: red;          // hover
+}
+
+#butt2:hover {
+    -fx-background-color: blue;
+}
+
+#butt1, #butt2 {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-font-size: 35px;
+    -fx-background-radius: 15px;        // rounded corners
+    -fx-font-family: "Courier New";
+}
+
 #11, #111 {                              // same css for multiple ids
     -fx-text-fill: black;
     -fx-font-size: 30px;
