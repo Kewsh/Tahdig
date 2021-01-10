@@ -7,7 +7,7 @@
 }
 
 #butt1, #butt2 {
-    -fx-background-color: black;
+    -fx-background-color: darkblue;
     -fx-text-fill: white;
     -fx-font-size: 35px;
     -fx-background-radius: 15px;        // rounded corners
@@ -26,11 +26,11 @@
 }
 
 #tools {
-    -fx-background-color: #a6cce2;
+    -fx-background-color: #40e0d0;
 }
 
 #drawForm {
-    -fx-background: whitesmoke;
+    -fx-background: rgb(245,245,220);
 }
 
 .scroll-bar .thumb {
