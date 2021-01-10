@@ -31,17 +31,17 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) {
 
-        Label label = new Label("Shapes");
+        Label label = new Label("Elements");
         label.setId("11");
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
         Circle circle = new Circle();
-        circle.setRadius(45);
+        circle.setRadius(55);
         circle.setStroke(Color.BLUE);
         circle.setStrokeWidth(2);
         circle.setFill(Color.YELLOW);
 
-        final Text text = new Text ("function");                        // circle with text in it
+        final Text text = new Text ("Function");                        // circle with text in it
         text.setFont(new Font("monospace", 20));
         final StackPane stack = new StackPane();
         stack.getChildren().addAll(circle, text);
@@ -79,14 +79,14 @@ public class Main extends Application {
 
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(80);
-        rectangle.setHeight(100);
+        rectangle.setHeight(120);
         rectangle.setArcWidth(30.0);
         rectangle.setArcHeight(20.0);
         rectangle.setStroke(Color.BLUE);
         rectangle.setStrokeWidth(2);
         rectangle.setFill(Color.YELLOW);
 
-        final Text text2 = new Text ("class");                        // circle with text in it
+        final Text text2 = new Text ("Class");                        // circle with text in it
         text2.setFont(new Font("monospace", 20));
         final StackPane stack2 = new StackPane();
         stack2.getChildren().addAll(rectangle, text2);
@@ -102,7 +102,7 @@ public class Main extends Application {
         diamond.setStrokeWidth(2);
         diamond.setFill(Color.YELLOW);
 
-        final Text text3 = new Text ("interface");                        // circle with text in it
+        final Text text3 = new Text ("Interface");                        // circle with text in it
         text3.setFont(new Font("monospace", 20));
         final StackPane stack3 = new StackPane();
         stack3.getChildren().addAll(diamond, text3);
@@ -110,8 +110,8 @@ public class Main extends Application {
         stack3.setLayoutY(30);
 
         HBox hBox2 = new HBox(stack, stack2, stack3);
-        hBox2.setPadding(new Insets(50, 50, 0, 50));
-        hBox2.setSpacing(50);
+        hBox2.setPadding(new Insets(50, 40, 0, 40));
+        hBox2.setSpacing(45);
 
 
 
@@ -138,7 +138,7 @@ public class Main extends Application {
         ellipse.setStrokeWidth(2);
         ellipse.setFill(Color.YELLOW);
 
-        final Text text5 = new Text ("header-file");                        // circle with text in it
+        final Text text5 = new Text ("Header-File");                        // circle with text in it
         text5.setFont(new Font("monospace", 20));
         final StackPane stack5 = new StackPane();
         stack5.getChildren().addAll(ellipse, text5);
@@ -153,18 +153,24 @@ public class Main extends Application {
         label2.setId("111");
 
         HBox hBox3 = new HBox();
-        JFXButton b1 = new JFXButton("button1");
+        JFXButton b1 = new JFXButton("Java");
         b1.setId("butt1");
-        JFXButton b2 = new JFXButton("button2");
+        b1.setMinSize(236, 100);
+        JFXButton b2 = new JFXButton("C++");
         b2.setId("butt2");
+        b2.setMinSize(236, 100);
         hBox3.getChildren().add(b1);
         hBox3.getChildren().add(b2);
-        hBox3.setPadding(new Insets(400, 25, 0, 25));
-        hBox3.setSpacing(25);
+        hBox3.setPadding(new Insets(30, 0, 0, 8));
+        hBox3.setSpacing(15);
 
         VBox leftControl  = new VBox(label, separator3, hBox2, hBox4);
-        //leftControl.getChildren().add(new Separator(Orientation.HORIZONTAL));
-        //leftControl.getChildren().add(hBox3);
+        Label label3 = new Label("Generate Code");
+        label3.setId("1111");
+        label3.setPadding(new Insets(450, 0, 0, 0));
+        Separator sep5 = new Separator(Orientation.HORIZONTAL);
+        //sep5.setPadding(new Insets(450, 0, 0, 0));
+        leftControl.getChildren().addAll(label3, sep5, hBox3);
         leftControl.setMinWidth(500);
         leftControl.setId("tools");
 

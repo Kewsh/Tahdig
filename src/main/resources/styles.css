@@ -7,11 +7,23 @@
 }
 
 #butt1, #butt2 {
-    -fx-background-color: darkblue;
-    -fx-text-fill: white;
-    -fx-font-size: 35px;
+    -fx-background-color: yellow;
+    -fx-text-fill: black;
+    -fx-font-size: 40px;
     -fx-background-radius: 15px;        // rounded corners
-    -fx-font-family: "Courier New";
+    -fx-border-radius: 15px;
+    -fx-border-color: blue;
+    -fx-border-width: 3px;
+    -fx-font-family: Arial;
+}
+
+#1111 {
+    -fx-alignment: center;
+    -fx-text-fill: black;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-font-family: cursive;
+    -fx-padding: 400 0 0 165;            // top right bottom left
 }
 
 #11, #111 {                              // same css for multiple ids
@@ -19,23 +31,23 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-font-family: cursive;
-    -fx-padding: 25 0 0 8;            // top right bottom left
+    -fx-padding: 25 0 0 190;            // top right bottom left
 }
 
 .separator:horizontal *.line {
     -fx-border-style: solid;
-    -fx-border-width: 0 0 2 0; /* its make really one-pixel-border */
-    -fx-border-color: #654321;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: black;
 }
 
 .separator:vertical *.line {
     -fx-border-style: solid;
-    -fx-border-width: 0 2 0 0; /* its make really one-pixel-border */
-    -fx-border-color: #654321;
+    -fx-border-width: 0 2 0 0;
+    -fx-border-color: black;
 }
 
 #tools {
-    -fx-background-color: #7E552B;
+    -fx-background-color: #d3d3d3;
 }
 
 #drawForm {
