@@ -35,45 +35,45 @@ public class Main extends Application {
         label.setId("11");
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
-        Circle circle = new Circle();
-        circle.setRadius(55);
-        circle.setStroke(Color.BLUE);
-        circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
-
-        final Text text = new Text ("Function");                        // circle with text in it
-        text.setFont(new Font("monospace", 20));
-        final StackPane stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
-        stack.setLayoutX(30);
-        stack.setLayoutY(30);
-
-        //
-
-        stack.setOnDragDetected((MouseEvent event) -> {
-            System.out.println("drag detected");
-
-            Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
-
-            ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
-
-
-            FileInputStream input = null;
-            try {
-                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            Image image = new Image(input);
-            ImageView imageView = new ImageView(image);
-
-            db.setDragView(imageView.getImage());
-            db.setContent(content);
-        });
-        circle.setOnMouseDragged((MouseEvent event) -> {
-            event.setDragDetect(true);
-        });
+//        Circle circle = new Circle();
+//        circle.setRadius(55);
+//        circle.setStroke(Color.BLUE);
+//        circle.setStrokeWidth(2);
+//        circle.setFill(Color.YELLOW);
+//
+//        final Text text = new Text ("Function");                        // circle with text in it
+//        text.setFont(new Font("monospace", 20));
+//        final StackPane stack = new StackPane();
+//        stack.getChildren().addAll(circle, text);
+//        stack.setLayoutX(30);
+//        stack.setLayoutY(30);
+//
+//        //
+//
+//        stack.setOnDragDetected((MouseEvent event) -> {
+//            System.out.println("drag detected");
+//
+//            Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
+//
+//            ClipboardContent content = new ClipboardContent();
+//            content.putString(stack.getChildren().get(0).toString());
+//
+//
+//            FileInputStream input = null;
+//            try {
+//                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//            Image image = new Image(input);
+//            ImageView imageView = new ImageView(image);
+//
+//            db.setDragView(imageView.getImage());
+//            db.setContent(content);
+//        });
+//        circle.setOnMouseDragged((MouseEvent event) -> {
+//            event.setDragDetect(true);
+//        });
 
         //
 
@@ -109,10 +109,9 @@ public class Main extends Application {
         stack3.setLayoutX(30);
         stack3.setLayoutY(30);
 
-        HBox hBox2 = new HBox(stack, stack2, stack3);
+        HBox hBox2 = new HBox(new elements.FunctionCircle().getElement(), stack2, stack3);
         hBox2.setPadding(new Insets(50, 40, 0, 40));
         hBox2.setSpacing(45);
-
 
 
         Polygon hexagon = new Polygon();
