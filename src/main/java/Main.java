@@ -15,8 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -37,10 +36,12 @@ public class Main extends Application {
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
         Circle circle = new Circle();
-        circle.setRadius(35);
+        circle.setRadius(45);
+        circle.setStroke(Color.BLUE);
+        circle.setStrokeWidth(2);
         circle.setFill(Color.YELLOW);
 
-        final Text text = new Text ("circ");                        // circle with text in it
+        final Text text = new Text ("function");                        // circle with text in it
         text.setFont(new Font("monospace", 20));
         final StackPane stack = new StackPane();
         stack.getChildren().addAll(circle, text);
@@ -85,11 +86,70 @@ public class Main extends Application {
         rectangle.setStrokeWidth(2);
         rectangle.setFill(Color.YELLOW);
 
-        HBox hBox2 = new HBox(stack, rectangle);
-        hBox2.setPadding(new Insets(75));
-        hBox2.setSpacing(125);
+        final Text text2 = new Text ("class");                        // circle with text in it
+        text2.setFont(new Font("monospace", 20));
+        final StackPane stack2 = new StackPane();
+        stack2.getChildren().addAll(rectangle, text2);
+        stack2.setLayoutX(30);
+        stack2.setLayoutY(30);
 
-        Label label2 = new Label("hi");
+        Polygon diamond = new Polygon();
+        diamond.getPoints().addAll(300.0, 60.0,
+                375.0, 0.0,
+                450.0, 60.0,
+                375.0, 120.0);
+        diamond.setStroke(Color.BLUE);
+        diamond.setStrokeWidth(2);
+        diamond.setFill(Color.YELLOW);
+
+        final Text text3 = new Text ("interface");                        // circle with text in it
+        text3.setFont(new Font("monospace", 20));
+        final StackPane stack3 = new StackPane();
+        stack3.getChildren().addAll(diamond, text3);
+        stack3.setLayoutX(30);
+        stack3.setLayoutY(30);
+
+        HBox hBox2 = new HBox(stack, stack2, stack3);
+        hBox2.setPadding(new Insets(50, 50, 0, 50));
+        hBox2.setSpacing(50);
+
+
+
+        Polygon hexagon = new Polygon();
+        hexagon.getPoints().addAll(0.0, 50.0,
+                50.0, 0.0,
+                100.0, 0.0,
+                150.0, 50.0,
+                100.0, 100.0,
+                50.0, 100.0);
+        hexagon.setStroke(Color.BLUE);
+        hexagon.setStrokeWidth(2);
+        hexagon.setFill(Color.YELLOW);
+
+        final Text text4 = new Text ("Package");                        // circle with text in it
+        text4.setFont(new Font("monospace", 20));
+        final StackPane stack4 = new StackPane();
+        stack4.getChildren().addAll(hexagon, text4);
+        stack4.setLayoutX(30);
+        stack4.setLayoutY(30);
+
+        Ellipse ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
+        ellipse.setStroke(Color.BLUE);
+        ellipse.setStrokeWidth(2);
+        ellipse.setFill(Color.YELLOW);
+
+        final Text text5 = new Text ("header-file");                        // circle with text in it
+        text5.setFont(new Font("monospace", 20));
+        final StackPane stack5 = new StackPane();
+        stack5.getChildren().addAll(ellipse, text5);
+        stack5.setLayoutX(30);
+        stack5.setLayoutY(30);
+
+        HBox hBox4 = new HBox(stack4, stack5);
+        hBox4.setPadding(new Insets(50, 50, 0, 50));
+        hBox4.setSpacing(50);
+
+        Label label2 = new Label("Generate code");
         label2.setId("111");
 
         HBox hBox3 = new HBox();
@@ -102,9 +162,9 @@ public class Main extends Application {
         hBox3.setPadding(new Insets(400, 25, 0, 25));
         hBox3.setSpacing(25);
 
-        VBox leftControl  = new VBox(label, separator3, hBox2, new Separator(Orientation.HORIZONTAL), label2);
-        leftControl.getChildren().add(new Separator(Orientation.HORIZONTAL));
-        leftControl.getChildren().add(hBox3);
+        VBox leftControl  = new VBox(label, separator3, hBox2, hBox4);
+        //leftControl.getChildren().add(new Separator(Orientation.HORIZONTAL));
+        //leftControl.getChildren().add(hBox3);
         leftControl.setMinWidth(500);
         leftControl.setId("tools");
 
@@ -186,7 +246,7 @@ public class Main extends Application {
 
         VBox vBox = new VBox(borderPane, separator2, hBox);
 
-        Scene scene = new Scene(vBox, 800, 800);
+        Scene scene = new Scene(vBox, 720, 720);
         scene.getStylesheets().add("styles.css");
 
         primaryStage.setScene(scene);

@@ -16,17 +16,26 @@
 
 #11, #111 {                              // same css for multiple ids
     -fx-text-fill: black;
-    -fx-font-size: 30px;
-    -fx-font-family: consolas;
-    -fx-padding: 50 0 20 190;            // top right bottom left
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-font-family: cursive;
+    -fx-padding: 25 0 0 8;            // top right bottom left
 }
 
-.separator {
-    -fx-background-color: black;
+.separator:horizontal *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 2 0; /* its make really one-pixel-border */
+    -fx-border-color: #654321;
+}
+
+.separator:vertical *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 0 2 0 0; /* its make really one-pixel-border */
+    -fx-border-color: #654321;
 }
 
 #tools {
-    -fx-background-color: #40e0d0;
+    -fx-background-color: #7E552B;
 }
 
 #drawForm {
