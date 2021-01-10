@@ -8,37 +8,40 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-public class FunctionCircle {
+public class InterfaceDiamond {
 
-    private Circle circle;
+    private Polygon diamond;
     private final Text text;
     private final StackPane stack;
 
-    public FunctionCircle(){
+    public InterfaceDiamond(){
 
-        circle = new Circle();
-        circle.setRadius(55);
-        circle.setStroke(Color.BLUE);
-        circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
+        diamond = new Polygon();
+        diamond.getPoints().addAll(300.0, 60.0,
+                375.0, 0.0,
+                450.0, 60.0,
+                375.0, 120.0);
+        diamond.setStroke(Color.BLUE);
+        diamond.setStrokeWidth(2);
+        diamond.setFill(Color.YELLOW);
 
-        text = new Text ("Function");
+        text = new Text("Interface");
         text.setFont(new Font("monospace", 20));
         stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
+        stack.getChildren().addAll(diamond, text);
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("circle drag detected");
+            System.out.println("diamond drag detected");
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
@@ -56,7 +59,7 @@ public class FunctionCircle {
             db.setContent(content);
         });
 
-        circle.setOnMouseDragged((MouseEvent event) -> {
+        diamond.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }

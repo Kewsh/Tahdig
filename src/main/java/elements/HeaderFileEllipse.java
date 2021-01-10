@@ -8,37 +8,36 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-public class FunctionCircle {
+public class HeaderFileEllipse {
 
-    private Circle circle;
+    private Ellipse ellipse;
     private final Text text;
     private final StackPane stack;
 
-    public FunctionCircle(){
+    public HeaderFileEllipse(){
 
-        circle = new Circle();
-        circle.setRadius(55);
-        circle.setStroke(Color.BLUE);
-        circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
+        ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
+        ellipse.setStroke(Color.BLUE);
+        ellipse.setStrokeWidth(2);
+        ellipse.setFill(Color.YELLOW);
 
-        text = new Text ("Function");
+        text = new Text("Header-File");
         text.setFont(new Font("monospace", 20));
         stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
+        stack.getChildren().addAll(ellipse, text);
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("circle drag detected");
+            System.out.println("ellipse drag detected");
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
@@ -56,7 +55,7 @@ public class FunctionCircle {
             db.setContent(content);
         });
 
-        circle.setOnMouseDragged((MouseEvent event) -> {
+        ellipse.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }

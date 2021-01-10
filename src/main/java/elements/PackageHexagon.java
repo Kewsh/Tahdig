@@ -8,37 +8,42 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-public class FunctionCircle {
+public class PackageHexagon {
 
-    private Circle circle;
+    private Polygon hexagon;
     private final Text text;
     private final StackPane stack;
 
-    public FunctionCircle(){
+    public PackageHexagon(){
 
-        circle = new Circle();
-        circle.setRadius(55);
-        circle.setStroke(Color.BLUE);
-        circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
+        hexagon = new Polygon();
+        hexagon.getPoints().addAll(0.0, 50.0,
+                50.0, 0.0,
+                100.0, 0.0,
+                150.0, 50.0,
+                100.0, 100.0,
+                50.0, 100.0);
+        hexagon.setStroke(Color.BLUE);
+        hexagon.setStrokeWidth(2);
+        hexagon.setFill(Color.YELLOW);
 
-        text = new Text ("Function");
+        text = new Text("Package");
         text.setFont(new Font("monospace", 20));
         stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
+        stack.getChildren().addAll(hexagon, text);
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("circle drag detected");
+            System.out.println("hexagon drag detected");
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
@@ -56,7 +61,7 @@ public class FunctionCircle {
             db.setContent(content);
         });
 
-        circle.setOnMouseDragged((MouseEvent event) -> {
+        hexagon.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }
