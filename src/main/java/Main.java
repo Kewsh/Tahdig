@@ -1,10 +1,16 @@
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -12,6 +18,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class Main extends Application {
 
@@ -35,6 +44,36 @@ public class Main extends Application {
         stack.getChildren().addAll(circle, text);
         stack.setLayoutX(30);
         stack.setLayoutY(30);
+
+        //
+
+        stack.setOnDragDetected((MouseEvent event) -> {
+            System.out.println("drag detected");
+
+            Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
+
+            ClipboardContent content = new ClipboardContent();
+            content.putString(stack.getChildren().get(0).toString());
+
+
+            FileInputStream input = null;
+            try {
+                input = new FileInputStream("C:/Users/m-pc/Desktop/image.png");             // size matters :))
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            Image image = new Image(input);
+            ImageView imageView = new ImageView(image);
+
+            SnapshotParameters params = new SnapshotParameters();
+            db.setDragView(imageView.snapshot(params, null));
+            db.setContent(content);
+        });
+        circle.setOnMouseDragged((MouseEvent event) -> {
+            event.setDragDetect(true);
+        });
+
+        //
 
         Rectangle rectangle = new Rectangle();
         rectangle.setWidth(80);
@@ -69,6 +108,30 @@ public class Main extends Application {
         Canvas canvas = new Canvas();
         canvas.setHeight(2500);
         canvas.setWidth(2500);
+
+        //
+
+        canvas.setOnDragOver(new EventHandler<DragEvent>() {
+            public void handle(DragEvent event) {
+                if (event.getGestureSource() != canvas && event.getDragboard().hasString()) {
+                    event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                }
+                event.consume();
+            }
+        });
+
+        canvas.setOnDragDropped((DragEvent event) -> {
+            Dragboard db = event.getDragboard();
+            if (db.hasString()) {
+                System.out.println("Dropped");
+                event.setDropCompleted(true);
+            } else {
+                event.setDropCompleted(false);
+            }
+            event.consume();
+        });
+
+        //
 
         rightControl.setContent(canvas);
         rightControl.setId("drawForm");
