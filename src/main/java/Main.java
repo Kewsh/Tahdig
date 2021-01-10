@@ -21,6 +21,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -61,15 +62,14 @@ public class Main extends Application {
 
             FileInputStream input = null;
             try {
-                input = new FileInputStream("C:/Users/m-pc/Desktop/image.png");             // size matters :))
+                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
             Image image = new Image(input);
             ImageView imageView = new ImageView(image);
 
-            SnapshotParameters params = new SnapshotParameters();
-            db.setDragView(imageView.snapshot(params, null));
+            db.setDragView(imageView.getImage());
             db.setContent(content);
         });
         circle.setOnMouseDragged((MouseEvent event) -> {
@@ -147,15 +147,15 @@ public class Main extends Application {
 
 //        // draw to canvas
 //
-//        GraphicsContext gc = canvas.getGraphicsContext2D();
+          GraphicsContext gc = canvas.getGraphicsContext2D();
 //        gc.setFill(Color.GREEN);
 //        gc.setStroke(Color.BLUE);
 //        gc.setLineWidth(3);
-//        gc.strokeLine(40, 10, 10, 40);
+          gc.strokeLine(2300, 2320, 2390, 2320);
 //        gc.fillOval(10, 60, 30, 30);
 //        gc.strokeOval(60, 60, 30, 30);
 //        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
-//        gc.strokeRoundRect(500, 600, 90, 120, 10, 10);
+          gc.strokeRoundRect(2300, 2300, 90, 120, 10, 10);
 //        gc.fillArc(10, 110, 30, 30, 45, 240, ArcType.OPEN);
 //        gc.fillArc(60, 110, 30, 30, 45, 240, ArcType.CHORD);
 //        gc.fillArc(110, 110, 30, 30, 45, 240, ArcType.ROUND);
