@@ -1,18 +1,13 @@
 import com.jfoenix.controls.JFXButton;
 import elements.*;
 import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -58,101 +53,14 @@ public class Main extends Application {
         label3.setId("1111");
         label3.setPadding(new Insets(450, 0, 0, 0));
         Separator sep5 = new Separator(Orientation.HORIZONTAL);
-        //sep5.setPadding(new Insets(450, 0, 0, 0));
         leftControl.getChildren().addAll(label3, sep5, hBox3);
         leftControl.setMinWidth(500);
         leftControl.setId("tools");
 
-        ScrollPane rightControl  = new ScrollPane();
-
-        Canvas canvas = new Canvas();
-        canvas.setHeight(2500);
-        canvas.setWidth(2500);
-
-        //
-
-        canvas.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                if (event.getGestureSource() != canvas && event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                }
-                event.consume();
-            }
-        });
-
-        canvas.setOnDragDropped((DragEvent event) -> {
-            Dragboard db = event.getDragboard();
-            if (db.hasString()) {
-
-                ScrollBar verticalBar = null;
-                ScrollBar horizontalBar = null;
-
-                for (Node node : rightControl.lookupAll(".scroll-bar")) {
-                    if (node instanceof ScrollBar) {
-                        ScrollBar scrollBar = (ScrollBar) node;
-                        if (scrollBar.getOrientation() == Orientation.HORIZONTAL)
-                            horizontalBar = scrollBar;
-                        if (scrollBar.getOrientation() == Orientation.VERTICAL)
-                            verticalBar = scrollBar;
-                    }
-                    if (horizontalBar != null && verticalBar != null)
-                            break;
-                }
-
-                double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*1100 - 500;
-                double y = event.getSceneY() + verticalBar.valueProperty().getValue()*1550 - 30;
-                System.out.println(x);
-                System.out.println(y);
-                System.out.println("Dropped " + db.getString());
-
-                event.setDropCompleted(true);
-            } else {
-                event.setDropCompleted(false);
-            }
-            event.consume();
-        });
-
-        canvas.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) -> {
-            final Bounds boundsOnScene = canvas.localToScene( canvas.getBoundsInLocal() );
-        } );
-
-        //
-
-        rightControl.setContent(canvas);
-        rightControl.setId("drawForm");
-
-
-
-//        // draw to canvas
-//
-          GraphicsContext gc = canvas.getGraphicsContext2D();
-//        gc.setFill(Color.GREEN);
-//        gc.setStroke(Color.BLUE);
-//        gc.setLineWidth(3);
-          gc.strokeLine(2300, 2320, 2390, 2320);
-//        gc.fillOval(10, 60, 30, 30);
-//        gc.strokeOval(60, 60, 30, 30);
-//        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
-          gc.strokeRoundRect(3, 4, 90, 120, 10, 10);
-          //gc.strokeRoundRect(13, 15, 90, 120, 10, 10);
-//        gc.fillArc(10, 110, 30, 30, 45, 240, ArcType.OPEN);
-//        gc.fillArc(60, 110, 30, 30, 45, 240, ArcType.CHORD);
-//        gc.fillArc(110, 110, 30, 30, 45, 240, ArcType.ROUND);
-//        gc.strokeArc(10, 160, 30, 30, 45, 240, ArcType.OPEN);
-//        gc.strokeArc(60, 160, 30, 30, 45, 240, ArcType.CHORD);
-//        gc.strokeArc(110, 160, 30, 30, 45, 240, ArcType.ROUND);
-//        gc.fillPolygon(new double[]{10, 40, 10, 40},
-//                new double[]{210, 210, 240, 240}, 4);
-//        gc.strokePolygon(new double[]{60, 90, 60, 90},
-//                new double[]{210, 210, 240, 240}, 4);
-//        gc.strokePolyline(new double[]{110, 140, 110, 140},
-//                new double[]{210, 210, 240, 240}, 4);
-//
-//        //
 
         Separator separator = new Separator(Orientation.VERTICAL);
 
-        HBox hBox =  new HBox(leftControl, separator, rightControl);
+        HBox hBox =  new HBox(leftControl, separator, new DrawingPane().getPane());
 
         Menu menu1 = new Menu("Menu 1");
         Menu menu2 = new Menu("Menu 2");
