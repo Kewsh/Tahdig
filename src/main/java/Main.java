@@ -2,8 +2,10 @@ import com.jfoenix.controls.JFXButton;
 import elements.*;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -28,11 +30,9 @@ public class Main extends Application {
         label.setId("11");
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
-
         HBox hBox2 = new HBox(new FunctionCircle().getElement(), new ClassRectangle().getElement(), new InterfaceDiamond().getElement());
         hBox2.setPadding(new Insets(50, 30, 0, 30));
         hBox2.setSpacing(40);
-
 
         HBox hBox4 = new HBox(new PackageHexagon().getElement(), new HeaderFileEllipse().getElement());
         hBox4.setPadding(new Insets(50, 50, 0, 50));
@@ -83,13 +83,38 @@ public class Main extends Application {
         canvas.setOnDragDropped((DragEvent event) -> {
             Dragboard db = event.getDragboard();
             if (db.hasString()) {
-                System.out.println("Dropped");
+
+                ScrollBar verticalBar = null;
+                ScrollBar horizontalBar = null;
+
+                for (Node node : rightControl.lookupAll(".scroll-bar")) {
+                    if (node instanceof ScrollBar) {
+                        ScrollBar scrollBar = (ScrollBar) node;
+                        if (scrollBar.getOrientation() == Orientation.HORIZONTAL)
+                            horizontalBar = scrollBar;
+                        if (scrollBar.getOrientation() == Orientation.VERTICAL)
+                            verticalBar = scrollBar;
+                    }
+                    if (horizontalBar != null && verticalBar != null)
+                            break;
+                }
+
+                double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*1100 - 500;
+                double y = event.getSceneY() + verticalBar.valueProperty().getValue()*1550 - 30;
+                System.out.println(x);
+                System.out.println(y);
+                System.out.println("Dropped " + db.getString());
+
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
             }
             event.consume();
         });
+
+        canvas.localToSceneTransformProperty().addListener( ( observable, oldValue, newValue ) -> {
+            final Bounds boundsOnScene = canvas.localToScene( canvas.getBoundsInLocal() );
+        } );
 
         //
 
@@ -108,7 +133,8 @@ public class Main extends Application {
 //        gc.fillOval(10, 60, 30, 30);
 //        gc.strokeOval(60, 60, 30, 30);
 //        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
-          gc.strokeRoundRect(2300, 2300, 90, 120, 10, 10);
+          gc.strokeRoundRect(3, 4, 90, 120, 10, 10);
+          //gc.strokeRoundRect(13, 15, 90, 120, 10, 10);
 //        gc.fillArc(10, 110, 30, 30, 45, 240, ArcType.OPEN);
 //        gc.fillArc(60, 110, 30, 30, 45, 240, ArcType.CHORD);
 //        gc.fillArc(110, 110, 30, 30, 45, 240, ArcType.ROUND);

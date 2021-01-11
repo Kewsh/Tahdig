@@ -42,7 +42,7 @@ public class HeaderFileEllipse {
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
+            content.putString("ellipse");
 
             String path = new File("src/main/resources/HeaderFileEllipse.png").getAbsolutePath();
 

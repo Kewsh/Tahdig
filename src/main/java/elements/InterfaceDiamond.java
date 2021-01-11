@@ -46,7 +46,7 @@ public class InterfaceDiamond {
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
+            content.putString("diamond");
 
             String path = new File("src/main/resources/InterfaceDiamond.png").getAbsolutePath();
 

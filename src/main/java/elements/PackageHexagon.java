@@ -48,7 +48,7 @@ public class PackageHexagon {
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
+            content.putString("hexagon");
 
             String path = new File("src/main/resources/PackageHexagon.png").getAbsolutePath();
 

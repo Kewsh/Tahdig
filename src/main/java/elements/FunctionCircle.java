@@ -12,7 +12,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class FunctionCircle {
 
@@ -41,7 +43,7 @@ public class FunctionCircle {
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
+            content.putString("circle");
 
             String path = new File("src/main/resources/FunctionCircle.png").getAbsolutePath();
 

@@ -46,7 +46,7 @@ public class ClassRectangle {
 
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
-            content.putString(stack.getChildren().get(0).toString());
+            content.putString("rectangle");
 
             String path = new File("src/main/resources/ClassRectangle.png").getAbsolutePath();
 
