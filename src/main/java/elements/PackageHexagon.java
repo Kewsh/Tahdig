@@ -50,7 +50,7 @@ public class PackageHexagon {
             ClipboardContent content = new ClipboardContent();
             content.putString("hexagon");
 
-            String path = new File("src/main/resources/PackageHexagon.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/PackageHexagon.png").getAbsolutePath();
 
             FileInputStream input = null;
             try {

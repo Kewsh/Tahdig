@@ -48,7 +48,7 @@ public class InterfaceDiamond {
             ClipboardContent content = new ClipboardContent();
             content.putString("diamond");
 
-            String path = new File("src/main/resources/InterfaceDiamond.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/InterfaceDiamond.png").getAbsolutePath();
 
             FileInputStream input = null;
             try {

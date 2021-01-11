@@ -45,7 +45,7 @@ public class FunctionCircle {
             ClipboardContent content = new ClipboardContent();
             content.putString("circle");
 
-            String path = new File("src/main/resources/FunctionCircle.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/FunctionCircle.png").getAbsolutePath();
 
             FileInputStream input = null;
             try {

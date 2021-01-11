@@ -48,7 +48,7 @@ public class ClassRectangle {
             ClipboardContent content = new ClipboardContent();
             content.putString("rectangle");
 
-            String path = new File("src/main/resources/ClassRectangle.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/ClassRectangle.png").getAbsolutePath();
 
             FileInputStream input = null;
             try {

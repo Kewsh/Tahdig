@@ -9,7 +9,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class DrawingPane {
 
@@ -17,8 +21,20 @@ public class DrawingPane {
     private Canvas canvas;
     private GraphicsContext gc;
     private Group root;
+    private int defaultClassId;
+    private int defaultFunctionId;
+    private int defaultInterfaceId;
+    private int defaultPackageId;
+    private int defaultHeaderFileId;
+    private int flag = 0;
 
     public DrawingPane(){
+
+        defaultClassId = 1;
+        defaultPackageId = 1;
+        defaultInterfaceId = 1;
+        defaultFunctionId = 1;
+        defaultHeaderFileId = 1;
 
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
@@ -27,7 +43,7 @@ public class DrawingPane {
         gc = canvas.getGraphicsContext2D();
 
         root = new Group();
-        root.getChildren().addAll(canvas);
+        root.getChildren().add(canvas);
         scrollPane.setContent(root);
         scrollPane.setId("drawForm");
 
@@ -61,14 +77,14 @@ public class DrawingPane {
 
                 double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*1100 - 500;
                 double y = event.getSceneY() + verticalBar.valueProperty().getValue()*1550 - 30;
-                System.out.println(x);
-                System.out.println(y);
-                System.out.println("Dropped " + db.getString());
 
-                //get the info, and add the children here
-                root.getChildren().add(new Circle(500, 500, 50));
-
-                event.setDropCompleted(true);
+                boolean isLocationOk = checkPosition(x, y);
+                if (isLocationOk) {
+                    placeShapeOnCanvas(x, y, db.getString());
+                    event.setDropCompleted(true);
+                }
+                else
+                    event.setDropCompleted(false);
             } else {
                 event.setDropCompleted(false);
             }
@@ -102,6 +118,66 @@ public class DrawingPane {
 //                new double[]{210, 210, 240, 240}, 4);
 //
 //
+    }
+
+    private boolean checkPosition(double x, double y){
+        if (x >= 2400 || y >= 2380)
+            return false;
+        return true;
+    }
+
+    private void placeShapeOnCanvas(double x, double y, String shape){
+
+        Text text;
+        StackPane stack;
+        switch(shape)
+        {
+            case "circle":
+
+                //change the text in a previously created shape
+
+//                StackPane stack2;
+//                Text text2;
+//                if (flag == 1) {
+//                    stack2 = (StackPane) root.getChildren().get(1);
+//                    text2 = (Text) stack2.getChildren().get(1);
+//                    text2.setText("hi");
+//                }
+
+                Circle circle = new Circle();
+                circle.setRadius(55);
+                circle.setStroke(Color.BLUE);
+                circle.setStrokeWidth(2);
+                circle.setFill(Color.YELLOW);
+
+                text = new Text("Function" + defaultFunctionId);
+                defaultFunctionId += 1;
+                text.setFont(new Font("monospace", 20));
+                stack = new StackPane();
+                stack.getChildren().addAll(circle, text);
+                stack.setLayoutX(x);
+                stack.setLayoutY(y);
+
+                root.getChildren().add(stack);
+
+
+                flag += 1;
+
+
+                break;
+
+            case "rectangle":
+                System.out.println("two");
+                break;
+            case "diamond":
+                System.out.println("three");
+                break;
+            case "hexagon":
+                System.out.println("four");
+                break;
+            default:            //ellipse
+                System.out.println("five");
+        }
     }
 
     public ScrollPane getPane(){

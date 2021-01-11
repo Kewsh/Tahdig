@@ -44,7 +44,7 @@ public class HeaderFileEllipse {
             ClipboardContent content = new ClipboardContent();
             content.putString("ellipse");
 
-            String path = new File("src/main/resources/HeaderFileEllipse.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/HeaderFileEllipse.png").getAbsolutePath();
 
             FileInputStream input = null;
             try {
