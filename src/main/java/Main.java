@@ -30,8 +30,8 @@ public class Main extends Application {
 
 
         HBox hBox2 = new HBox(new FunctionCircle().getElement(), new ClassRectangle().getElement(), new InterfaceDiamond().getElement());
-        hBox2.setPadding(new Insets(50, 40, 0, 40));
-        hBox2.setSpacing(45);
+        hBox2.setPadding(new Insets(50, 30, 0, 30));
+        hBox2.setSpacing(40);
 
 
         HBox hBox4 = new HBox(new PackageHexagon().getElement(), new HeaderFileEllipse().getElement());

@@ -12,8 +12,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 public class FunctionCircle {
 
@@ -44,12 +43,15 @@ public class FunctionCircle {
             ClipboardContent content = new ClipboardContent();
             content.putString(stack.getChildren().get(0).toString());
 
+            String path = new File("src/main/resources/FunctionCircle.png").getAbsolutePath();
+
             FileInputStream input = null;
             try {
-                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
+                input = new FileInputStream(path);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+
             Image image = new Image(input);
             ImageView imageView = new ImageView(image);
             db.setDragView(imageView.getImage());

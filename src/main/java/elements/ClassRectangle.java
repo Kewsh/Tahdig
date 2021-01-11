@@ -12,6 +12,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -24,7 +25,7 @@ public class ClassRectangle {
     public ClassRectangle(){
 
         rectangle = new Rectangle();
-        rectangle.setWidth(80);
+        rectangle.setWidth(100);
         rectangle.setHeight(120);
         rectangle.setArcWidth(30.0);
         rectangle.setArcHeight(20.0);
@@ -47,9 +48,11 @@ public class ClassRectangle {
             ClipboardContent content = new ClipboardContent();
             content.putString(stack.getChildren().get(0).toString());
 
+            String path = new File("src/main/resources/ClassRectangle.png").getAbsolutePath();
+
             FileInputStream input = null;
             try {
-                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
+                input = new FileInputStream(path);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

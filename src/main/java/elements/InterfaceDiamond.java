@@ -12,6 +12,7 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
@@ -47,9 +48,11 @@ public class InterfaceDiamond {
             ClipboardContent content = new ClipboardContent();
             content.putString(stack.getChildren().get(0).toString());
 
+            String path = new File("src/main/resources/InterfaceDiamond.png").getAbsolutePath();
+
             FileInputStream input = null;
             try {
-                input = new FileInputStream("C:/Users/m-pc/Desktop/image3.png");             // size matters :))
+                input = new FileInputStream(path);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
