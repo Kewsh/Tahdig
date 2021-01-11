@@ -12,6 +12,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
@@ -21,25 +24,29 @@ public class DrawingPane {
     private Canvas canvas;
     private GraphicsContext gc;
     private Group root;
-    private int defaultClassId;
-    private int defaultFunctionId;
-    private int defaultInterfaceId;
-    private int defaultPackageId;
-    private int defaultHeaderFileId;
-    private int flag = 0;
+    private int[] defaultIdArray;               // IDs for default element names
+    private int width;
+    private int height;
 
     public DrawingPane(){
 
-        defaultClassId = 1;
-        defaultPackageId = 1;
-        defaultInterfaceId = 1;
-        defaultFunctionId = 1;
-        defaultHeaderFileId = 1;
+        /*
+         * height and width of the canvas both start from 2000, and can continue to grow to up to 6000px.
+         * now the maximum size of 6000 could be platform or GPU-dependant. for me it even goes to up to
+         * 8000 pixels, but in order for the application to function properly, it is advised to try not
+         * to widen or heighten the canvas too much.
+         * and please note that if on any system, it were ever reported that the maximum size of 6000
+         * causes the application to crash, do make sure to reconsider the maximum size for the sake
+         * of cross-platform functionality
+         */
+        height = 2000;
+        width = 2000;
 
+        defaultIdArray = new int[]{1, 1, 1, 1, 1};
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
-        canvas.setHeight(2500);
-        canvas.setWidth(2500);
+        canvas.setHeight(height);
+        canvas.setWidth(width);
         gc = canvas.getGraphicsContext2D();
 
         root = new Group();
@@ -75,10 +82,10 @@ public class DrawingPane {
                         break;
                 }
 
-                double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*1100 - 500;
-                double y = event.getSceneY() + verticalBar.valueProperty().getValue()*1550 - 30;
+                double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*(width-1400) - 500;
+                double y = event.getSceneY() + verticalBar.valueProperty().getValue()*(height-950) - 30;
 
-                boolean isLocationOk = checkPosition(x, y);
+                boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
                     placeShapeOnCanvas(x, y, db.getString());
                     event.setDropCompleted(true);
@@ -120,9 +127,17 @@ public class DrawingPane {
 //
     }
 
-    private boolean checkPosition(double x, double y){
-        if (x >= 2400 || y >= 2380)
+    private boolean checkPositionAndResize(double x, double y){
+
+        if (width == 6000 && height == 6000)
             return false;
+        if (width < 6000 && x >= width-100)
+            width += 500;
+        if (height < 6000 && y >= height-120)
+            height += 500;
+
+        canvas.setHeight(height);
+        canvas.setWidth(width);
         return true;
     }
 
@@ -150,8 +165,8 @@ public class DrawingPane {
                 circle.setStrokeWidth(2);
                 circle.setFill(Color.YELLOW);
 
-                text = new Text("Function" + defaultFunctionId);
-                defaultFunctionId += 1;
+                text = new Text("Function" + defaultIdArray[0]);
+                defaultIdArray[0] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(circle, text);
@@ -159,24 +174,92 @@ public class DrawingPane {
                 stack.setLayoutY(y);
 
                 root.getChildren().add(stack);
-
-
-                flag += 1;
-
-
                 break;
 
             case "rectangle":
-                System.out.println("two");
+
+                Rectangle rectangle = new Rectangle();
+                rectangle.setWidth(100);
+                rectangle.setHeight(120);
+                rectangle.setArcWidth(30.0);
+                rectangle.setArcHeight(20.0);
+                rectangle.setStroke(Color.BLUE);
+                rectangle.setStrokeWidth(2);
+                rectangle.setFill(Color.YELLOW);
+
+                text = new Text("Class" + defaultIdArray[1]);
+                defaultIdArray[1] += 1;
+                text.setFont(new Font("monospace", 20));
+                stack = new StackPane();
+                stack.getChildren().addAll(rectangle, text);
+                stack.setLayoutX(x);
+                stack.setLayoutY(y);
+
+                root.getChildren().add(stack);
                 break;
+
             case "diamond":
-                System.out.println("three");
+
+                Polygon diamond = new Polygon();
+                diamond.getPoints().addAll(300.0, 60.0,
+                        375.0, 0.0,
+                        450.0, 60.0,
+                        375.0, 120.0);
+                diamond.setStroke(Color.BLUE);
+                diamond.setStrokeWidth(2);
+                diamond.setFill(Color.YELLOW);
+
+                text = new Text("Interface" + defaultIdArray[2]);
+                defaultIdArray[2] += 1;
+                text.setFont(new Font("monospace", 20));
+                stack = new StackPane();
+                stack.getChildren().addAll(diamond, text);
+                stack.setLayoutX(x);
+                stack.setLayoutY(y);
+
+                root.getChildren().add(stack);
                 break;
+
             case "hexagon":
-                System.out.println("four");
+
+                Polygon hexagon = new Polygon();
+                hexagon.getPoints().addAll(0.0, 50.0,
+                        50.0, 0.0,
+                        100.0, 0.0,
+                        150.0, 50.0,
+                        100.0, 100.0,
+                        50.0, 100.0);
+                hexagon.setStroke(Color.BLUE);
+                hexagon.setStrokeWidth(2);
+                hexagon.setFill(Color.YELLOW);
+
+                text = new Text("Package" + defaultIdArray[3]);
+                defaultIdArray[3] += 1;
+                text.setFont(new Font("monospace", 20));
+                stack = new StackPane();
+                stack.getChildren().addAll(hexagon, text);
+                stack.setLayoutX(x);
+                stack.setLayoutY(y);
+
+                root.getChildren().add(stack);
                 break;
+
             default:            //ellipse
-                System.out.println("five");
+
+                Ellipse ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
+                ellipse.setStroke(Color.BLUE);
+                ellipse.setStrokeWidth(2);
+                ellipse.setFill(Color.YELLOW);
+
+                text = new Text("Header-File" + defaultIdArray[4]);
+                defaultIdArray[4] += 1;
+                text.setFont(new Font("monospace", 20));
+                stack = new StackPane();
+                stack.getChildren().addAll(ellipse, text);
+                stack.setLayoutX(x);
+                stack.setLayoutY(y);
+
+                root.getChildren().add(stack);
         }
     }
 
