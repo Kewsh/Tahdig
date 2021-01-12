@@ -30,7 +30,7 @@ public class FunctionCircle {
 
         this.scene = scene;
         circle = new Circle();
-        circle.setRadius(55);
+        circle.setRadius(60);
         circle.setStroke(Color.BLUE);
         circle.setStrokeWidth(2);
         circle.setFill(Color.YELLOW);

@@ -29,6 +29,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Stack;
@@ -107,7 +108,11 @@ public class DrawingPane {
 
                 boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
-                    placeShapeOnCanvas(x, y, db.getString());
+                    try {
+                        placeShapeOnCanvas(x, y, db.getString());
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     event.setDropCompleted(true);
                 }
                 else
@@ -161,19 +166,27 @@ public class DrawingPane {
         return true;
     }
 
-    private void placeShapeOnCanvas(double x, double y, String shape) {
+    private void placeShapeOnCanvas(double x, double y, String shape) throws FileNotFoundException {
 
         Text text;
         StackPane stack;
         JFXButton connectionsButton = new JFXButton("Connect");
-        JFXButton methodsButton = new JFXButton("Method");
-        JFXButton attributesButton = new JFXButton("Attribute");
-        JFXButton deleteButton = new JFXButton("Delete");
+        JFXButton methodsButton = new JFXButton("Methods");
+        JFXButton attributesButton = new JFXButton("Attributes");
+        //JFXButton deleteButton = new JFXButton("Delete");
+        JFXButton deleteButton = new JFXButton();
 
-        connectionsButton.setMinSize(50, 50);
-        methodsButton.setMinSize(50, 50);
-        attributesButton.setMinSize(50, 50);
-        deleteButton.setMinSize(50, 50);
+        //icon example, transparent background
+        String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
+        deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+
+        connectionsButton.setMinSize(50, 70);
+        connectionsButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
+        methodsButton.setMinSize(50, 70);
+        methodsButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
+        attributesButton.setMinSize(50, 70);
+        attributesButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
+        //deleteButton.setMinSize(50, 50);
 
         // add trash can icon as 4th button (optional)
 
@@ -199,7 +212,7 @@ public class DrawingPane {
 //                }
 
                 Circle circle = new Circle();
-                circle.setRadius(55);
+                circle.setRadius(60);
                 circle.setStroke(Color.BLUE);
                 circle.setStrokeWidth(2);
                 circle.setFill(Color.YELLOW);
@@ -215,8 +228,8 @@ public class DrawingPane {
                 //testing popup
 
                 StackPane stack2 = new StackPane();
-                stack2.setLayoutX(x-70);
-                stack2.setLayoutY(y-70);
+                stack2.setLayoutX(x-125);
+                stack2.setLayoutY(y-85);
                 stack2.setMinHeight(100);
                 root.getChildren().add(stack2);
 
@@ -224,9 +237,6 @@ public class DrawingPane {
                 popup.setPopupContent(new HBox(connectionsButton, attributesButton, methodsButton, deleteButton));
                 popup.setAutoHide(true);
                 popup.setHideOnEscape(true);
-//                popup.setMinHeight(80);
-//                popup.setAnchorY(80);
-//                popup.setPrefHeight(80);
 
                 stack.setOnMouseClicked(new EventHandler<MouseEvent>(){
                     @Override
