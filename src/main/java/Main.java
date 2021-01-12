@@ -21,15 +21,23 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) {
 
+        VBox vBox = new VBox();
+        Scene scene = new Scene(vBox, 720, 720);
+        scene.getStylesheets().add("styles.css");
+
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Tahdig");
+        primaryStage.setMaximized(true);
+
         Label label = new Label("Elements");
         label.setId("11");
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
-        HBox hBox2 = new HBox(new FunctionCircle().getElement(), new ClassRectangle().getElement(), new InterfaceDiamond().getElement());
+        HBox hBox2 = new HBox(new FunctionCircle(scene).getElement(), new ClassRectangle(scene).getElement(), new InterfaceDiamond(scene).getElement());
         hBox2.setPadding(new Insets(50, 30, 0, 30));
         hBox2.setSpacing(40);
 
-        HBox hBox4 = new HBox(new PackageHexagon().getElement(), new HeaderFileEllipse().getElement());
+        HBox hBox4 = new HBox(new PackageHexagon(scene).getElement(), new HeaderFileEllipse(scene).getElement());
         hBox4.setPadding(new Insets(50, 50, 0, 50));
         hBox4.setSpacing(50);
 
@@ -60,7 +68,7 @@ public class Main extends Application {
 
         Separator separator = new Separator(Orientation.VERTICAL);
 
-        HBox hBox =  new HBox(leftControl, separator, new DrawingPane().getPane());
+        HBox hBox =  new HBox(leftControl, separator, new DrawingPane(primaryStage, scene).getPane());
 
         Menu menu1 = new Menu("Menu 1");
         Menu menu2 = new Menu("Menu 2");
@@ -72,15 +80,8 @@ public class Main extends Application {
         borderPane.setTop(menuBar);
 
         Separator separator2 = new Separator(Orientation.HORIZONTAL);
+        vBox.getChildren().addAll(borderPane, separator2, hBox);
 
-        VBox vBox = new VBox(borderPane, separator2, hBox);
-
-        Scene scene = new Scene(vBox, 720, 720);
-        scene.getStylesheets().add("styles.css");
-
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("JavaFX App");
-        primaryStage.setMaximized(true);
         primaryStage.show();
 
     }

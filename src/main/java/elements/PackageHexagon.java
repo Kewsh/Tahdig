@@ -1,5 +1,6 @@
 package elements;
 
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -18,12 +19,14 @@ import java.io.FileNotFoundException;
 
 public class PackageHexagon {
 
+    private Scene scene;
     private Polygon hexagon;
     private final Text text;
     private final StackPane stack;
 
-    public PackageHexagon(){
+    public PackageHexagon(Scene scene){
 
+        this.scene = scene;
         hexagon = new Polygon();
         hexagon.getPoints().addAll(0.0, 50.0,
                 50.0, 0.0,

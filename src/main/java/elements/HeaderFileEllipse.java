@@ -1,5 +1,6 @@
 package elements;
 
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -18,12 +19,14 @@ import java.io.FileNotFoundException;
 
 public class HeaderFileEllipse {
 
+    private Scene scene;
     private Ellipse ellipse;
     private final Text text;
     private final StackPane stack;
 
-    public HeaderFileEllipse(){
+    public HeaderFileEllipse(Scene scene){
 
+        this.scene = scene;
         ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
         ellipse.setStroke(Color.BLUE);
         ellipse.setStrokeWidth(2);

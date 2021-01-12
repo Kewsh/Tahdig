@@ -1,5 +1,6 @@
 package elements;
 
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -18,12 +19,13 @@ import java.io.FileNotFoundException;
 
 public class ClassRectangle {
 
+    private Scene scene;
     private Rectangle rectangle;
     private final Text text;
     private final StackPane stack;
+    public ClassRectangle(Scene scene){
 
-    public ClassRectangle(){
-
+        this.scene = scene;
         rectangle = new Rectangle();
         rectangle.setWidth(100);
         rectangle.setHeight(120);

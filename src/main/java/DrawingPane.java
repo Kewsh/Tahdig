@@ -1,15 +1,24 @@
+import com.jfoenix.controls.*;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
@@ -17,9 +26,17 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Stack;
 
 public class DrawingPane {
 
+    private Stage stage;
+    private Scene scene;
     private ScrollPane scrollPane;
     private Canvas canvas;
     private GraphicsContext gc;
@@ -28,7 +45,7 @@ public class DrawingPane {
     private int width;
     private int height;
 
-    public DrawingPane(){
+    public DrawingPane(Stage stage, Scene scene){
 
         /*
          * height and width of the canvas both start from 2000, and can continue to grow to up to 6000px.
@@ -42,6 +59,8 @@ public class DrawingPane {
         height = 2000;
         width = 2000;
 
+        this.scene = scene;
+        this.stage = stage;
         defaultIdArray = new int[]{1, 1, 1, 1, 1};
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
@@ -64,6 +83,7 @@ public class DrawingPane {
         });
 
         canvas.setOnDragDropped((DragEvent event) -> {
+
             Dragboard db = event.getDragboard();
             if (db.hasString()) {
 
@@ -141,10 +161,29 @@ public class DrawingPane {
         return true;
     }
 
-    private void placeShapeOnCanvas(double x, double y, String shape){
+    private void placeShapeOnCanvas(double x, double y, String shape) {
 
         Text text;
         StackPane stack;
+        JFXButton connectionsButton = new JFXButton("Connect");
+        JFXButton methodsButton = new JFXButton("Method");
+        JFXButton attributesButton = new JFXButton("Attribute");
+        JFXButton deleteButton = new JFXButton("Delete");
+
+        connectionsButton.setMinSize(50, 50);
+        methodsButton.setMinSize(50, 50);
+        attributesButton.setMinSize(50, 50);
+        deleteButton.setMinSize(50, 50);
+
+        // add trash can icon as 4th button (optional)
+
+        connectionsButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event){
+                System.out.println("i got clicked. lol");
+            }
+        });
+
         switch(shape)
         {
             case "circle":
@@ -173,6 +212,83 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
+                //testing popup
+
+                StackPane stack2 = new StackPane();
+                stack2.setLayoutX(x-70);
+                stack2.setLayoutY(y-70);
+                stack2.setMinHeight(100);
+                root.getChildren().add(stack2);
+
+                JFXPopup popup = new JFXPopup();
+                popup.setPopupContent(new HBox(connectionsButton, attributesButton, methodsButton, deleteButton));
+                popup.setAutoHide(true);
+                popup.setHideOnEscape(true);
+//                popup.setMinHeight(80);
+//                popup.setAnchorY(80);
+//                popup.setPrefHeight(80);
+
+                stack.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        popup.show(stack2);
+                    }
+                });
+
+
+                //
+
+
+
+                // testing dialog
+
+//                StackPane stack2 = new StackPane();
+//
+//                JFXButton button = new JFXButton("Close");
+//                JFXButton button2 = new JFXButton("line");
+//                JFXButton button3 = new JFXButton("Mtd");
+//
+//                JFXDialog dialog2 = new JFXDialog(stack2, new Label("hello"), JFXDialog.DialogTransition.CENTER, false);
+//                button.setOnAction(new EventHandler<ActionEvent>(){
+//                    @Override
+//                    public void handle(ActionEvent event){
+//                        dialog2.close();
+//                    }
+//                });
+//                JFXDialogLayout layout2 = new JFXDialogLayout();
+//                layout2.setHeading(new Label("Actions"));
+//                layout2.setActions(button, button2, button3);
+//                dialog2.setContent(layout2);
+//
+//                stack2.setLayoutX(x-75);
+//                stack2.setLayoutY(y-150);
+//                root.getChildren().add(stack2);
+//
+//                stack.setOnMouseClicked(new EventHandler<MouseEvent>(){
+//                    @Override
+//                    public void handle(MouseEvent event) {
+////                        //popup.show(stage);
+//                        dialog2.show();
+//                    }
+//                });
+
+
+                // -----------------
+
+                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.HAND);
+                    }
+                });
+
+                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                });
+
                 root.getChildren().add(stack);
                 break;
 
@@ -195,6 +311,20 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
+                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.HAND);
+                    }
+                });
+
+                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                });
+
                 root.getChildren().add(stack);
                 break;
 
@@ -216,6 +346,20 @@ public class DrawingPane {
                 stack.getChildren().addAll(diamond, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.HAND);
+                    }
+                });
+
+                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                });
 
                 root.getChildren().add(stack);
                 break;
@@ -241,6 +385,20 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
+                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.HAND);
+                    }
+                });
+
+                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                });
+
                 root.getChildren().add(stack);
                 break;
 
@@ -258,6 +416,20 @@ public class DrawingPane {
                 stack.getChildren().addAll(ellipse, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.HAND);
+                    }
+                });
+
+                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        scene.setCursor(Cursor.DEFAULT);
+                    }
+                });
 
                 root.getChildren().add(stack);
         }

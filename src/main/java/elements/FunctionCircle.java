@@ -1,5 +1,8 @@
 package elements;
 
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -18,12 +21,14 @@ import java.io.FileNotFoundException;
 
 public class FunctionCircle {
 
+    private Scene scene;
     private Circle circle;
     private final Text text;
     private final StackPane stack;
 
-    public FunctionCircle(){
+    public FunctionCircle(Scene scene){
 
+        this.scene = scene;
         circle = new Circle();
         circle.setRadius(55);
         circle.setStroke(Color.BLUE);

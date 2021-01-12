@@ -1,5 +1,6 @@
 package elements;
 
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -18,12 +19,14 @@ import java.io.FileNotFoundException;
 
 public class InterfaceDiamond {
 
+    private Scene scene;
     private Polygon diamond;
     private final Text text;
     private final StackPane stack;
 
-    public InterfaceDiamond(){
+    public InterfaceDiamond(Scene scene){
 
+        this.scene = scene;
         diamond = new Polygon();
         diamond.getPoints().addAll(300.0, 60.0,
                 375.0, 0.0,
