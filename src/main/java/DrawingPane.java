@@ -1,4 +1,9 @@
-import com.jfoenix.controls.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPopup;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -8,14 +13,14 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -26,13 +31,10 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Stack;
+import java.io.*;
 
 public class DrawingPane {
 
@@ -108,8 +110,21 @@ public class DrawingPane {
 
                 boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
+                    File CanvasContents = new File("out/canvas_contents.json");
+                    if (!CanvasContents.exists()) {
+                        try {
+                            CanvasContents.createNewFile();
+                            FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
+                            myWriter.write("{\"classes\": [], \"functions\": [], " +
+                                            "\"interfaces\": [], \"headers\": [], " +
+                                            "\"packages\": []}");
+                            myWriter.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     try {
-                        placeShapeOnCanvas(x, y, db.getString());
+                        placeShapeOnCanvas(x, y, db.getString(), CanvasContents);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -166,34 +181,68 @@ public class DrawingPane {
         return true;
     }
 
-    private void placeShapeOnCanvas(double x, double y, String shape) throws FileNotFoundException {
+    private void placeShapeOnCanvas(double x, double y, String shape, File CanvasContents) throws FileNotFoundException {
 
         Text text;
+        String name;
         StackPane stack;
+        ObjectMapper objectMapper;
+        JsonNode rootNode = null;
+
         JFXButton connectionsButton = new JFXButton("Connect");
         JFXButton methodsButton = new JFXButton("Methods");
         JFXButton attributesButton = new JFXButton("Attributes");
-        //JFXButton deleteButton = new JFXButton("Delete");
-        JFXButton deleteButton = new JFXButton();
 
-        //icon example, transparent background
+        JFXButton deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
 
         connectionsButton.setMinSize(50, 70);
-        connectionsButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
+        connectionsButton.setId("connectionsButton");
         methodsButton.setMinSize(50, 70);
-        methodsButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
+        methodsButton.setId("methodsButton");
         attributesButton.setMinSize(50, 70);
-        attributesButton.setStyle("-fx-font-size: 18px; -fx-font-family: Verdana;");
-        //deleteButton.setMinSize(50, 50);
+        attributesButton.setId("attributesButton");
 
-        // add trash can icon as 4th button (optional)
+        StackPane stack3 = new StackPane();
+        stack3.setLayoutX(x-125);
+        stack3.setLayoutY(y-15);
+        stack3.setMinHeight(100);
+        root.getChildren().add(stack3);
+
+        JFXButton compositionButton = new JFXButton("Composition");
+        JFXButton generalizationButton = new JFXButton("Generalization");
+        JFXButton implementationButton = new JFXButton("Implementation");
+        JFXButton containmentButton = new JFXButton("Containment");
+
+        compositionButton.setMinSize(135, 50);
+        compositionButton.setId("compositionButton");
+        generalizationButton.setMinSize(135, 50);
+        generalizationButton.setId("generalizationButton");
+        implementationButton.setMinSize(135, 50);
+        implementationButton.setId("implementationButton");
+        containmentButton.setMinSize(135, 50);
+        containmentButton.setId("containmentButton");
+
+        JFXPopup popup2 = new JFXPopup();
+        popup2.setPopupContent(new VBox(compositionButton, generalizationButton, implementationButton, containmentButton));
+        popup2.setAutoHide(true);
+        popup2.setHideOnEscape(true);
+
+        final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
         connectionsButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event){
-                System.out.println("i got clicked. lol");
+                if (flag[0] && flag[1]) {
+                    flag[0] = false;
+                    flag[1] = false;
+                }
+                if (flag[0])
+                    popup2.hide();
+                else
+                    popup2.show(stack3);
+                flag[0] = !flag[0];
             }
         });
 
@@ -217,13 +266,33 @@ public class DrawingPane {
                 circle.setStrokeWidth(2);
                 circle.setFill(Color.YELLOW);
 
-                text = new Text("Function" + defaultIdArray[0]);
+                name = "Function" + defaultIdArray[0];
+                text = new Text(name);
                 defaultIdArray[0] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(circle, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                objectMapper = new ObjectMapper();
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode functions = (ArrayNode) rootNode.get("functions");
+                ObjectNode functionCircle = objectMapper.createObjectNode();
+                functionCircle.put("x", x);
+                functionCircle.put("y", y);
+                //functionCircle.put("methods", objectMapper.createArrayNode());
+                //functionCircle.put("attributes", objectMapper.createArrayNode());
+                functions.addObject().put(name, functionCircle);
+                try {
+                    objectMapper.writeValue(new File("out/canvas_contents.json"), rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 //testing popup
 
@@ -237,6 +306,28 @@ public class DrawingPane {
                 popup.setPopupContent(new HBox(connectionsButton, attributesButton, methodsButton, deleteButton));
                 popup.setAutoHide(true);
                 popup.setHideOnEscape(true);
+
+                popup.setOnHiding(new EventHandler<WindowEvent>(){
+                    @Override
+                    public void handle(WindowEvent event) {
+                        if (flag[0])
+                            flag[1] = true;
+                    }
+                });
+
+                System.out.println(root.getChildren().toArray().length);
+
+                compositionButton.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        for (int i = 1; i < root.getChildren().toArray().length; i++) {
+                            StackPane tempStack = (StackPane) root.getChildren().get(i);
+                            System.out.println(tempStack.getChildren().get(0));
+                            System.out.println(tempStack.getLayoutX());
+                            System.out.println(tempStack.getLayoutY());
+                        }
+                    }
+                });
 
                 stack.setOnMouseClicked(new EventHandler<MouseEvent>(){
                     @Override
@@ -313,13 +404,33 @@ public class DrawingPane {
                 rectangle.setStrokeWidth(2);
                 rectangle.setFill(Color.YELLOW);
 
-                text = new Text("Class" + defaultIdArray[1]);
+                name = "Class" + defaultIdArray[1];
+                text = new Text(name);
                 defaultIdArray[1] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(rectangle, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                objectMapper = new ObjectMapper();
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                ObjectNode classRectangle = objectMapper.createObjectNode();
+                classRectangle.put("x", x);
+                classRectangle.put("y", y);
+                classRectangle.put("methods", objectMapper.createArrayNode());
+                classRectangle.put("attributes", objectMapper.createArrayNode());
+                classes.addObject().put(name, classRectangle);
+                try {
+                    objectMapper.writeValue(new File("out/canvas_contents.json"), rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -349,13 +460,33 @@ public class DrawingPane {
                 diamond.setStrokeWidth(2);
                 diamond.setFill(Color.YELLOW);
 
-                text = new Text("Interface" + defaultIdArray[2]);
+                name = "Interface" + defaultIdArray[2];
+                text = new Text(name);
                 defaultIdArray[2] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(diamond, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                objectMapper = new ObjectMapper();
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                ObjectNode interfaceDiamond = objectMapper.createObjectNode();
+                interfaceDiamond.put("x", x);
+                interfaceDiamond.put("y", y);
+                //interfaceDiamond.put("methods", objectMapper.createArrayNode());
+                //interfaceDiamond.put("attributes", objectMapper.createArrayNode());
+                interfaces.addObject().put(name, interfaceDiamond);
+                try {
+                    objectMapper.writeValue(new File("out/canvas_contents.json"), rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -387,13 +518,33 @@ public class DrawingPane {
                 hexagon.setStrokeWidth(2);
                 hexagon.setFill(Color.YELLOW);
 
-                text = new Text("Package" + defaultIdArray[3]);
+                name = "Package" + defaultIdArray[3];
+                text = new Text(name);
                 defaultIdArray[3] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(hexagon, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                objectMapper = new ObjectMapper();
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode packages = (ArrayNode) rootNode.get("packages");
+                ObjectNode packageHexagons = objectMapper.createObjectNode();
+                packageHexagons.put("x", x);
+                packageHexagons.put("y", y);
+                //packageHexagons.put("methods", objectMapper.createArrayNode());
+                //packageHexagons.put("attributes", objectMapper.createArrayNode());
+                packages.addObject().put(name, packageHexagons);
+                try {
+                    objectMapper.writeValue(new File("out/canvas_contents.json"), rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -419,13 +570,33 @@ public class DrawingPane {
                 ellipse.setStrokeWidth(2);
                 ellipse.setFill(Color.YELLOW);
 
-                text = new Text("Header-File" + defaultIdArray[4]);
+                name = "Header-File" + defaultIdArray[4];
+                text = new Text(name);
                 defaultIdArray[4] += 1;
                 text.setFont(new Font("monospace", 20));
                 stack = new StackPane();
                 stack.getChildren().addAll(ellipse, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                objectMapper = new ObjectMapper();
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode headers = (ArrayNode) rootNode.get("headers");
+                ObjectNode headerFileEllipses = objectMapper.createObjectNode();
+                headerFileEllipses.put("x", x);
+                headerFileEllipses.put("y", y);
+                //headerFileEllipses.put("methods", objectMapper.createArrayNode());
+                //headerFileEllipses.put("attributes", objectMapper.createArrayNode());
+                headers.addObject().put(name, headerFileEllipses);
+                try {
+                    objectMapper.writeValue(new File("out/canvas_contents.json"), rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
