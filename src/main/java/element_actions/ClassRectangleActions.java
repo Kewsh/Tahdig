@@ -43,10 +43,11 @@ public class ClassRectangleActions {
 
         this.x = x;
         this.y = y;
+        this.name = name;
         this.root = root;
         this.stack = stack;
         this.CanvasContents = CanvasContents;
-        addClassToCanvasContents(x, y, name);
+        addClassToCanvasContents();
 
         connectionsButton = new JFXButton("Connect");
         methodsButton = new JFXButton("Methods");
@@ -65,7 +66,7 @@ public class ClassRectangleActions {
         implementationButton = new JFXButton("Implementation");
         containmentButton = new JFXButton("Containment");
 
-        setButtonStyles(compositionButton, "connectionsButton", 135, 50);
+        setButtonStyles(compositionButton, "compositionButton", 135, 50);
         setButtonStyles(generalizationButton, "generalizationButton", 135, 50);
         setButtonStyles(implementationButton, "implementationButton", 135, 50);
         setButtonStyles(containmentButton, "containmentButton", 135, 50);
@@ -151,7 +152,7 @@ public class ClassRectangleActions {
         });
     }
 
-    private void addClassToCanvasContents(double x, double y, String name){
+    private void addClassToCanvasContents(){
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;

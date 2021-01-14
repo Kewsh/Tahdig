@@ -1,5 +1,3 @@
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import element_actions.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -180,8 +178,6 @@ public class DrawingPane {
         String name;
         Text text;
         StackPane stack;
-        ObjectMapper objectMapper;
-        JsonNode rootNode = null;
 
         switch(shape)
         {
@@ -211,6 +207,8 @@ public class DrawingPane {
                 stack.getChildren().addAll(circle, text);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
+
+                new FunctionCircleActions(x, y, name, root, stack, CanvasContents);
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -288,7 +286,7 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
-                //
+                new InterfaceDiamondActions(x, y, name, root, stack, CanvasContents);
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -329,7 +327,7 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
-                //
+                new PackageHexagonActions(x, y, name, root, stack, CanvasContents);
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
@@ -364,7 +362,7 @@ public class DrawingPane {
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
-                //
+                new HeaderFileEllipseActions(x, y, name, root, stack, CanvasContents);
 
                 stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
                     @Override
