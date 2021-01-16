@@ -8,15 +8,15 @@ import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClassRectangleActions {
 
@@ -35,11 +37,12 @@ public class ClassRectangleActions {
     private String name;
     private File CanvasContents;
     private Group root;
+    private VBox attributesDialogContent;
     private StackPane stack, actionsStack, connectionsStack, attributesStack;
     private JFXPopup actionsPopup, connectionsPopup;
     private JFXButton connectionsButton, methodsButton, attributesButton, deleteButton;
     private JFXButton compositionButton, generalizationButton, implementationButton, containmentButton;
-    private JFXButton attributesCloseButton;
+    private JFXButton attributesCloseButton, addAttributeButton;
     private JFXDialog attributesDialog;
     private JFXDialogLayout attributesDialogLayout;
 
@@ -99,6 +102,84 @@ public class ClassRectangleActions {
         attributesDialogLayout.setActions(attributesCloseButton);
         attributesDialog.setContent(attributesDialogLayout);
 
+        addAttributeButton = new JFXButton("Add attribute");
+        addAttributeButton.setId("addAttributeButton");
+        addAttributeButton.setMinWidth(750);
+
+        //
+
+        addAttributeButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+
+                List<JFXRadioButton> accessButtons = new ArrayList<JFXRadioButton>();
+                List<JFXCheckBox> extraButtons = new ArrayList<JFXCheckBox>();
+                List<JFXRadioButton> typeButtons = new ArrayList<JFXRadioButton>();
+
+                accessButtons.add(new JFXRadioButton("public"));
+                accessButtons.add(new JFXRadioButton("private"));
+                accessButtons.add(new JFXRadioButton("protected"));
+                accessButtons.add(new JFXRadioButton("package-private"));
+
+                ToggleGroup accessGroup = new ToggleGroup();
+                accessButtons.get(0).setToggleGroup(accessGroup);
+                accessButtons.get(1).setToggleGroup(accessGroup);
+                accessButtons.get(2).setToggleGroup(accessGroup);
+                accessButtons.get(3).setToggleGroup(accessGroup);
+
+                VBox accessButtonsVBox = new VBox(accessButtons.get(0), accessButtons.get(1),
+                        accessButtons.get(2), accessButtons.get(3));
+
+                extraButtons.add(new JFXCheckBox("final"));
+                extraButtons.add(new JFXCheckBox("static"));
+                extraButtons.add(new JFXCheckBox("transient"));
+                extraButtons.add(new JFXCheckBox("volatile"));               // final and volatile don't go together
+
+                extraButtons.get(0).selectedProperty().addListener(new ChangeListener<Boolean>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                        extraButtons.get(3).setDisable(newValue);
+                    }
+                });
+
+                extraButtons.get(3).selectedProperty().addListener(new ChangeListener<Boolean>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                        extraButtons.get(0).setDisable(newValue);
+                    }
+                });
+
+                VBox extraButtonsVBox = new VBox(extraButtons.get(0), extraButtons.get(1),
+                        extraButtons.get(2), extraButtons.get(3));
+
+                //test
+
+                JFXDialog testDialog = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        true);
+
+                JFXDialogLayout testLayout = new JFXDialogLayout();
+                testLayout.setBody(new HBox(accessButtonsVBox, extraButtonsVBox));
+                testDialog.setContent(testLayout);
+                StackPane testStack = new StackPane();
+                testStack.setLayoutX(x + 130);
+                testStack.setLayoutY(y);
+                root.getChildren().add(testStack);
+                testDialog.show(testStack);
+
+                //handle duplicate dialogs here
+
+                //
+
+                //types
+
+
+            }
+        });
+
+        //
+
         attributesButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -108,7 +189,9 @@ public class ClassRectangleActions {
                 attributesStack.setLayoutY(y);
                 root.getChildren().add(attributesStack);
 
-                attributesDialogLayout.setBody(getAttributes());
+                attributesDialogContent = new VBox(getAttributes(), addAttributeButton);
+                attributesDialogContent.setSpacing(15);
+                attributesDialogLayout.setBody(attributesDialogContent);
                 attributesDialog.show(attributesStack);
             }
         });
@@ -261,7 +344,7 @@ public class ClassRectangleActions {
         });
 
         JFXTreeTableColumn<AttributeTreeItem, String> nameColumn = new JFXTreeTableColumn<>("Name");
-        nameColumn.setPrefWidth(150);
+        nameColumn.setPrefWidth(300);
         nameColumn.setEditable(false);
         nameColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (nameColumn.validateValue(param)) {
@@ -284,7 +367,7 @@ public class ClassRectangleActions {
         final TreeItem<AttributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
 
         JFXTreeTableView<AttributeTreeItem> treeView = new JFXTreeTableView<>(root);
-        treeView.setMinWidth(600);
+        treeView.setMinWidth(750);
         treeView.setShowRoot(false);
         treeView.setEditable(true);
         treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);

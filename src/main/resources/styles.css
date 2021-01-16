@@ -9,6 +9,13 @@
     -fx-fill-color: red;
 }
 
+#addAttributeButton {
+    -fx-font-size: 20px;
+    -fx-font-family: Verdana;
+    -fx-border-color: gray;
+    -fx-border-width: 0.5px;
+}
+
 #compositionButton, #generalizationButton, #implementationButton,
 #containmentButton {
     -fx-font-size: 14px;
