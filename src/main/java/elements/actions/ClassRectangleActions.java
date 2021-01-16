@@ -45,7 +45,7 @@ public class ClassRectangleActions {
 
     private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
-    //TODO: implement rename
+    //TODO: implement edit for the entire class, including class name attributes and methods
 
     public ClassRectangleActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
 
@@ -81,12 +81,7 @@ public class ClassRectangleActions {
 
         // attributes button
 
-        attributesStack = new StackPane();
-        attributesStack.setLayoutX(x + 130);
-        attributesStack.setLayoutY(y);
-        root.getChildren().add(attributesStack);
-
-        attributesDialog = new JFXDialog(attributesStack,
+        attributesDialog = new JFXDialog(new StackPane(),
                 new Region(),
                 JFXDialog.DialogTransition.CENTER,
                 false);
@@ -107,11 +102,14 @@ public class ClassRectangleActions {
         attributesButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+
+                attributesStack = new StackPane();
+                attributesStack.setLayoutX(x + 130);
+                attributesStack.setLayoutY(y);
+                root.getChildren().add(attributesStack);
+
                 attributesDialogLayout.setBody(getAttributes());
-                attributesDialog.show();
-
-                //TODO: don't forget to handle popups and other dialogs that could be on top of this
-
+                attributesDialog.show(attributesStack);
             }
         });
 
@@ -229,10 +227,10 @@ public class ClassRectangleActions {
             }
         }
 
-        JFXTreeTableColumn<attributeTreeItem, String> accessColumn = new JFXTreeTableColumn<>("Access");
+        JFXTreeTableColumn<AttributeTreeItem, String> accessColumn = new JFXTreeTableColumn<>("Access");
         accessColumn.setPrefWidth(150);
         accessColumn.setEditable(false);
-        accessColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+        accessColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (accessColumn.validateValue(param)) {
                 return param.getValue().getValue().accessSpecifier;
             } else {
@@ -240,10 +238,10 @@ public class ClassRectangleActions {
             }
         });
 
-        JFXTreeTableColumn<attributeTreeItem, String> extrasColumn = new JFXTreeTableColumn<>("Extra");
+        JFXTreeTableColumn<AttributeTreeItem, String> extrasColumn = new JFXTreeTableColumn<>("Extra");
         extrasColumn.setPrefWidth(150);
         extrasColumn.setEditable(false);
-        extrasColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+        extrasColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (extrasColumn.validateValue(param)) {
                 return param.getValue().getValue().extraSpecificer;
             } else {
@@ -251,10 +249,10 @@ public class ClassRectangleActions {
             }
         });
 
-        JFXTreeTableColumn<attributeTreeItem, String> typeColumn = new JFXTreeTableColumn<>("Type");
+        JFXTreeTableColumn<AttributeTreeItem, String> typeColumn = new JFXTreeTableColumn<>("Type");
         typeColumn.setPrefWidth(150);
         typeColumn.setEditable(false);
-        typeColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+        typeColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (typeColumn.validateValue(param)) {
                 return param.getValue().getValue().dataType;
             } else {
@@ -262,10 +260,10 @@ public class ClassRectangleActions {
             }
         });
 
-        JFXTreeTableColumn<attributeTreeItem, String> nameColumn = new JFXTreeTableColumn<>("Name");
+        JFXTreeTableColumn<AttributeTreeItem, String> nameColumn = new JFXTreeTableColumn<>("Name");
         nameColumn.setPrefWidth(150);
         nameColumn.setEditable(false);
-        nameColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+        nameColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (nameColumn.validateValue(param)) {
                 return param.getValue().getValue().attributeName;
             } else {
@@ -273,25 +271,26 @@ public class ClassRectangleActions {
             }
         });
 
-        typeColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
-        extrasColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
-        accessColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
-        nameColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        typeColumn.setCellFactory((TreeTableColumn<AttributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        extrasColumn.setCellFactory((TreeTableColumn<AttributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        accessColumn.setCellFactory((TreeTableColumn<AttributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        nameColumn.setCellFactory((TreeTableColumn<AttributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
 
-        ObservableList<attributeTreeItem> treeRows = FXCollections.observableArrayList();
+        ObservableList<AttributeTreeItem> treeRows = FXCollections.observableArrayList();
         for (JsonNode attribute : attributes)
-            treeRows.add(new attributeTreeItem(new SimpleStringProperty(attribute.get("access").textValue()), new SimpleStringProperty(attribute.get("extra").textValue()),
+            treeRows.add(new AttributeTreeItem(new SimpleStringProperty(attribute.get("access").textValue()), new SimpleStringProperty(attribute.get("extra").textValue()),
                     new SimpleStringProperty(attribute.get("type").textValue()), new SimpleStringProperty(attribute.get("name").textValue())));
 
-        final TreeItem<attributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
+        final TreeItem<AttributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
 
-        JFXTreeTableView<attributeTreeItem> treeView = new JFXTreeTableView<>(root);
+        JFXTreeTableView<AttributeTreeItem> treeView = new JFXTreeTableView<>(root);
         treeView.setMinWidth(600);
         treeView.setShowRoot(false);
         treeView.setEditable(true);
         treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);
 
         //TODO: try to separate the style for scrollbars on treeView and the scrollbars on drawing pane
+        //dont want the scrollbars on the treeview to look so weird
 
         FlowPane main = new FlowPane();
         main.setPadding(new Insets(10));
@@ -306,14 +305,14 @@ public class ClassRectangleActions {
         return treeView;
     }
 
-    final class attributeTreeItem extends RecursiveTreeObject<attributeTreeItem> {
+    final class AttributeTreeItem extends RecursiveTreeObject<AttributeTreeItem> {
 
         final StringProperty accessSpecifier;
         final StringProperty extraSpecificer;
         final StringProperty dataType;
         final StringProperty attributeName;
 
-        public attributeTreeItem(StringProperty accessSpecifier, StringProperty extraSpecificer, StringProperty dataType, StringProperty attributeName) {
+        public AttributeTreeItem(StringProperty accessSpecifier, StringProperty extraSpecificer, StringProperty dataType, StringProperty attributeName) {
             this.accessSpecifier = accessSpecifier;
             this.extraSpecificer = extraSpecificer;
             this.dataType = dataType;
