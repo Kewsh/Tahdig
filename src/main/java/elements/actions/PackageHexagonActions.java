@@ -1,4 +1,4 @@
-package element_actions;
+package elements.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

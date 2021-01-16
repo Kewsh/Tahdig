@@ -45,8 +45,6 @@ public class InterfaceDiamond {
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("diamond drag detected");
-
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
             content.putString("diamond");

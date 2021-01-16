@@ -1,4 +1,4 @@
-package element_actions;
+package elements.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class HeaderFileEllipseActions {
+public class FunctionCircleActions {
 
     private double x, y;
     private String name;
@@ -34,7 +34,7 @@ public class HeaderFileEllipseActions {
 
     //TODO: implement rename
 
-    public HeaderFileEllipseActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+    public FunctionCircleActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
 
         this.x = x;
         this.y = y;
@@ -87,20 +87,20 @@ public class HeaderFileEllipseActions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ArrayNode headers = (ArrayNode) rootNode.get("headers");
+        ArrayNode functions = (ArrayNode) rootNode.get("functions");
         ObjectNode info = objectMapper.createObjectNode();
-        ObjectNode thisHeader = objectMapper.createObjectNode();
+        ObjectNode thisFunc = objectMapper.createObjectNode();
 
         info.put("x", x);
         info.put("y", y);
-        info.put("classes", objectMapper.createArrayNode());
-        info.put("functions", objectMapper.createArrayNode());
-        info.put("variables", objectMapper.createArrayNode());
+        info.put("return", "void");
+        info.put("extra", "");
+        info.put("params", objectMapper.createArrayNode());
 
-        thisHeader.put("name", name);
-        thisHeader.put("info", info);
+        thisFunc.put("name", name);
+        thisFunc.put("info", info);
 
-        headers.add(thisHeader);
+        functions.add(thisFunc);
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {

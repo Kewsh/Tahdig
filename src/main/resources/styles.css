@@ -1,3 +1,14 @@
+.tree-table-cell {
+    -fx-alignment: center;
+}
+
+.tree-table-row-cell {
+    -fx-font-size: 18px;
+    -fx-alignment: center;
+    -fx-font-family: Verdana;
+    -fx-fill-color: red;
+}
+
 #compositionButton, #generalizationButton, #implementationButton,
 #containmentButton {
     -fx-font-size: 14px;

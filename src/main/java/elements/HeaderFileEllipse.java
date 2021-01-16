@@ -41,8 +41,6 @@ public class HeaderFileEllipse {
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("ellipse drag detected");
-
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
             content.putString("ellipse");

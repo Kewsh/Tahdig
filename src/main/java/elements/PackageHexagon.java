@@ -47,8 +47,6 @@ public class PackageHexagon {
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("hexagon drag detected");
-
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
             content.putString("hexagon");

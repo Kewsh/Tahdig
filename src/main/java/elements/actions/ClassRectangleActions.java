@@ -1,21 +1,27 @@
-package element_actions;
+package elements.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
@@ -33,7 +39,9 @@ public class ClassRectangleActions {
     private JFXPopup actionsPopup, connectionsPopup;
     private JFXButton connectionsButton, methodsButton, attributesButton, deleteButton;
     private JFXButton compositionButton, generalizationButton, implementationButton, containmentButton;
+    private JFXButton attributesCloseButton;
     private JFXDialog attributesDialog;
+    private JFXDialogLayout attributesDialogLayout;
 
     private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
@@ -83,11 +91,23 @@ public class ClassRectangleActions {
                 JFXDialog.DialogTransition.CENTER,
                 false);
 
-        setAttributesDialogLayout();
+        attributesCloseButton = new JFXButton("Close");
+        attributesCloseButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                attributesDialog.close();
+            }
+        });
+
+        attributesDialogLayout = new JFXDialogLayout();
+        attributesDialogLayout.setHeading(new Label("Attributes"));
+        attributesDialogLayout.setActions(attributesCloseButton);
+        attributesDialog.setContent(attributesDialogLayout);
 
         attributesButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                attributesDialogLayout.setBody(getAttributes());
                 attributesDialog.show();
 
                 //TODO: don't forget to handle popups and other dialogs that could be on top of this
@@ -189,8 +209,6 @@ public class ClassRectangleActions {
 
     private JFXTreeTableView getAttributes(){
 
-        //TODO: design jfxtreetableview for output
-
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode info;
         ArrayNode attributes = null;
@@ -201,6 +219,7 @@ public class ClassRectangleActions {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         ArrayNode classes = (ArrayNode) rootNode.get("classes");
         for (JsonNode class_iter : classes){
             info = (ObjectNode) class_iter.get("info");
@@ -209,34 +228,96 @@ public class ClassRectangleActions {
                 break;
             }
         }
+
+        JFXTreeTableColumn<attributeTreeItem, String> accessColumn = new JFXTreeTableColumn<>("Access");
+        accessColumn.setPrefWidth(150);
+        accessColumn.setEditable(false);
+        accessColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+            if (accessColumn.validateValue(param)) {
+                return param.getValue().getValue().accessSpecifier;
+            } else {
+                return accessColumn.getComputedValue(param);
+            }
+        });
+
+        JFXTreeTableColumn<attributeTreeItem, String> extrasColumn = new JFXTreeTableColumn<>("Extra");
+        extrasColumn.setPrefWidth(150);
+        extrasColumn.setEditable(false);
+        extrasColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+            if (extrasColumn.validateValue(param)) {
+                return param.getValue().getValue().extraSpecificer;
+            } else {
+                return extrasColumn.getComputedValue(param);
+            }
+        });
+
+        JFXTreeTableColumn<attributeTreeItem, String> typeColumn = new JFXTreeTableColumn<>("Type");
+        typeColumn.setPrefWidth(150);
+        typeColumn.setEditable(false);
+        typeColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+            if (typeColumn.validateValue(param)) {
+                return param.getValue().getValue().dataType;
+            } else {
+                return typeColumn.getComputedValue(param);
+            }
+        });
+
+        JFXTreeTableColumn<attributeTreeItem, String> nameColumn = new JFXTreeTableColumn<>("Name");
+        nameColumn.setPrefWidth(150);
+        nameColumn.setEditable(false);
+        nameColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<attributeTreeItem, String> param) -> {
+            if (nameColumn.validateValue(param)) {
+                return param.getValue().getValue().attributeName;
+            } else {
+                return nameColumn.getComputedValue(param);
+            }
+        });
+
+        typeColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        extrasColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        accessColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+        nameColumn.setCellFactory((TreeTableColumn<attributeTreeItem, String> param) -> new TextFieldTreeTableCell<>());
+
+        ObservableList<attributeTreeItem> treeRows = FXCollections.observableArrayList();
         for (JsonNode attribute : attributes)
-            System.out.println(attribute.get("access").textValue() + " "
-                    + (attribute.get("extra").textValue().equals("") ? "" : (attribute.get("extra").textValue() + " "))
-                    + attribute.get("type").textValue() + " " + attribute.get("name").textValue());
+            treeRows.add(new attributeTreeItem(new SimpleStringProperty(attribute.get("access").textValue()), new SimpleStringProperty(attribute.get("extra").textValue()),
+                    new SimpleStringProperty(attribute.get("type").textValue()), new SimpleStringProperty(attribute.get("name").textValue())));
+
+        final TreeItem<attributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
+
+        JFXTreeTableView<attributeTreeItem> treeView = new JFXTreeTableView<>(root);
+        treeView.setMinWidth(600);
+        treeView.setShowRoot(false);
+        treeView.setEditable(true);
+        treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);
+
+        //TODO: try to separate the style for scrollbars on treeView and the scrollbars on drawing pane
+
+        FlowPane main = new FlowPane();
+        main.setPadding(new Insets(10));
+        main.getChildren().add(treeView);
+
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return new JFXTreeTableView();
+        return treeView;
     }
 
-    private void setAttributesDialogLayout(){
+    final class attributeTreeItem extends RecursiveTreeObject<attributeTreeItem> {
 
-        JFXDialogLayout attributesDialogLayout = new JFXDialogLayout();
-        JFXButton attributesCloseButton = new JFXButton("Close");
+        final StringProperty accessSpecifier;
+        final StringProperty extraSpecificer;
+        final StringProperty dataType;
+        final StringProperty attributeName;
 
-        attributesCloseButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                attributesDialog.close();
-            }
-        });
-        attributesDialogLayout.setHeading(new Label("Attributes"));
-        //attributesDialogLayout.setBody(getAttributes());
-        attributesDialogLayout.setActions(attributesCloseButton);
-
-        attributesDialog.setContent(attributesDialogLayout);
+        public attributeTreeItem(StringProperty accessSpecifier, StringProperty extraSpecificer, StringProperty dataType, StringProperty attributeName) {
+            this.accessSpecifier = accessSpecifier;
+            this.extraSpecificer = extraSpecificer;
+            this.dataType = dataType;
+            this.attributeName = attributeName;
+        }
     }
 }

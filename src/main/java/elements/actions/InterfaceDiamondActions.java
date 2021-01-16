@@ -1,4 +1,4 @@
-package element_actions;
+package elements.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class FunctionCircleActions {
+public class InterfaceDiamondActions {
 
     private double x, y;
     private String name;
@@ -34,7 +34,7 @@ public class FunctionCircleActions {
 
     //TODO: implement rename
 
-    public FunctionCircleActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+    public InterfaceDiamondActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
 
         this.x = x;
         this.y = y;
@@ -87,20 +87,18 @@ public class FunctionCircleActions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ArrayNode functions = (ArrayNode) rootNode.get("functions");
+        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
         ObjectNode info = objectMapper.createObjectNode();
-        ObjectNode thisFunc = objectMapper.createObjectNode();
+        ObjectNode thisInterf = objectMapper.createObjectNode();
 
         info.put("x", x);
         info.put("y", y);
-        info.put("return", "void");
-        info.put("extra", "");
-        info.put("params", objectMapper.createArrayNode());
+        info.put("methods", objectMapper.createArrayNode());
 
-        thisFunc.put("name", name);
-        thisFunc.put("info", info);
+        thisInterf.put("name", name);
+        thisInterf.put("info", info);
 
-        functions.add(thisFunc);
+        interfaces.add(thisInterf);
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {

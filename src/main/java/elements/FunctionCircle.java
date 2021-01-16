@@ -44,8 +44,6 @@ public class FunctionCircle {
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("circle drag detected");
-
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
             content.putString("circle");

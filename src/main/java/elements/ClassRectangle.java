@@ -44,8 +44,6 @@ public class ClassRectangle {
 
         stack.setOnDragDetected((MouseEvent event) -> {
 
-            System.out.println("rectangle drag detected");
-
             Dragboard db = stack.startDragAndDrop(TransferMode.ANY);
             ClipboardContent content = new ClipboardContent();
             content.putString("rectangle");

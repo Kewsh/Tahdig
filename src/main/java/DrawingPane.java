@@ -1,4 +1,4 @@
-import element_actions.*;
+import elements.actions.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
@@ -102,9 +102,11 @@ public class DrawingPane {
 
                 boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
+                    File outDirectory = new File("out/");
                     File CanvasContents = new File("out/canvas_contents.json");
                     if (!CanvasContents.exists()) {
                         try {
+                            outDirectory.mkdir();
                             CanvasContents.createNewFile();
                             FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
                             myWriter.write("{\"classes\": [], \"functions\": [], " +

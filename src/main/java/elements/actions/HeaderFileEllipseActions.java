@@ -1,4 +1,4 @@
-package element_actions;
+package elements.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class InterfaceDiamondActions {
+public class HeaderFileEllipseActions {
 
     private double x, y;
     private String name;
@@ -34,7 +34,7 @@ public class InterfaceDiamondActions {
 
     //TODO: implement rename
 
-    public InterfaceDiamondActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+    public HeaderFileEllipseActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
 
         this.x = x;
         this.y = y;
@@ -87,18 +87,20 @@ public class InterfaceDiamondActions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+        ArrayNode headers = (ArrayNode) rootNode.get("headers");
         ObjectNode info = objectMapper.createObjectNode();
-        ObjectNode thisInterf = objectMapper.createObjectNode();
+        ObjectNode thisHeader = objectMapper.createObjectNode();
 
         info.put("x", x);
         info.put("y", y);
-        info.put("methods", objectMapper.createArrayNode());
+        info.put("classes", objectMapper.createArrayNode());
+        info.put("functions", objectMapper.createArrayNode());
+        info.put("variables", objectMapper.createArrayNode());
 
-        thisInterf.put("name", name);
-        thisInterf.put("info", info);
+        thisHeader.put("name", name);
+        thisHeader.put("info", info);
 
-        interfaces.add(thisInterf);
+        headers.add(thisHeader);
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {
