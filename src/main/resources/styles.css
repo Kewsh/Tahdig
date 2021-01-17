@@ -1,3 +1,7 @@
+.text-field {
+    -fx-prompt-text-fill: gray;
+}
+
 .tree-table-cell {
     -fx-alignment: center;
 }

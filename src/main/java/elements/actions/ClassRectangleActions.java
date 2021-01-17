@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -104,7 +105,7 @@ public class ClassRectangleActions {
 
         addAttributeButton = new JFXButton("Add attribute");
         addAttributeButton.setId("addAttributeButton");
-        addAttributeButton.setMinWidth(750);
+        addAttributeButton.setMinWidth(900);
 
         //
 
@@ -113,44 +114,24 @@ public class ClassRectangleActions {
             public void handle(ActionEvent event) {
 
                 List<JFXRadioButton> accessButtons = new ArrayList<JFXRadioButton>();
-                List<JFXCheckBox> extraButtons = new ArrayList<JFXCheckBox>();
                 List<JFXRadioButton> typeButtons = new ArrayList<JFXRadioButton>();
-
-                accessButtons.add(new JFXRadioButton("public"));
-                accessButtons.add(new JFXRadioButton("private"));
-                accessButtons.add(new JFXRadioButton("protected"));
-                accessButtons.add(new JFXRadioButton("package-private"));
+                List<JFXCheckBox> extraButtons = new ArrayList<JFXCheckBox>();
 
                 ToggleGroup accessGroup = new ToggleGroup();
-                accessButtons.get(0).setToggleGroup(accessGroup);
-                accessButtons.get(1).setToggleGroup(accessGroup);
-                accessButtons.get(2).setToggleGroup(accessGroup);
-                accessButtons.get(3).setToggleGroup(accessGroup);
+                ToggleGroup typeGroup = new ToggleGroup();
 
-                VBox accessButtonsVBox = new VBox(accessButtons.get(0), accessButtons.get(1),
-                        accessButtons.get(2), accessButtons.get(3));
+                VBox accessButtonsVBox = createAccessButtonsVBox(accessButtons, accessGroup);
+                VBox typeButtonsVBox = createAttributeTypeButtonsVBox(typeButtons, typeGroup);
+                VBox extraButtonsVBox = createAttributeExtraButtonsVBox(extraButtons);
 
-                extraButtons.add(new JFXCheckBox("final"));
-                extraButtons.add(new JFXCheckBox("static"));
-                extraButtons.add(new JFXCheckBox("transient"));
-                extraButtons.add(new JFXCheckBox("volatile"));               // final and volatile don't go together
+                //
 
-                extraButtons.get(0).selectedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        extraButtons.get(3).setDisable(newValue);
-                    }
-                });
+                JFXTextField nameField = new JFXTextField();
+                nameField.setPromptText("name");
 
-                extraButtons.get(3).selectedProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        extraButtons.get(0).setDisable(newValue);
-                    }
-                });
+                JFXButton clickMe = new JFXButton("click me");
 
-                VBox extraButtonsVBox = new VBox(extraButtons.get(0), extraButtons.get(1),
-                        extraButtons.get(2), extraButtons.get(3));
+                //
 
                 //test
 
@@ -160,7 +141,11 @@ public class ClassRectangleActions {
                         true);
 
                 JFXDialogLayout testLayout = new JFXDialogLayout();
-                testLayout.setBody(new HBox(accessButtonsVBox, extraButtonsVBox));
+                HBox testHBox = new HBox(accessButtonsVBox, extraButtonsVBox, typeButtonsVBox, nameField, clickMe);
+                testHBox.setSpacing(50);
+                testHBox.setMinWidth(800);
+                VBox testVBox = new VBox(testHBox);
+                testLayout.setBody(testVBox);
                 testDialog.setContent(testLayout);
                 StackPane testStack = new StackPane();
                 testStack.setLayoutX(x + 130);
@@ -168,11 +153,111 @@ public class ClassRectangleActions {
                 root.getChildren().add(testStack);
                 testDialog.show(testStack);
 
+                //test
+
+                Label accessNotSpecified = new Label("*no access type specified");
+                Label typeNotSpecified = new Label("*no data type specified");
+                Label nameNotGiven = new Label("*name field must not be empty");
+                Label nameAlreadyExists = new Label("*an attribute with this name already exists");
+
+                boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
+
+                accessNotSpecified.setStyle("-fx-text-fill: red;");
+                typeNotSpecified.setStyle("-fx-text-fill: red;");
+                nameNotGiven.setStyle("-fx-text-fill: red;");
+                nameAlreadyExists.setStyle("-fx-text-fill: red;");
+
+                clickMe.setOnAction(new EventHandler<ActionEvent>(){
+
+                    @Override
+                    public void handle(ActionEvent event) {
+
+                        for (int i = 0; i < 4; i++)
+                            errorFlags[i] = false;
+
+                        if (testVBox.getChildren().contains(nameAlreadyExists))
+                            testVBox.getChildren().remove(nameAlreadyExists);
+                        if (testVBox.getChildren().contains(accessNotSpecified))
+                            testVBox.getChildren().remove(accessNotSpecified);
+                        if (testVBox.getChildren().contains(typeNotSpecified))
+                            testVBox.getChildren().remove(typeNotSpecified);
+                        if (testVBox.getChildren().contains(nameNotGiven))
+                            testVBox.getChildren().remove(nameNotGiven);
+
+                        JFXRadioButton selectedAccess = (JFXRadioButton) accessGroup.getSelectedToggle();
+                        if (selectedAccess == null) {
+                            testVBox.getChildren().add(accessNotSpecified);
+                            errorFlags[0] = true;
+                        }
+
+                        JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
+                        if (selectedType == null) {
+                            testVBox.getChildren().add(typeNotSpecified);
+                            errorFlags[1] = true;
+                        }
+
+                        String inputName = nameField.getText();
+                        if (inputName.equals("")) {
+                            testVBox.getChildren().add(nameNotGiven);
+                            errorFlags[2] = true;
+                        }
+                        else{
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode rootNode = null;
+                            ArrayNode attributes = null;
+
+                            try {
+                                rootNode = objectMapper.readTree(CanvasContents);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                            for (JsonNode class_iter : classes){
+                                ObjectNode info = (ObjectNode) class_iter.get("info");
+                                if (info.get("x").intValue() == x && info.get("y").intValue() == y){
+                                    attributes = (ArrayNode) info.get("attributes");
+                                    for (JsonNode attribute : attributes){
+                                        if (attribute.get("name").textValue().equals(inputName)) {
+                                            testVBox.getChildren().add(nameAlreadyExists);
+                                            errorFlags[3] = true;
+                                            break;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
+
+                                ObjectNode targetAttribute = objectMapper.createObjectNode();
+                                StringBuilder extraTypes = new StringBuilder();
+
+                                for (int i = 0; i < extraButtons.size(); i++)
+                                    if (extraButtons.get(i).isSelected()) extraTypes.append(extraButtons.get(i).getText() + " ");
+                                if (extraTypes.length() != 0) extraTypes.deleteCharAt(extraTypes.length()-1);
+                                String extraTypesString = extraTypes.toString();
+
+                                targetAttribute.put("extra", extraTypesString);
+                                targetAttribute.put("name", inputName);
+                                targetAttribute.put("access", selectedAccess.getText());
+                                targetAttribute.put("type", selectedType.getText());
+
+                                attributes.add(targetAttribute);
+                                testDialog.close();
+                            }
+                            try {
+                                objectMapper.writeValue(CanvasContents, rootNode);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+                //TODO: refresh the attributes dialog everytime a new attribute is added
+
                 //handle duplicate dialogs here
 
                 //
-
-                //types
 
 
             }
@@ -253,6 +338,81 @@ public class ClassRectangleActions {
         });
     }
 
+    private VBox createAccessButtonsVBox(List<JFXRadioButton> accessButtons, ToggleGroup accessGroup){
+
+        accessButtons.add(new JFXRadioButton("public"));
+        accessButtons.add(new JFXRadioButton("private"));
+        accessButtons.add(new JFXRadioButton("protected"));
+        accessButtons.add(new JFXRadioButton("package-private"));
+
+        for (int i = 0; i < 4; i++)
+            accessButtons.get(i).setToggleGroup(accessGroup);
+        return new VBox(accessButtons.get(0), accessButtons.get(1), accessButtons.get(2), accessButtons.get(3));
+    }
+
+    private VBox createAttributeExtraButtonsVBox(List<JFXCheckBox> extraButtons){
+
+        extraButtons.add(new JFXCheckBox("final"));
+        extraButtons.add(new JFXCheckBox("static"));
+        extraButtons.add(new JFXCheckBox("transient"));
+        extraButtons.add(new JFXCheckBox("volatile"));               // final and volatile don't go together
+
+        extraButtons.get(0).selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                extraButtons.get(3).setDisable(newValue);
+            }
+        });
+        extraButtons.get(3).selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                extraButtons.get(0).setDisable(newValue);
+            }
+        });
+
+        return new VBox(extraButtons.get(0), extraButtons.get(1), extraButtons.get(2), extraButtons.get(3));
+    }
+
+    private VBox createAttributeTypeButtonsVBox(List<JFXRadioButton> typeButtons, ToggleGroup typeGroup){
+
+        typeButtons.add(new JFXRadioButton("boolean"));
+        typeButtons.add(new JFXRadioButton("byte"));
+        typeButtons.add(new JFXRadioButton("char"));
+        typeButtons.add(new JFXRadioButton("short"));
+        typeButtons.add(new JFXRadioButton("int"));
+        typeButtons.add(new JFXRadioButton("long"));
+        typeButtons.add(new JFXRadioButton("float"));
+        typeButtons.add(new JFXRadioButton("double"));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(CanvasContents);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayNode classes = (ArrayNode) rootNode.get("classes");
+        for (JsonNode class_iter : classes)
+            typeButtons.add(new JFXRadioButton(class_iter.get("name").textValue()));
+        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+        for (JsonNode interf_iter : interfaces)
+            typeButtons.add(new JFXRadioButton(interf_iter.get("name").textValue()));
+
+        try {
+            objectMapper.writeValue(CanvasContents, rootNode);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        VBox typeButtonsVBox = new VBox();
+        for (int i = 0; i < typeButtons.size(); i++) {
+            typeButtons.get(i).setToggleGroup(typeGroup);
+            typeButtonsVBox.getChildren().add(typeButtons.get(i));
+        }
+        return typeButtonsVBox;
+    }
+
     private void addClassToCanvasContents(){
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -322,7 +482,7 @@ public class ClassRectangleActions {
         });
 
         JFXTreeTableColumn<AttributeTreeItem, String> extrasColumn = new JFXTreeTableColumn<>("Extra");
-        extrasColumn.setPrefWidth(150);
+        extrasColumn.setPrefWidth(300);
         extrasColumn.setEditable(false);
         extrasColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (extrasColumn.validateValue(param)) {
@@ -367,7 +527,7 @@ public class ClassRectangleActions {
         final TreeItem<AttributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
 
         JFXTreeTableView<AttributeTreeItem> treeView = new JFXTreeTableView<>(root);
-        treeView.setMinWidth(750);
+        treeView.setMinWidth(900);
         treeView.setShowRoot(false);
         treeView.setEditable(true);
         treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);
