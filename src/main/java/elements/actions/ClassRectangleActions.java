@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -17,7 +16,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -46,10 +48,12 @@ public class ClassRectangleActions {
     private JFXButton attributesCloseButton, addAttributeButton;
     private JFXDialog attributesDialog;
     private JFXDialogLayout attributesDialogLayout;
+    private JFXTreeTableView attributeTreeView;
 
     private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
     //TODO: implement edit for the entire class, including class name attributes and methods
+    //for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
 
     public ClassRectangleActions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
 
@@ -105,7 +109,7 @@ public class ClassRectangleActions {
 
         addAttributeButton = new JFXButton("Add attribute");
         addAttributeButton.setId("addAttributeButton");
-        addAttributeButton.setMinWidth(900);
+        addAttributeButton.setMinWidth(1000);
 
         //
 
@@ -242,6 +246,8 @@ public class ClassRectangleActions {
                                 targetAttribute.put("type", selectedType.getText());
 
                                 attributes.add(targetAttribute);
+                                updateAttributesTreeView(attributeTreeView, selectedAccess.getText(), extraTypesString,
+                                        selectedType.getText(), inputName);
                                 testDialog.close();
                             }
                             try {
@@ -252,8 +258,6 @@ public class ClassRectangleActions {
                         }
                     }
                 });
-
-                //TODO: refresh the attributes dialog everytime a new attribute is added
 
                 //handle duplicate dialogs here
 
@@ -274,7 +278,8 @@ public class ClassRectangleActions {
                 attributesStack.setLayoutY(y);
                 root.getChildren().add(attributesStack);
 
-                attributesDialogContent = new VBox(getAttributes(), addAttributeButton);
+                attributeTreeView = getAttributes();
+                attributesDialogContent = new VBox(attributeTreeView, addAttributeButton);
                 attributesDialogContent.setSpacing(15);
                 attributesDialogLayout.setBody(attributesDialogContent);
                 attributesDialog.show(attributesStack);
@@ -448,6 +453,13 @@ public class ClassRectangleActions {
         button.setId(buttonName);
     }
 
+    private void updateAttributesTreeView(JFXTreeTableView attributeTreeView, String accessType, String extraType, String dataType, String inputName) {
+
+        attributeTreeView.getRoot().getChildren().add(new TreeItem(new AttributeTreeItem(new SimpleStringProperty(accessType),
+                new SimpleStringProperty(extraType), new SimpleStringProperty(dataType),
+                new SimpleStringProperty(inputName))));
+    }
+
     private JFXTreeTableView getAttributes(){
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -471,7 +483,7 @@ public class ClassRectangleActions {
         }
 
         JFXTreeTableColumn<AttributeTreeItem, String> accessColumn = new JFXTreeTableColumn<>("Access");
-        accessColumn.setPrefWidth(150);
+        accessColumn.setPrefWidth(200);
         accessColumn.setEditable(false);
         accessColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (accessColumn.validateValue(param)) {
@@ -486,14 +498,14 @@ public class ClassRectangleActions {
         extrasColumn.setEditable(false);
         extrasColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (extrasColumn.validateValue(param)) {
-                return param.getValue().getValue().extraSpecificer;
+                return param.getValue().getValue().extraSpecifier;
             } else {
                 return extrasColumn.getComputedValue(param);
             }
         });
 
         JFXTreeTableColumn<AttributeTreeItem, String> typeColumn = new JFXTreeTableColumn<>("Type");
-        typeColumn.setPrefWidth(150);
+        typeColumn.setPrefWidth(200);
         typeColumn.setEditable(false);
         typeColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<AttributeTreeItem, String> param) -> {
             if (typeColumn.validateValue(param)) {
@@ -521,13 +533,14 @@ public class ClassRectangleActions {
 
         ObservableList<AttributeTreeItem> treeRows = FXCollections.observableArrayList();
         for (JsonNode attribute : attributes)
-            treeRows.add(new AttributeTreeItem(new SimpleStringProperty(attribute.get("access").textValue()), new SimpleStringProperty(attribute.get("extra").textValue()),
-                    new SimpleStringProperty(attribute.get("type").textValue()), new SimpleStringProperty(attribute.get("name").textValue())));
+            treeRows.add(new AttributeTreeItem(new SimpleStringProperty(attribute.get("access").textValue()),
+                    new SimpleStringProperty(attribute.get("extra").textValue()), new SimpleStringProperty(attribute.get("type").textValue()),
+                    new SimpleStringProperty(attribute.get("name").textValue())));
 
         final TreeItem<AttributeTreeItem> root = new RecursiveTreeItem<>(treeRows, RecursiveTreeObject::getChildren);
 
         JFXTreeTableView<AttributeTreeItem> treeView = new JFXTreeTableView<>(root);
-        treeView.setMinWidth(900);
+        treeView.setMinWidth(1000);
         treeView.setShowRoot(false);
         treeView.setEditable(true);
         treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);
@@ -551,13 +564,13 @@ public class ClassRectangleActions {
     final class AttributeTreeItem extends RecursiveTreeObject<AttributeTreeItem> {
 
         final StringProperty accessSpecifier;
-        final StringProperty extraSpecificer;
+        final StringProperty extraSpecifier;
         final StringProperty dataType;
         final StringProperty attributeName;
 
-        public AttributeTreeItem(StringProperty accessSpecifier, StringProperty extraSpecificer, StringProperty dataType, StringProperty attributeName) {
+        public AttributeTreeItem(StringProperty accessSpecifier, StringProperty extraSpecifier, StringProperty dataType, StringProperty attributeName) {
             this.accessSpecifier = accessSpecifier;
-            this.extraSpecificer = extraSpecificer;
+            this.extraSpecifier = extraSpecifier;
             this.dataType = dataType;
             this.attributeName = attributeName;
         }
