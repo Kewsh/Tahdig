@@ -5,14 +5,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPopup;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
@@ -26,9 +32,11 @@ public class PackageHexagonActions {
     private String name;
     private File CanvasContents;
     private Group root;
-    private StackPane stack, actionsStack;
+    private StackPane stack, actionsStack, deleteStack;
     private JFXPopup actionsPopup;
-    private JFXButton deleteButton;
+    private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
+    private JFXDialog deleteDialog;
+    private JFXDialogLayout deleteDialogLayout;
 
     private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
@@ -42,11 +50,62 @@ public class PackageHexagonActions {
         this.root = root;
         this.stack = stack;
         this.CanvasContents = CanvasContents;
-        addClassToCanvasContents();
+        addPackageToCanvasContents();
 
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+
+        // delete button
+
+        deleteButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                for (Node node : root.getChildren()){
+                    if (node == stack){
+
+                        deleteDialog = new JFXDialog(new StackPane(),
+                                new Region(),
+                                JFXDialog.DialogTransition.CENTER,
+                                false);
+                        deleteDialogConfirmButton = new JFXButton("Yes");
+                        deleteDialogCancelButton = new JFXButton("Cancel");
+
+                        deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
+                            @Override
+                            public void handle(ActionEvent event) {
+                                root.getChildren().remove(node);
+                                actionsPopup.hide();
+                                deleteDialog.close();
+
+                                //TODO: hide and close all dialogs and popups related to this object here
+                                //TODO: delete this object from the json file
+                                //TODO: also handle all relations and dependencies
+                            }
+                        });
+                        deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
+                            @Override
+                            public void handle(ActionEvent event) {
+                                deleteDialog.close();
+                            }
+                        });
+
+                        deleteDialogLayout = new JFXDialogLayout();
+                        deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
+                        deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
+                        deleteDialog.setContent(deleteDialogLayout);
+
+                        deleteStack = new StackPane();
+                        deleteStack.setLayoutX(x+150);
+                        deleteStack.setLayoutY(y);
+                        root.getChildren().add(deleteStack);
+                        deleteDialog.show(deleteStack);
+
+                        break;
+                    }
+                }
+            }
+        });
 
         // actions button
 
@@ -77,7 +136,7 @@ public class PackageHexagonActions {
         });
     }
 
-    private void addClassToCanvasContents(){
+    private void addPackageToCanvasContents(){
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;

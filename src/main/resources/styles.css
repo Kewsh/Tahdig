@@ -13,7 +13,7 @@
     -fx-fill-color: red;
 }
 
-#addAttributeButton {
+#addAttributeButton, #addMethodButton {
     -fx-font-size: 20px;
     -fx-font-family: Verdana;
     -fx-border-color: gray;
@@ -26,7 +26,8 @@
     -fx-font-family: Verdana;
 }
 
-#connectionsButton, #methodsButton, #attributesButton {
+#connectionsButton, #classMethodsButton, #attributesButton,
+#interfaceMethodsButton {
     -fx-font-size: 18px;
     -fx-font-family: Verdana;
 }
@@ -64,7 +65,7 @@
     -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-font-family: cursive;
-    -fx-padding: 25 0 0 190;            // top right bottom left
+    -fx-padding: 25 0 0 190;
 }
 
 .separator:horizontal *.line {
