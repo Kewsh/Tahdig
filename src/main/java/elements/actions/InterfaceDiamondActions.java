@@ -73,11 +73,11 @@ public class InterfaceDiamondActions {
 
         // delete button
 
-        deleteButton.setOnAction(new EventHandler<ActionEvent>(){
+        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                for (Node node : root.getChildren()){
-                    if (node == stack){
+                for (Node node : root.getChildren()) {
+                    if (node == stack) {
 
                         deleteDialog = new JFXDialog(new StackPane(),
                                 new Region(),
@@ -86,19 +86,39 @@ public class InterfaceDiamondActions {
                         deleteDialogConfirmButton = new JFXButton("Yes");
                         deleteDialogCancelButton = new JFXButton("Cancel");
 
-                        deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
+                        deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
                                 root.getChildren().remove(node);
                                 actionsPopup.hide();
                                 deleteDialog.close();
 
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                JsonNode rootNode = null;
+
+                                try {
+                                    rootNode = objectMapper.readTree(CanvasContents);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                                for (int i = 0; i < interfaces.size(); i++){
+                                    ObjectNode temp_interface = (ObjectNode) interfaces.get(i);
+                                    ObjectNode info = (ObjectNode) temp_interface.get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
+                                        interfaces.remove(i);
+                                }
+                                try {
+                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                                 //TODO: hide and close all dialogs and popups related to this object here
-                                //TODO: delete this object from the json file
                                 //TODO: also handle all relations and dependencies
                             }
                         });
-                        deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
+                        deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>() {
                             @Override
                             public void handle(ActionEvent event) {
                                 deleteDialog.close();
@@ -111,7 +131,7 @@ public class InterfaceDiamondActions {
                         deleteDialog.setContent(deleteDialogLayout);
 
                         deleteStack = new StackPane();
-                        deleteStack.setLayoutX(x+150);
+                        deleteStack.setLayoutX(x + 150);
                         deleteStack.setLayoutY(y);
                         root.getChildren().add(deleteStack);
                         deleteDialog.show(deleteStack);
@@ -231,17 +251,17 @@ public class InterfaceDiamondActions {
                             }
                             ArrayNode classes = (ArrayNode) rootNode.get("classes");
                             ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                            for (JsonNode interf_iter : interfaces){
+                            for (JsonNode interf_iter : interfaces) {
                                 if (interf_iter.get("name").textValue().equals(inputName)) {
                                     methodsVBox.getChildren().add(nameAlreadyExists);
                                     errorFlags[2] = true;
                                     break;
                                 }
                                 ObjectNode info = (ObjectNode) interf_iter.get("info");
-                                if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
+                                if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y) {
                                     methods = (ArrayNode) info.get("methods");
-                                    for (JsonNode method : methods){
-                                        if (method.get("name").textValue().equals(inputName)){
+                                    for (JsonNode method : methods) {
+                                        if (method.get("name").textValue().equals(inputName)) {
                                             methodsVBox.getChildren().add(nameAlreadyExists);
                                             errorFlags[2] = true;
                                             break;
@@ -511,17 +531,17 @@ public class InterfaceDiamondActions {
 
         return treeView;
     }
-}
 
-final class MethodTreeItem extends RecursiveTreeObject<MethodTreeItem> {
+    private final class MethodTreeItem extends RecursiveTreeObject<MethodTreeItem> {
 
-    final StringProperty extraSpecifier;
-    final StringProperty returnType;
-    final StringProperty methodName;
+        final StringProperty extraSpecifier;
+        final StringProperty returnType;
+        final StringProperty methodName;
 
-    public MethodTreeItem(StringProperty extraSpecifier, StringProperty returnType, StringProperty methodName) {
-        this.extraSpecifier = extraSpecifier;
-        this.returnType = returnType;
-        this.methodName = methodName;
+        public MethodTreeItem(StringProperty extraSpecifier, StringProperty returnType, StringProperty methodName) {
+            this.extraSpecifier = extraSpecifier;
+            this.returnType = returnType;
+            this.methodName = methodName;
+        }
     }
 }

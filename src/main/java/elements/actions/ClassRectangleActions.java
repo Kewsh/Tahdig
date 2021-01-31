@@ -74,6 +74,7 @@ public class ClassRectangleActions {
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        deleteButton.setDisableVisualFocus(true);
 
         setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
         setButtonStyles(methodsButton, "classMethodsButton", 50, 70);
@@ -111,8 +112,28 @@ public class ClassRectangleActions {
                                 actionsPopup.hide();
                                 deleteDialog.close();
 
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                JsonNode rootNode = null;
+
+                                try {
+                                    rootNode = objectMapper.readTree(CanvasContents);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                                for (int i = 0; i < classes.size(); i++){
+                                    ObjectNode temp_class = (ObjectNode) classes.get(i);
+                                    ObjectNode info = (ObjectNode) temp_class.get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
+                                        classes.remove(i);
+                                }
+                                try {
+                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                                 //TODO: hide and close all dialogs and popups related to this object here
-                                //TODO: delete this object from the json file
                                 //TODO: also handle all relations and dependencies
                             }
                         });
@@ -732,6 +753,7 @@ public class ClassRectangleActions {
     private void setButtonStyles(JFXButton button, String buttonName, double width, double length){
         button.setMinSize(width, length);
         button.setId(buttonName);
+        button.setDisableVisualFocus(true);
     }
 
     private void updateMethodsTreeView(JFXTreeTableView methodTreeView, String accessType, String extraType, String returnType, String inputName) {
@@ -950,7 +972,7 @@ public class ClassRectangleActions {
         return treeView;
     }
 
-    final class MethodTreeItem extends RecursiveTreeObject<MethodTreeItem> {
+    private final class MethodTreeItem extends RecursiveTreeObject<MethodTreeItem> {
 
         final StringProperty accessSpecifier;
         final StringProperty extraSpecifier;
@@ -965,7 +987,7 @@ public class ClassRectangleActions {
         }
     }
 
-    final class AttributeTreeItem extends RecursiveTreeObject<AttributeTreeItem> {
+    private final class AttributeTreeItem extends RecursiveTreeObject<AttributeTreeItem> {
 
         final StringProperty accessSpecifier;
         final StringProperty extraSpecifier;

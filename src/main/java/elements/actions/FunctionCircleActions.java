@@ -34,7 +34,7 @@ public class FunctionCircleActions {
     private Group root;
     private StackPane stack, actionsStack, deleteStack;
     private JFXPopup actionsPopup;
-    private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
+    private JFXButton editButton, deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXDialog deleteDialog;
     private JFXDialogLayout deleteDialogLayout;
 
@@ -52,11 +52,27 @@ public class FunctionCircleActions {
         this.CanvasContents = CanvasContents;
         addFunctionToCanvasContents();
 
-        deleteButton = new JFXButton();
-        String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
-        deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        // edit button
+
+        editButton = new JFXButton();
+        String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+        editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        editButton.setMinSize(68,70);
+        editButton.setDisableVisualFocus(true);
+
+        editButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        });
 
         // delete button
+
+        deleteButton = new JFXButton();
+        path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
+        deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        deleteButton.setDisableVisualFocus(true);
 
         deleteButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
@@ -78,8 +94,28 @@ public class FunctionCircleActions {
                                 actionsPopup.hide();
                                 deleteDialog.close();
 
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                JsonNode rootNode = null;
+
+                                try {
+                                    rootNode = objectMapper.readTree(CanvasContents);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayNode functions = (ArrayNode) rootNode.get("functions");
+                                for (int i = 0; i < functions.size(); i++){
+                                    ObjectNode temp_function = (ObjectNode) functions.get(i);
+                                    ObjectNode info = (ObjectNode) temp_function.get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
+                                        functions.remove(i);
+                                }
+                                try {
+                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                                 //TODO: hide and close all dialogs and popups related to this object here
-                                //TODO: delete this object from the json file
                                 //TODO: also handle all relations and dependencies
                             }
                         });
@@ -110,13 +146,13 @@ public class FunctionCircleActions {
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x);
+        actionsStack.setLayoutX(x-10);
         actionsStack.setLayoutY(y-85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);
 
         actionsPopup = new JFXPopup();
-        actionsPopup.setPopupContent(new HBox(deleteButton));
+        actionsPopup.setPopupContent(new HBox(editButton, deleteButton));
         actionsPopup.setAutoHide(true);
         actionsPopup.setHideOnEscape(true);
 

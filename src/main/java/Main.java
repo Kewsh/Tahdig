@@ -47,9 +47,11 @@ public class Main extends Application {
         HBox hBox3 = new HBox();
         JFXButton b1 = new JFXButton("Java");
         b1.setId("butt1");
+        b1.setDisableVisualFocus(true);                         // this removes the default focus on the buttons
         b1.setMinSize(236, 100);
         JFXButton b2 = new JFXButton("C++");
         b2.setId("butt2");
+        b2.setDisableVisualFocus(true);
         b2.setMinSize(236, 100);
         hBox3.getChildren().add(b1);
         hBox3.getChildren().add(b2);

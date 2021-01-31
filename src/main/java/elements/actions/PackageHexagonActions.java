@@ -78,8 +78,28 @@ public class PackageHexagonActions {
                                 actionsPopup.hide();
                                 deleteDialog.close();
 
+                                ObjectMapper objectMapper = new ObjectMapper();
+                                JsonNode rootNode = null;
+
+                                try {
+                                    rootNode = objectMapper.readTree(CanvasContents);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                ArrayNode packages = (ArrayNode) rootNode.get("packages");
+                                for (int i = 0; i < packages.size(); i++){
+                                    ObjectNode temp_package = (ObjectNode) packages.get(i);
+                                    ObjectNode info = (ObjectNode) temp_package.get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
+                                        packages.remove(i);
+                                }
+                                try {
+                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                                 //TODO: hide and close all dialogs and popups related to this object here
-                                //TODO: delete this object from the json file
                                 //TODO: also handle all relations and dependencies
                             }
                         });
