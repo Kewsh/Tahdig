@@ -13,7 +13,8 @@
     -fx-fill-color: red;
 }
 
-#addAttributeButton, #addMethodButton {
+#addAttributeButton, #addMethodButton, #addVariableButton, #addFunctionButton,
+#addClassButton {
     -fx-font-size: 20px;
     -fx-font-family: Verdana;
     -fx-border-color: gray;
@@ -27,7 +28,8 @@
 }
 
 #connectionsButton, #classMethodsButton, #attributesButton,
-#interfaceMethodsButton {
+#interfaceMethodsButton, #functionsButton, #variablesButton,
+#classesButton {
     -fx-font-size: 18px;
     -fx-font-family: Verdana;
 }

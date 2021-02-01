@@ -273,6 +273,7 @@ public class FunctionCircleActions {
                                 //TODO: also handle all relations and dependencies
                             }
                         });
+
                         deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
                             @Override
                             public void handle(ActionEvent event) {
