@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static elements.actions.ConnectionBuilder.drawCompositionLine;
+
 public class ClassRectangleActions {
 
     private double x, y;
@@ -53,7 +55,7 @@ public class ClassRectangleActions {
 
     private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
-    //TODO: moving on to methods rn, attributes pretty much finished, we'll leave edit, styling, delete and ... for later
+    //TODO: implement edit for all remaining shapes
     //TODO: implement edit for the entire class, including class name attributes and methods
     //for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
 
@@ -598,7 +600,7 @@ public class ClassRectangleActions {
 
         connectionsStack = new StackPane();
         connectionsStack.setLayoutX(x - 125);
-        connectionsStack.setLayoutY(y - 15);
+        connectionsStack.setLayoutY(y - 5);
         connectionsStack.setMinHeight(100);
         root.getChildren().add(connectionsStack);
 
@@ -617,8 +619,78 @@ public class ClassRectangleActions {
                 if (flag[0])
                     connectionsPopup.hide();
                 else
-                    connectionsPopup.show(stack);
+                    connectionsPopup.show(connectionsStack);
                 flag[0] = !flag[0];
+            }
+        });
+
+        // composition button
+
+        compositionButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXPopup compositionPopup = new JFXPopup();
+                StackPane compositionStack = new StackPane();
+                root.getChildren().add(compositionStack);
+
+                compositionStack.setLayoutX(x + 15);
+                compositionStack.setLayoutY(y - 5);
+                compositionPopup.setAutoHide(true);
+                compositionPopup.setHideOnEscape(true);
+                JFXComboBox compositionComboBox = new JFXComboBox();
+                compositionComboBox.setPromptText("Composition target");
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                for (JsonNode class_iter : classes){
+                    if (class_iter.get("name").textValue().equals(getName()))
+                        continue;
+                    compositionComboBox.getItems().add(class_iter.get("name").textValue());
+                }
+                try {
+                    objectMapper.writeValue(CanvasContents, rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                compositionPopup.setPopupContent(compositionComboBox);
+                compositionPopup.show(compositionStack);
+
+                //TODO: handle duplicates
+
+                compositionComboBox.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
+                        ObjectNode targetClass = null;
+                        try {
+                            rootNode = objectMapper.readTree(CanvasContents);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                        for (JsonNode class_iter : classes){
+                            if (class_iter.get("name").textValue().equals(compositionComboBox.getValue().toString())){
+                                targetClass = (ObjectNode) class_iter;
+                                break;
+                            }
+                        }
+                        try {
+                            objectMapper.writeValue(CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
+                        drawCompositionLine(root, x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                    }
+                });
             }
         });
 
@@ -649,6 +721,10 @@ public class ClassRectangleActions {
                     flag[1] = true;
             }
         });
+    }
+
+    private String getName(){
+        return this.name;
     }
 
     private VBox createAccessButtonsVBox(List<JFXRadioButton> accessButtons, ToggleGroup accessGroup){

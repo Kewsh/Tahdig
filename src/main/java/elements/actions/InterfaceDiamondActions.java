@@ -68,8 +68,11 @@ public class InterfaceDiamondActions {
 
         methodsButton.setMinSize(50, 70);
         methodsButton.setId("interfaceMethodsButton");
+        methodsButton.setDisableVisualFocus(true);
+
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        deleteButton.setDisableVisualFocus(true);
 
         // delete button
 
