@@ -185,16 +185,6 @@ public class DrawingPane {
         {
             case "circle":
 
-                //change the text in a previously created shape
-
-//                StackPane stack2;
-//                Text text2;
-//                if (flag == 1) {
-//                    stack2 = (StackPane) root.getChildren().get(1);
-//                    text2 = (Text) stack2.getChildren().get(1);
-//                    text2.setText("hi");
-//                }
-
                 Circle circle = new Circle();
                 circle.setRadius(60);
                 circle.setStroke(Color.BLUE);
