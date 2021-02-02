@@ -46,9 +46,9 @@ public class ClassRectangleActions {
     private StackPane stack, actionsStack, connectionsStack, attributesStack, methodsStack, deleteStack;
     private JFXPopup actionsPopup, connectionsPopup;
     private JFXButton connectionsButton, methodsButton, attributesButton, deleteButton;
-    private JFXButton compositionButton, inheritanceButton, implementationButton, containmentButton;
+    private JFXButton compositionButton, inheritanceButton, implementationButton;
     private JFXButton attributesCloseButton, methodsCloseButton, addAttributeButton, addMethodButton;
-    private JFXButton deleteDialogConfirmButton, deleteDialogCancelButton;
+    private JFXButton deleteDialogConfirmButton, deleteDialogCancelButton, editButton;
     private JFXDialog attributesDialog, methodsDialog, deleteDialog;
     private JFXDialogLayout attributesDialogLayout, methodsDialogLayout, deleteDialogLayout;
     private JFXTreeTableView attributeTreeView, methodTreeView;
@@ -78,6 +78,12 @@ public class ClassRectangleActions {
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
         deleteButton.setDisableVisualFocus(true);
 
+        editButton = new JFXButton();
+        path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+        editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        editButton.setMinSize(68,70);
+        editButton.setDisableVisualFocus(true);
+
         setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
         setButtonStyles(methodsButton, "classMethodsButton", 50, 70);
         setButtonStyles(attributesButton, "attributesButton", 50, 70);
@@ -85,12 +91,143 @@ public class ClassRectangleActions {
         compositionButton = new JFXButton("Composition");
         inheritanceButton = new JFXButton("Inheritance");
         implementationButton = new JFXButton("Implementation");
-        containmentButton = new JFXButton("Containment");
 
         setButtonStyles(compositionButton, "compositionButton", 135, 50);
         setButtonStyles(inheritanceButton, "classInheritanceButton", 135, 50);
         setButtonStyles(implementationButton, "implementationButton", 135, 50);
-        setButtonStyles(containmentButton, "containmentButton", 135, 50);
+
+        // edit button
+
+        editButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXTextField nameField = new JFXTextField();
+                nameField.setText(getName());
+
+                JFXButton applyChangesButton = new JFXButton("Apply");
+                JFXDialog classEditDialog = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        true);
+
+                VBox editVBox = new VBox(nameField, applyChangesButton);
+                editVBox.setSpacing(30);
+                editVBox.setMaxHeight(200);
+
+                JFXDialogLayout classEditLayout = new JFXDialogLayout();
+
+                classEditLayout.setBody(editVBox);
+                classEditDialog.setContent(classEditLayout);
+
+                StackPane classEditStack = new StackPane();
+                classEditStack.setLayoutX(x + 130);
+                classEditStack.setLayoutY(y);
+
+                root.getChildren().add(classEditStack);
+                classEditDialog.show(classEditStack);
+
+                Label nameNotGiven = new Label("*name field must not be empty");
+                Label nameAlreadyExists = new Label("*this name has already been used");
+
+                boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+
+                nameNotGiven.setStyle("-fx-text-fill: red;");
+                nameAlreadyExists.setStyle("-fx-text-fill: red;");
+
+                applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+
+                        for (int i = 0; i < 2; i++)
+                            errorFlags[i] = false;
+
+                        if (editVBox.getChildren().contains(nameAlreadyExists))
+                            editVBox.getChildren().remove(nameAlreadyExists);
+                        if (editVBox.getChildren().contains(nameNotGiven))
+                            editVBox.getChildren().remove(nameNotGiven);
+
+                        String inputName = nameField.getText();
+                        if (inputName.equals("")) {
+                            editVBox.getChildren().add(nameNotGiven);
+                            errorFlags[0] = true;
+                        }
+                        else{
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode rootNode = null;
+
+                            try {
+                                rootNode = objectMapper.readTree(CanvasContents);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            if (!getName().equals(inputName)) {
+                                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                                for (JsonNode class_iter : classes) {
+                                    if (class_iter.get("name").textValue().equals(inputName)) {
+                                        editVBox.getChildren().add(nameAlreadyExists);
+                                        errorFlags[1] = true;
+                                        break;
+                                    }
+                                }
+                                if (!errorFlags[1]){
+                                    ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                                    for (JsonNode interf_iter : interfaces){
+                                        if (interf_iter.get("name").textValue().equals(inputName)){
+                                            editVBox.getChildren().add(nameAlreadyExists);
+                                            errorFlags[1] = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (!errorFlags[0] && !errorFlags[1]){
+
+                                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                                ObjectNode targetClass = null;
+                                int index = 0;
+                                for (int i = 0; i < classes.size(); i++){
+                                    ObjectNode info = (ObjectNode) classes.get(i).get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
+                                        targetClass = (ObjectNode) classes.get(i);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
+
+                                targetClass.put("name", inputName);
+                                targetClass.put("info", targetInfo);
+                                classes.remove(index);
+                                classes.add(targetClass);
+
+                                setName(inputName);
+
+                                for (Node node : root.getChildren()){
+                                    if (node == stack){
+                                        Text text = (Text) stack.getChildren().get(1);
+                                        text.setText(inputName);                            // updating the name on the shape
+                                        break;
+                                    }
+                                }
+
+                                classEditDialog.close();
+                            }
+                            try {
+                                objectMapper.writeValue(CanvasContents, rootNode);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+                //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
+
+                //
+
+            }
+        });
 
         // delete button
 
@@ -605,7 +742,7 @@ public class ClassRectangleActions {
         root.getChildren().add(connectionsStack);
 
         connectionsPopup = new JFXPopup();
-        connectionsPopup.setPopupContent(new VBox(compositionButton, inheritanceButton, implementationButton, containmentButton));
+        connectionsPopup.setPopupContent(new VBox(compositionButton, inheritanceButton, implementationButton));
         connectionsPopup.setAutoHide(true);
         connectionsPopup.setHideOnEscape(true);
 
@@ -852,13 +989,13 @@ public class ClassRectangleActions {
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x-125);
+        actionsStack.setLayoutX(x-165);
         actionsStack.setLayoutY(y-85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);
 
         actionsPopup = new JFXPopup();
-        actionsPopup.setPopupContent(new HBox(connectionsButton, attributesButton, methodsButton, deleteButton));
+        actionsPopup.setPopupContent(new HBox(editButton, connectionsButton, attributesButton, methodsButton, deleteButton));
         actionsPopup.setAutoHide(true);
         actionsPopup.setHideOnEscape(true);
 
@@ -876,6 +1013,10 @@ public class ClassRectangleActions {
                     flag[1] = true;
             }
         });
+    }
+
+    private void setName(String name){
+        this.name = name;
     }
 
     private String getName(){

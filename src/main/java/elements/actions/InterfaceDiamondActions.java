@@ -47,7 +47,7 @@ public class InterfaceDiamondActions {
     private JFXPopup actionsPopup, connectionsPopup;
     private JFXDialog methodsDialog, deleteDialog;
     private JFXButton methodsCloseButton, addMethodButton, deleteButton, methodsButton;
-    private JFXButton inheritanceButton, connectionsButton;
+    private JFXButton inheritanceButton, connectionsButton, editButton;
     private JFXButton deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXDialogLayout methodsDialogLayout, deleteDialogLayout;
     private JFXTreeTableView methodTreeView;
@@ -78,6 +78,145 @@ public class InterfaceDiamondActions {
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
         deleteButton.setDisableVisualFocus(true);
+
+        editButton = new JFXButton();
+        path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+        editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        editButton.setMinSize(68,70);
+        editButton.setDisableVisualFocus(true);
+
+        // edit button
+
+        editButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXTextField nameField = new JFXTextField();
+                nameField.setText(getName());
+
+                JFXButton applyChangesButton = new JFXButton("Apply");
+                JFXDialog interfaceEditDialog = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        true);
+
+                VBox editVBox = new VBox(nameField, applyChangesButton);
+                editVBox.setSpacing(30);
+                editVBox.setMaxHeight(200);
+
+                JFXDialogLayout interfaceEditLayout = new JFXDialogLayout();
+
+                interfaceEditLayout.setBody(editVBox);
+                interfaceEditDialog.setContent(interfaceEditLayout);
+
+                StackPane interfaceEditStack = new StackPane();
+                interfaceEditStack.setLayoutX(x + 130);
+                interfaceEditStack.setLayoutY(y);
+
+                root.getChildren().add(interfaceEditStack);
+                interfaceEditDialog.show(interfaceEditStack);
+
+                Label nameNotGiven = new Label("*name field must not be empty");
+                Label nameAlreadyExists = new Label("*this name has already been used");
+
+                boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+
+                nameNotGiven.setStyle("-fx-text-fill: red;");
+                nameAlreadyExists.setStyle("-fx-text-fill: red;");
+
+                applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+
+                        for (int i = 0; i < 2; i++)
+                            errorFlags[i] = false;
+
+                        if (editVBox.getChildren().contains(nameAlreadyExists))
+                            editVBox.getChildren().remove(nameAlreadyExists);
+                        if (editVBox.getChildren().contains(nameNotGiven))
+                            editVBox.getChildren().remove(nameNotGiven);
+
+                        String inputName = nameField.getText();
+                        if (inputName.equals("")) {
+                            editVBox.getChildren().add(nameNotGiven);
+                            errorFlags[0] = true;
+                        }
+                        else{
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode rootNode = null;
+
+                            try {
+                                rootNode = objectMapper.readTree(CanvasContents);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            if (!getName().equals(inputName)) {
+                                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                                for (JsonNode class_iter : classes) {
+                                    if (class_iter.get("name").textValue().equals(inputName)) {
+                                        editVBox.getChildren().add(nameAlreadyExists);
+                                        errorFlags[1] = true;
+                                        break;
+                                    }
+                                }
+                                if (!errorFlags[1]){
+                                    ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                                    for (JsonNode interf_iter : interfaces){
+                                        if (interf_iter.get("name").textValue().equals(inputName)){
+                                            editVBox.getChildren().add(nameAlreadyExists);
+                                            errorFlags[1] = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (!errorFlags[0] && !errorFlags[1]){
+
+                                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                                ObjectNode targetInterface = null;
+                                int index = 0;
+                                for (int i = 0; i < interfaces.size(); i++){
+                                    ObjectNode info = (ObjectNode) interfaces.get(i).get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
+                                        targetInterface = (ObjectNode) interfaces.get(i);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                ObjectNode targetInfo = (ObjectNode) targetInterface.get("info");
+
+                                targetInterface.put("name", inputName);
+                                targetInterface.put("info", targetInfo);
+                                interfaces.remove(index);
+                                interfaces.add(targetInterface);
+
+                                setName(inputName);
+
+                                for (Node node : root.getChildren()){
+                                    if (node == stack){
+                                        Text text = (Text) stack.getChildren().get(1);
+                                        text.setText(inputName);                            // updating the name on the shape
+                                        break;
+                                    }
+                                }
+
+                                interfaceEditDialog.close();
+                            }
+                            try {
+                                objectMapper.writeValue(CanvasContents, rootNode);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+                //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
+
+                //
+
+            }
+        });
 
         // delete button
 
@@ -448,13 +587,13 @@ public class InterfaceDiamondActions {
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x - 50);
+        actionsStack.setLayoutX(x - 90);
         actionsStack.setLayoutY(y - 85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);
 
         actionsPopup = new JFXPopup();
-        actionsPopup.setPopupContent(new HBox(connectionsButton, methodsButton, deleteButton));
+        actionsPopup.setPopupContent(new HBox(editButton, connectionsButton, methodsButton, deleteButton));
         actionsPopup.setAutoHide(true);
         actionsPopup.setHideOnEscape(true);
 
@@ -472,6 +611,10 @@ public class InterfaceDiamondActions {
                     flag[1] = true;
             }
         });
+    }
+
+    private void setName(String name){
+        this.name = name;
     }
 
     private String getName(){

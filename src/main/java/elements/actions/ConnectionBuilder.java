@@ -18,22 +18,22 @@ public abstract class ConnectionBuilder {
 
     public static void drawConnectionLine(Group root, File CanvasContents, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
 
-        if (type1 == 'c')                   //class
+        if (type1 == 'c')                   // class
             srcPoints = new Point[]{new Point(srcX, srcY+60), new Point(srcX+50, srcY), new Point(srcX+100, srcY+60), new Point(srcX+50, srcY+120)};
-        else if (type1 == 'i') {            //interface
+        else if (type1 == 'i') {            // interface
             srcY += 60;
             srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX + 75, srcY - 60), new Point(srcX + 150, srcY), new Point(srcX + 75, srcY + 60)};
         }
-        else                                //package
-            srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX+75, srcY-50), new Point(srcX+150, srcY), new Point(srcX+75, srcY+50)};
+        else {                              // package
+            srcY += 50;
+            srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX + 75, srcY - 50), new Point(srcX + 150, srcY), new Point(srcX + 75, srcY + 50)};
+        }
         if (type2 == 'c')
             destPoints = new Point[]{new Point(destX, destY+60), new Point(destX+50, destY), new Point(destX+100, destY+60), new Point(destX+50, destY+120)};
-        else if (type2 == 'i') {
+        else {                              // interface
             destY += 60;
             destPoints = new Point[]{new Point(destX, destY), new Point(destX+75, destY-60), new Point(destX+150, destY), new Point(destX+75, destY+60)};
         }
-        else
-            destPoints = new Point[]{new Point(destX, destY), new Point(destX+75, destY-50), new Point(destX+150, destY), new Point(destX+75, destY+50)};
 
         if (destY < srcY)
             line = new Line(srcPoints[1].x, srcPoints[1].y, destPoints[3].x, destPoints[3].y);

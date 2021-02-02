@@ -46,7 +46,7 @@ public class HeaderFileEllipseActions {
     private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXButton functionsButton, variablesButton, classesButton;
     private JFXButton variablesCloseButton, addVariableButton, addFunctionButton, functionsCloseButton;
-    private JFXButton addClassButton, classesCloseButton;
+    private JFXButton addClassButton, classesCloseButton, editButton;
     private JFXDialog deleteDialog, variablesDialog, functionsDialog, classesDialog;
     private JFXDialogLayout deleteDialogLayout, variablesDialogLayout, functionsDialogLayout, classesDialogLayout;
     private JFXTreeTableView variableTreeView, functionTreeView, classTreeView;
@@ -70,6 +70,12 @@ public class HeaderFileEllipseActions {
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
         deleteButton.setDisableVisualFocus(true);
 
+        editButton = new JFXButton();
+        path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+        editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        editButton.setMinSize(68,70);
+        editButton.setDisableVisualFocus(true);
+
         functionsButton = new JFXButton("Functions");
         variablesButton = new JFXButton("Variables");
         classesButton = new JFXButton("Classes");
@@ -77,6 +83,129 @@ public class HeaderFileEllipseActions {
         setButtonStyles(functionsButton, "functionsButton", 50, 70);
         setButtonStyles(variablesButton, "variablesButton", 50, 70);
         setButtonStyles(classesButton, "classesButton", 50, 70);
+
+        // edit button
+
+        editButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXTextField nameField = new JFXTextField();
+                nameField.setText(getName());
+
+                JFXButton applyChangesButton = new JFXButton("Apply");
+                JFXDialog headerEditDialog = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        true);
+
+                VBox editVBox = new VBox(nameField, applyChangesButton);
+                editVBox.setSpacing(30);
+                editVBox.setMaxHeight(200);
+
+                JFXDialogLayout headerEditLayout = new JFXDialogLayout();
+
+                headerEditLayout.setBody(editVBox);
+                headerEditDialog.setContent(headerEditLayout);
+
+                StackPane headerEditStack = new StackPane();
+                headerEditStack.setLayoutX(x + 130);
+                headerEditStack.setLayoutY(y);
+
+                root.getChildren().add(headerEditStack);
+                headerEditDialog.show(headerEditStack);
+
+                Label nameNotGiven = new Label("*name field must not be empty");
+                Label nameAlreadyExists = new Label("*this name has already been used");
+
+                boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+
+                nameNotGiven.setStyle("-fx-text-fill: red;");
+                nameAlreadyExists.setStyle("-fx-text-fill: red;");
+
+                applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+
+                        for (int i = 0; i < 2; i++)
+                            errorFlags[i] = false;
+
+                        if (editVBox.getChildren().contains(nameAlreadyExists))
+                            editVBox.getChildren().remove(nameAlreadyExists);
+                        if (editVBox.getChildren().contains(nameNotGiven))
+                            editVBox.getChildren().remove(nameNotGiven);
+
+                        String inputName = nameField.getText();
+                        if (inputName.equals("")) {
+                            editVBox.getChildren().add(nameNotGiven);
+                            errorFlags[0] = true;
+                        }
+                        else{
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode rootNode = null;
+
+                            try {
+                                rootNode = objectMapper.readTree(CanvasContents);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            if (!getName().equals(inputName)) {
+                                ArrayNode headers = (ArrayNode) rootNode.get("headers");
+                                for (JsonNode header_iter : headers) {
+                                    if (header_iter.get("name").textValue().equals(inputName)) {
+                                        editVBox.getChildren().add(nameAlreadyExists);
+                                        errorFlags[1] = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!errorFlags[0] && !errorFlags[1]){
+
+                                ArrayNode headers = (ArrayNode) rootNode.get("headers");
+                                ObjectNode targetHeader = null;
+                                int index = 0;
+                                for (int i = 0; i < headers.size(); i++){
+                                    ObjectNode info = (ObjectNode) headers.get(i).get("info");
+                                    if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
+                                        targetHeader = (ObjectNode) headers.get(i);
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                ObjectNode targetInfo = (ObjectNode) targetHeader.get("info");
+
+                                targetHeader.put("name", inputName);
+                                targetHeader.put("info", targetInfo);
+                                headers.remove(index);
+                                headers.add(targetHeader);
+
+                                setName(inputName);
+
+                                for (Node node : root.getChildren()){
+                                    if (node == stack){
+                                        Text text = (Text) stack.getChildren().get(1);
+                                        text.setText(inputName);                            // updating the name on the shape
+                                        break;
+                                    }
+                                }
+
+                                headerEditDialog.close();
+                            }
+                            try {
+                                objectMapper.writeValue(CanvasContents, rootNode);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+
+                //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
+
+                //
+
+            }
+        });
 
         // classes button
 
@@ -746,13 +875,13 @@ public class HeaderFileEllipseActions {
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x-80);
+        actionsStack.setLayoutX(x-120);
         actionsStack.setLayoutY(y-85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);
 
         actionsPopup = new JFXPopup();
-        actionsPopup.setPopupContent(new HBox(classesButton, functionsButton, variablesButton, deleteButton));
+        actionsPopup.setPopupContent(new HBox(editButton, classesButton, functionsButton, variablesButton, deleteButton));
         actionsPopup.setAutoHide(true);
         actionsPopup.setHideOnEscape(true);
 
@@ -770,6 +899,14 @@ public class HeaderFileEllipseActions {
                     flag[1] = true;
             }
         });
+    }
+
+    private void setName(String name){
+        this.name = name;
+    }
+
+    private String getName(){
+        return this.name;
     }
 
     private void setButtonStyles(JFXButton button, String buttonName, double width, double length){
