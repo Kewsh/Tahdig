@@ -83,12 +83,12 @@ public class ClassRectangleActions {
         setButtonStyles(attributesButton, "attributesButton", 50, 70);
 
         compositionButton = new JFXButton("Composition");
-        inheritanceButton = new JFXButton("inheritance");
+        inheritanceButton = new JFXButton("Inheritance");
         implementationButton = new JFXButton("Implementation");
         containmentButton = new JFXButton("Containment");
 
         setButtonStyles(compositionButton, "compositionButton", 135, 50);
-        setButtonStyles(inheritanceButton, "inheritanceButton", 135, 50);
+        setButtonStyles(inheritanceButton, "classInheritanceButton", 135, 50);
         setButtonStyles(implementationButton, "implementationButton", 135, 50);
         setButtonStyles(containmentButton, "containmentButton", 135, 50);
 
@@ -652,6 +652,9 @@ public class ClassRectangleActions {
                 for (JsonNode class_iter : classes){
                     if (class_iter.get("name").textValue().equals(getName()))
                         continue;
+
+                    //TODO: handle duplicates here (i.e. classes that already are connected with composition with this class)
+
                     compositionComboBox.getItems().add(class_iter.get("name").textValue());
                 }
                 try {
@@ -688,7 +691,7 @@ public class ClassRectangleActions {
                             e.printStackTrace();
                         }
                         ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
-                        drawConnectionLine(root, 'c', 'c', "composition", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        drawConnectionLine(root, CanvasContents, 'c', 'c', "composition", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
                         compositionPopup.hide();
                         connectionsPopup.hide();
                         actionsPopup.hide();
@@ -698,8 +701,6 @@ public class ClassRectangleActions {
         });
 
         // inheritance button
-
-        //TODO: don't forget about interface inheritance
 
         inheritanceButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -727,6 +728,9 @@ public class ClassRectangleActions {
                 for (JsonNode class_iter : classes){
                     if (class_iter.get("name").textValue().equals(getName()))
                         continue;
+
+                    //TODO: handle duplicates here (i.e. classes that already are connected with inheritance with this class)
+
                     inheritanceComboBox.getItems().add(class_iter.get("name").textValue());
                 }
                 try {
@@ -763,8 +767,81 @@ public class ClassRectangleActions {
                             e.printStackTrace();
                         }
                         ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
-                        drawConnectionLine(root, 'c', 'c', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        drawConnectionLine(root, CanvasContents, 'c', 'c', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
                         inheritancePopup.hide();
+                        connectionsPopup.hide();
+                        actionsPopup.hide();
+                    }
+                });
+            }
+        });
+
+        // implementation button
+
+        implementationButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXPopup implementationPopup = new JFXPopup();
+                StackPane implementationStack = new StackPane();
+                root.getChildren().add(implementationStack);
+
+                implementationStack.setLayoutX(x + 15);
+                implementationStack.setLayoutY(y - 5);
+                implementationPopup.setAutoHide(true);
+                implementationPopup.setHideOnEscape(true);
+                JFXComboBox implementationComboBox = new JFXComboBox();
+                implementationComboBox.setPromptText("Implementation target");
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                for (JsonNode interf_iter : interfaces)
+
+                    //TODO: handle duplicates here (i.e. interfaces that already are connected with implementation with this class)
+
+                    implementationComboBox.getItems().add(interf_iter.get("name").textValue());
+                try {
+                    objectMapper.writeValue(CanvasContents, rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                implementationPopup.setPopupContent(implementationComboBox);
+                implementationPopup.show(implementationStack);
+
+                //TODO: handle duplicates
+
+                implementationComboBox.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
+                        ObjectNode targetInterface = null;
+                        try {
+                            rootNode = objectMapper.readTree(CanvasContents);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                        for (JsonNode interf_iter : interfaces){
+                            if (interf_iter.get("name").textValue().equals(implementationComboBox.getValue().toString())){
+                                targetInterface = (ObjectNode) interf_iter;
+                                break;
+                            }
+                        }
+                        try {
+                            objectMapper.writeValue(CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ObjectNode targetInfo = (ObjectNode) targetInterface.get("info");
+                        drawConnectionLine(root, CanvasContents, 'c', 'i', "implementation", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        implementationPopup.hide();
                         connectionsPopup.hide();
                         actionsPopup.hide();
                     }
@@ -1003,7 +1080,7 @@ public class ClassRectangleActions {
         treeView.getColumns().setAll(accessColumn, extrasColumn, typeColumn, nameColumn);
 
         //TODO: try to separate the style for scrollbars on treeView and the scrollbars on drawing pane
-        //don't want the scrollbars on the treeview to look so weird
+        //don't want the scrollbars on the treeView to look so weird
 
         FlowPane main = new FlowPane();
         main.setPadding(new Insets(10));

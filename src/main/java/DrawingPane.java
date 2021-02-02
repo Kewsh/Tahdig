@@ -108,7 +108,7 @@ public class DrawingPane {
                             FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
                             myWriter.write("{\"classes\": [], \"functions\": [], " +
                                             "\"interfaces\": [], \"headers\": [], " +
-                                            "\"packages\": []}");
+                                            "\"packages\": [], \"lines\": []}");
                             myWriter.close();
                         } catch (IOException e) {
                             e.printStackTrace();

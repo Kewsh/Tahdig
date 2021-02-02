@@ -1,7 +1,14 @@
 package elements.actions;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.scene.Group;
 import javafx.scene.shape.Line;
+
+import java.io.File;
+import java.io.IOException;
 
 public abstract class ConnectionBuilder {
 
@@ -9,18 +16,22 @@ public abstract class ConnectionBuilder {
     private static Point[] srcPoints;
     private static Point[] destPoints;
 
-    public static void drawConnectionLine(Group root, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
+    public static void drawConnectionLine(Group root, File CanvasContents, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
 
         if (type1 == 'c')                   //class
             srcPoints = new Point[]{new Point(srcX, srcY+60), new Point(srcX+50, srcY), new Point(srcX+100, srcY+60), new Point(srcX+50, srcY+120)};
-        else if (type1 == 'i')              //interface
-            srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX+75, srcY-60), new Point(srcX+150, srcY), new Point(srcX+75, srcY+60)};
+        else if (type1 == 'i') {            //interface
+            srcY += 60;
+            srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX + 75, srcY - 60), new Point(srcX + 150, srcY), new Point(srcX + 75, srcY + 60)};
+        }
         else                                //package
             srcPoints = new Point[]{new Point(srcX, srcY), new Point(srcX+75, srcY-50), new Point(srcX+150, srcY), new Point(srcX+75, srcY+50)};
         if (type2 == 'c')
             destPoints = new Point[]{new Point(destX, destY+60), new Point(destX+50, destY), new Point(destX+100, destY+60), new Point(destX+50, destY+120)};
-        else if (type2 == 'i')
+        else if (type2 == 'i') {
+            destY += 60;
             destPoints = new Point[]{new Point(destX, destY), new Point(destX+75, destY-60), new Point(destX+150, destY), new Point(destX+75, destY+60)};
+        }
         else
             destPoints = new Point[]{new Point(destX, destY), new Point(destX+75, destY-50), new Point(destX+150, destY), new Point(destX+75, destY+50)};
 
@@ -36,7 +47,29 @@ public abstract class ConnectionBuilder {
         line.setStrokeWidth(2.2);
         root.getChildren().add(line);
 
-        //TODO: add the lines to canvas contents
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(CanvasContents);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ArrayNode lines = (ArrayNode) rootNode.get("lines");
+        ObjectNode targetLine = objectMapper.createObjectNode();
+
+        targetLine.put("type", connectionType);
+        targetLine.put("startX", srcX);
+        targetLine.put("startY", srcY);
+        targetLine.put("endX", destX);
+        targetLine.put("endY", destY);
+
+        lines.add(targetLine);
+        try {
+            objectMapper.writeValue(CanvasContents, rootNode);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //TODO: insert the connectionType string somewhere on the line
         //TODO: work more on the connections algorithm
 

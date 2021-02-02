@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static elements.actions.ConnectionBuilder.drawConnectionLine;
+
 public class InterfaceDiamondActions {
 
     private double x, y;
@@ -41,10 +43,11 @@ public class InterfaceDiamondActions {
     private File CanvasContents;
     private Group root;
     private VBox methodsDialogContent;
-    private StackPane stack, actionsStack, methodsStack, deleteStack;
-    private JFXPopup actionsPopup;
+    private StackPane stack, actionsStack, methodsStack, deleteStack, connectionsStack;
+    private JFXPopup actionsPopup, connectionsPopup;
     private JFXDialog methodsDialog, deleteDialog;
     private JFXButton methodsCloseButton, addMethodButton, deleteButton, methodsButton;
+    private JFXButton inheritanceButton, connectionsButton;
     private JFXButton deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXDialogLayout methodsDialogLayout, deleteDialogLayout;
     private JFXTreeTableView methodTreeView;
@@ -63,13 +66,15 @@ public class InterfaceDiamondActions {
         this.CanvasContents = CanvasContents;
         addInterfaceToCanvasContents();
 
-        deleteButton = new JFXButton();
         methodsButton = new JFXButton("Methods");
+        connectionsButton = new JFXButton("Connect");
+        inheritanceButton = new JFXButton("Inheritance");
 
-        methodsButton.setMinSize(50, 70);
-        methodsButton.setId("interfaceMethodsButton");
-        methodsButton.setDisableVisualFocus(true);
+        setButtonStyles(methodsButton, "interfaceMethodsButton", 50, 70);
+        setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
+        setButtonStyles(inheritanceButton, "interfaceInheritanceButton", 40, 50);
 
+        deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
         deleteButton.setDisableVisualFocus(true);
@@ -336,16 +341,120 @@ public class InterfaceDiamondActions {
             }
         });
 
+        // connections button
+
+        connectionsStack = new StackPane();
+        connectionsStack.setLayoutX(x - 50);
+        connectionsStack.setLayoutY(y - 5);
+        connectionsStack.setMinHeight(100);
+        root.getChildren().add(connectionsStack);
+
+        connectionsPopup = new JFXPopup();
+        connectionsPopup.setPopupContent(new VBox(inheritanceButton));
+        connectionsPopup.setAutoHide(true);
+        connectionsPopup.setHideOnEscape(true);
+
+        connectionsButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (flag[0] && flag[1]) {
+                    flag[0] = false;
+                    flag[1] = false;
+                }
+                if (flag[0])
+                    connectionsPopup.hide();
+                else
+                    connectionsPopup.show(connectionsStack);
+                flag[0] = !flag[0];
+            }
+        });
+
+        // inheritance button
+
+        inheritanceButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXPopup inheritancePopup = new JFXPopup();
+                StackPane inheritanceStack = new StackPane();
+                root.getChildren().add(inheritanceStack);
+
+                inheritanceStack.setLayoutX(x + 55);
+                inheritanceStack.setLayoutY(y - 5);
+                inheritancePopup.setAutoHide(true);
+                inheritancePopup.setHideOnEscape(true);
+                JFXComboBox inheritanceComboBox = new JFXComboBox();
+                inheritanceComboBox.setPromptText("Inheritance target");
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                for (JsonNode interf_iter : interfaces){
+                    if (interf_iter.get("name").textValue().equals(getName()))
+                        continue;
+
+                    //TODO: handle duplicates here (i.e. interfaces that already are connected with inheritance with this interface)
+
+                    inheritanceComboBox.getItems().add(interf_iter.get("name").textValue());
+                }
+                try {
+                    objectMapper.writeValue(CanvasContents, rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                inheritancePopup.setPopupContent(inheritanceComboBox);
+                inheritancePopup.show(inheritanceStack);
+
+                //TODO: handle duplicates
+
+                inheritanceComboBox.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
+                        ObjectNode targetInterface = null;
+                        try {
+                            rootNode = objectMapper.readTree(CanvasContents);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                        for (JsonNode interf_iter : interfaces){
+                            if (interf_iter.get("name").textValue().equals(inheritanceComboBox.getValue().toString())){
+                                targetInterface = (ObjectNode) interf_iter;
+                                break;
+                            }
+                        }
+                        try {
+                            objectMapper.writeValue(CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ObjectNode targetInfo = (ObjectNode) targetInterface.get("info");
+                        drawConnectionLine(root, CanvasContents, 'i', 'i', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        inheritancePopup.hide();
+                        connectionsPopup.hide();
+                        actionsPopup.hide();
+                    }
+                });
+            }
+        });
+
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x - 15);
+        actionsStack.setLayoutX(x - 50);
         actionsStack.setLayoutY(y - 85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);
 
         actionsPopup = new JFXPopup();
-        actionsPopup.setPopupContent(new HBox(methodsButton, deleteButton));
+        actionsPopup.setPopupContent(new HBox(connectionsButton, methodsButton, deleteButton));
         actionsPopup.setAutoHide(true);
         actionsPopup.setHideOnEscape(true);
 
@@ -363,6 +472,16 @@ public class InterfaceDiamondActions {
                     flag[1] = true;
             }
         });
+    }
+
+    private String getName(){
+        return this.name;
+    }
+
+    private void setButtonStyles(JFXButton button, String buttonName, double width, double length){
+        button.setMinSize(width, length);
+        button.setId(buttonName);
+        button.setDisableVisualFocus(true);
     }
 
     private VBox createTypeButtonsVBox(List<JFXRadioButton> typeButtons, ToggleGroup typeGroup) {
