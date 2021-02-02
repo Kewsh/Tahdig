@@ -59,9 +59,9 @@ public abstract class ConnectionBuilder {
 
         targetLine.put("type", connectionType);
         targetLine.put("startX", srcX);
-        targetLine.put("startY", srcY);
+        targetLine.put("startY", type1 == 'i' ? srcY-60 : type1 == 'p' ? srcY-50 : srcY);
         targetLine.put("endX", destX);
-        targetLine.put("endY", destY);
+        targetLine.put("endY", type2 == 'i' ? destY-60 : destY);
 
         lines.add(targetLine);
         try {

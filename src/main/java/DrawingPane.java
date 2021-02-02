@@ -47,7 +47,7 @@ public class DrawingPane {
          * to widen or heighten the canvas too much.
          * and please note that if on any system, it were ever reported that the maximum size of 6000
          * causes the application to crash, do make sure to reconsider the maximum size for the sake
-         * of cross-platform functionality
+         * of cross-platform functionality.
          */
         height = 2000;
         width = 2000;

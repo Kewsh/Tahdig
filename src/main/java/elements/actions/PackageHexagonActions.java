@@ -67,6 +67,7 @@ public class PackageHexagonActions {
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+        deleteButton.setDisableVisualFocus(true);
 
         editButton = new JFXButton();
         path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();

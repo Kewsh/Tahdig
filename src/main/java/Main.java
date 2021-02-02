@@ -1,6 +1,10 @@
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
 import elements.*;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -8,10 +12,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Separator;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class Main extends Application {
 
@@ -22,7 +28,8 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         VBox vBox = new VBox();
-        Scene scene = new Scene(vBox, 720, 720);
+        StackPane stackPane = new StackPane(vBox);
+        Scene scene = new Scene(stackPane, 720, 720);
         scene.getStylesheets().add("styles.css");
 
         primaryStage.setScene(scene);
@@ -45,18 +52,104 @@ public class Main extends Application {
         label2.setId("111");
 
         HBox hBox3 = new HBox();
-        JFXButton b1 = new JFXButton("Java");
-        b1.setId("butt1");
-        b1.setDisableVisualFocus(true);                         // this removes the default focus on the buttons
-        b1.setMinSize(236, 100);
-        JFXButton b2 = new JFXButton("C++");
-        b2.setId("butt2");
-        b2.setDisableVisualFocus(true);
-        b2.setMinSize(236, 100);
-        hBox3.getChildren().add(b1);
-        hBox3.getChildren().add(b2);
+        JFXButton generateJavaCodeButton = new JFXButton("Java");
+        generateJavaCodeButton.setId("butt1");
+        generateJavaCodeButton.setDisableVisualFocus(true);                         // this removes the default focus on the buttons
+        generateJavaCodeButton.setMinSize(236, 100);
+        JFXButton generateCppCodeButton = new JFXButton("C++");
+        generateCppCodeButton.setId("butt2");
+        generateCppCodeButton.setDisableVisualFocus(true);
+        generateCppCodeButton.setMinSize(236, 100);
+        hBox3.getChildren().add(generateJavaCodeButton);
+        hBox3.getChildren().add(generateCppCodeButton);
         hBox3.setPadding(new Insets(30, 0, 0, 8));
         hBox3.setSpacing(15);
+
+        //
+
+        generateJavaCodeButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                JavaEngine javaEngine = JavaEngine.getInstance();
+                if (!javaEngine.isReady()) {
+
+                    JFXButton okButton = new JFXButton("OK");
+                    Text text = new Text("Canvas is empty");
+                    text.setFont(Font.font(20));
+                    StackPane textStack = new StackPane(text);
+                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    JFXDialog canvasEmpty = new JFXDialog(new StackPane(),
+                            new Region(),
+                            JFXDialog.DialogTransition.CENTER,
+                            false);
+                    okButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            canvasEmpty.close();
+                        }
+                    });
+                    JFXDialogLayout canvasEmptyLayout = new JFXDialogLayout();
+
+                    canvasEmptyLayout.setMinSize(500, 100);
+                    canvasEmptyLayout.setBody(textStack);
+                    canvasEmptyLayout.setActions(okButton);
+                    canvasEmpty.setContent(canvasEmptyLayout);
+
+                    canvasEmpty.show(stackPane);
+                    return;
+                }
+                if (!javaEngine.checkPossibility()){
+
+                    JFXButton yesButton = new JFXButton("Yes");
+                    JFXButton cancelButton = new JFXButton("Cancel");
+                    yesButton.setStyle("-fx-font-size: 20px;");
+                    cancelButton.setStyle("-fx-font-size: 20px;");
+                    Text text = new Text("due to your specific design, a standard java code output is impossible, but Tahdig can take"
+                                    + " specific actions to make it possible.\nconsidering that the result might not be identical to your design,"
+                                    + " Do you wish to continue?");
+                    text.setFont(Font.font(18));
+                    StackPane textStack = new StackPane(text);
+                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    JFXDialog codeImpossible = new JFXDialog(new StackPane(),
+                            new Region(),
+                            JFXDialog.DialogTransition.CENTER,
+                            false);
+                    yesButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            codeImpossible.close();
+                            try {
+                                javaEngine.generateCode();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    cancelButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            codeImpossible.close();
+                        }
+                    });
+                    JFXDialogLayout codeImpossibleLayout = new JFXDialogLayout();
+
+                    codeImpossibleLayout.setMinSize(500, 100);
+                    codeImpossibleLayout.setBody(textStack);
+                    codeImpossibleLayout.setActions(cancelButton, yesButton);
+                    codeImpossible.setContent(codeImpossibleLayout);
+
+                    codeImpossible.show(stackPane);
+                    return;
+                }
+                try {
+                    javaEngine.generateCode();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //
 
         VBox leftControl  = new VBox(label, separator3, hBox2, hBox4);
         Label label3 = new Label("Generate Code");
