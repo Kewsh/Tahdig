@@ -21,7 +21,7 @@
     -fx-border-width: 0.5px;
 }
 
-#compositionButton, #generalizationButton, #implementationButton,
+#compositionButton, #inheritanceButton, #implementationButton,
 #containmentButton {
     -fx-font-size: 14px;
     -fx-font-family: Verdana;

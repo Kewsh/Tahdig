@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static elements.actions.ConnectionBuilder.drawCompositionLine;
+import static elements.actions.ConnectionBuilder.drawConnectionLine;
 
 public class ClassRectangleActions {
 
@@ -46,7 +46,7 @@ public class ClassRectangleActions {
     private StackPane stack, actionsStack, connectionsStack, attributesStack, methodsStack, deleteStack;
     private JFXPopup actionsPopup, connectionsPopup;
     private JFXButton connectionsButton, methodsButton, attributesButton, deleteButton;
-    private JFXButton compositionButton, generalizationButton, implementationButton, containmentButton;
+    private JFXButton compositionButton, inheritanceButton, implementationButton, containmentButton;
     private JFXButton attributesCloseButton, methodsCloseButton, addAttributeButton, addMethodButton;
     private JFXButton deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXDialog attributesDialog, methodsDialog, deleteDialog;
@@ -83,12 +83,12 @@ public class ClassRectangleActions {
         setButtonStyles(attributesButton, "attributesButton", 50, 70);
 
         compositionButton = new JFXButton("Composition");
-        generalizationButton = new JFXButton("Generalization");
+        inheritanceButton = new JFXButton("inheritance");
         implementationButton = new JFXButton("Implementation");
         containmentButton = new JFXButton("Containment");
 
         setButtonStyles(compositionButton, "compositionButton", 135, 50);
-        setButtonStyles(generalizationButton, "generalizationButton", 135, 50);
+        setButtonStyles(inheritanceButton, "inheritanceButton", 135, 50);
         setButtonStyles(implementationButton, "implementationButton", 135, 50);
         setButtonStyles(containmentButton, "containmentButton", 135, 50);
 
@@ -605,7 +605,7 @@ public class ClassRectangleActions {
         root.getChildren().add(connectionsStack);
 
         connectionsPopup = new JFXPopup();
-        connectionsPopup.setPopupContent(new VBox(compositionButton, generalizationButton, implementationButton, containmentButton));
+        connectionsPopup.setPopupContent(new VBox(compositionButton, inheritanceButton, implementationButton, containmentButton));
         connectionsPopup.setAutoHide(true);
         connectionsPopup.setHideOnEscape(true);
 
@@ -688,7 +688,85 @@ public class ClassRectangleActions {
                             e.printStackTrace();
                         }
                         ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
-                        drawCompositionLine(root, x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        drawConnectionLine(root, 'c', 'c', "composition", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        compositionPopup.hide();
+                        connectionsPopup.hide();
+                        actionsPopup.hide();
+                    }
+                });
+            }
+        });
+
+        // inheritance button
+
+        //TODO: don't forget about interface inheritance
+
+        inheritanceButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                JFXPopup inheritancePopup = new JFXPopup();
+                StackPane inheritanceStack = new StackPane();
+                root.getChildren().add(inheritanceStack);
+
+                inheritanceStack.setLayoutX(x + 15);
+                inheritanceStack.setLayoutY(y - 5);
+                inheritancePopup.setAutoHide(true);
+                inheritancePopup.setHideOnEscape(true);
+                JFXComboBox inheritanceComboBox = new JFXComboBox();
+                inheritanceComboBox.setPromptText("Inheritance target");
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                for (JsonNode class_iter : classes){
+                    if (class_iter.get("name").textValue().equals(getName()))
+                        continue;
+                    inheritanceComboBox.getItems().add(class_iter.get("name").textValue());
+                }
+                try {
+                    objectMapper.writeValue(CanvasContents, rootNode);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                inheritancePopup.setPopupContent(inheritanceComboBox);
+                inheritancePopup.show(inheritanceStack);
+
+                //TODO: handle duplicates
+
+                inheritanceComboBox.setOnAction(new EventHandler<ActionEvent>(){
+                    @Override
+                    public void handle(ActionEvent event) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
+                        ObjectNode targetClass = null;
+                        try {
+                            rootNode = objectMapper.readTree(CanvasContents);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                        for (JsonNode class_iter : classes){
+                            if (class_iter.get("name").textValue().equals(inheritanceComboBox.getValue().toString())){
+                                targetClass = (ObjectNode) class_iter;
+                                break;
+                            }
+                        }
+                        try {
+                            objectMapper.writeValue(CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
+                        drawConnectionLine(root, 'c', 'c', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
+                        inheritancePopup.hide();
+                        connectionsPopup.hide();
+                        actionsPopup.hide();
                     }
                 });
             }
