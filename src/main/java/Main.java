@@ -65,7 +65,93 @@ public class Main extends Application {
         hBox3.setPadding(new Insets(30, 0, 0, 8));
         hBox3.setSpacing(15);
 
+        // generateCppCode button
+
+        generateCppCodeButton.setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                CppEngine cppEngine = CppEngine.getInstance();
+                if (!cppEngine.isReady()) {
+
+                    JFXButton okButton = new JFXButton("OK");
+                    Text text = new Text("Canvas is empty");
+                    text.setFont(Font.font(20));
+                    StackPane textStack = new StackPane(text);
+                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    JFXDialog canvasEmpty = new JFXDialog(new StackPane(),
+                            new Region(),
+                            JFXDialog.DialogTransition.CENTER,
+                            false);
+                    okButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            canvasEmpty.close();
+                        }
+                    });
+                    JFXDialogLayout canvasEmptyLayout = new JFXDialogLayout();
+
+                    canvasEmptyLayout.setMinSize(500, 100);
+                    canvasEmptyLayout.setBody(textStack);
+                    canvasEmptyLayout.setActions(okButton);
+                    canvasEmpty.setContent(canvasEmptyLayout);
+
+                    canvasEmpty.show(stackPane);
+                    return;
+                }
+                if (!cppEngine.isPossible()){
+
+                    JFXButton yesButton = new JFXButton("Yes");
+                    JFXButton cancelButton = new JFXButton("Cancel");
+                    yesButton.setStyle("-fx-font-size: 20px;");
+                    cancelButton.setStyle("-fx-font-size: 20px;");
+                    Text text = new Text("due to your specific design, a standard java code output is impossible, but Tahdig can take"
+                            + " specific actions to make it possible.\nconsidering that the result might not be identical to your design,"
+                            + " Do you wish to continue?");
+                    text.setFont(Font.font(18));
+                    StackPane textStack = new StackPane(text);
+                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    JFXDialog codeImpossible = new JFXDialog(new StackPane(),
+                            new Region(),
+                            JFXDialog.DialogTransition.CENTER,
+                            false);
+                    yesButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            codeImpossible.close();
+                            try {
+                                cppEngine.generateCode();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    cancelButton.setOnAction(new EventHandler<ActionEvent>(){
+                        @Override
+                        public void handle(ActionEvent event) {
+                            codeImpossible.close();
+                        }
+                    });
+                    JFXDialogLayout codeImpossibleLayout = new JFXDialogLayout();
+
+                    codeImpossibleLayout.setMinSize(500, 100);
+                    codeImpossibleLayout.setBody(textStack);
+                    codeImpossibleLayout.setActions(cancelButton, yesButton);
+                    codeImpossible.setContent(codeImpossibleLayout);
+
+                    codeImpossible.show(stackPane);
+                    return;
+                }
+                try {
+                    cppEngine.generateCode();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         //
+
+        // generateJavaCode button
 
         generateJavaCodeButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
@@ -98,7 +184,7 @@ public class Main extends Application {
                     canvasEmpty.show(stackPane);
                     return;
                 }
-                if (!javaEngine.checkPossibility()){
+                if (!javaEngine.isPossible()){
 
                     JFXButton yesButton = new JFXButton("Yes");
                     JFXButton cancelButton = new JFXButton("Cancel");

@@ -1028,7 +1028,7 @@ public class ClassRectangleActions {
         accessButtons.add(new JFXRadioButton("public"));
         accessButtons.add(new JFXRadioButton("private"));
         accessButtons.add(new JFXRadioButton("protected"));
-        accessButtons.add(new JFXRadioButton("package-private"));
+        accessButtons.add(new JFXRadioButton("default"));
 
         for (int i = 0; i < 4; i++)
             accessButtons.get(i).setToggleGroup(accessGroup);
