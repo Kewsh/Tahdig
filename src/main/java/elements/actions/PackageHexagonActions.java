@@ -7,11 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -26,8 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static elements.actions.ConnectionBuilder.drawConnectionLine;
 
@@ -386,7 +382,7 @@ public class PackageHexagonActions {
         // actions button
 
         actionsStack = new StackPane();
-        actionsStack.setLayoutX(x-35);
+        actionsStack.setLayoutX(x-40);
         actionsStack.setLayoutY(y-85);
         actionsStack.setMinHeight(100);
         root.getChildren().add(actionsStack);

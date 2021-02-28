@@ -56,7 +56,6 @@ public class CppEngine {
             ArrayNode methods = (ArrayNode) class_iter.get("info").get("methods");
             for (JsonNode method : methods){
                 fileContents += "\t";
-                fileContents += "\t";
                 if (method.get("access").textValue().equals("default"))
                     fileContents += "private: ";
                 else
