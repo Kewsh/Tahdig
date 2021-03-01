@@ -70,7 +70,7 @@ public class JavaEngine {
                         ArrayNode tempClassMethods = (ArrayNode) targetClass.get("info").get("methods");
 
                         for (JsonNode method : tempClassMethods){
-                            tempFileContents += "public " + method.get("return").textValue() + method.get("name") + "();\n\n";
+                            tempFileContents += "public " + method.get("return").textValue() + " " + method.get("name") + "();\n\n";
                         }
                         tempFileContents += "}\n";
                         FileWriter tempWriter = new FileWriter(tempFile.getAbsolutePath());
@@ -86,7 +86,7 @@ public class JavaEngine {
                     double targetX = line.get("endX").doubleValue();
                     double targetY = line.get("endY").doubleValue();
                     ObjectNode targetInterface = null;
-                    for (JsonNode target_interf_iter : (ArrayNode) rootNode.get("interfaces")) {
+                    for (JsonNode target_interf_iter : rootNode.get("interfaces")) {
                         if (target_interf_iter.get("info").get("x").doubleValue() == targetX && target_interf_iter.get("info").get("y").doubleValue() == targetY) {
                             targetInterface = (ObjectNode) target_interf_iter;
                             break;
@@ -127,7 +127,7 @@ public class JavaEngine {
                             break;
                         }
                     }
-                    fileContents += "private " + targetClass.get("name").textValue() + " composition" + compositionId + ";\n\n";
+                    fileContents += "\tprivate " + targetClass.get("name").textValue() + " composition" + compositionId + ";\n\n";
                 }
             }
 
@@ -194,11 +194,11 @@ public class JavaEngine {
             myWriter.close();
         }
         ArrayNode functions = (ArrayNode) rootNode.get("functions");
-        if (functions.size() != 0){
+        if (functions.size() != 0) {
             File functionsFile = new File("out/code/GlobalFunctions.java");                     //TODO: protect this name
             functionsFile.createNewFile();
             String fileContents = "public abstract class GlobalFunctions {\n\n";
-            for (JsonNode function : functions){
+            for (JsonNode function : functions) {
                 fileContents += "\tpublic static " + function.get("info").get("return").textValue() + " ";
                 fileContents += function.get("name").textValue() + "();\n\n";
                 //TODO: handle parameters here
@@ -208,6 +208,25 @@ public class JavaEngine {
             myWriter.write(fileContents);
             myWriter.close();
         }
+
+        ArrayNode headers = (ArrayNode) rootNode.get("headers");
+        for (JsonNode header : headers){
+            File headerClassFile = new File("out/code/" + header.get("name").textValue() + "_class" + ".java");
+            headerClassFile.createNewFile();
+            String fileContents = "public class " + header.get("name").textValue() + "_class {\n\n";
+            for (JsonNode variable : header.get("info").get("variables"))
+                fileContents += "\tpublic " + variable.get("type").textValue() + " " + variable.get("name").textValue() + ";\n\n";
+            for (JsonNode function : header.get("info").get("functions"))
+                fileContents += "\tpublic " + function.get("return").textValue() + " " + function.get("name").textValue() + "();\n\n";
+            for (JsonNode class_iter : header.get("info").get("classes"))
+                fileContents += "\tpublic class " + class_iter.get("name").textValue() + " {}\n\n";
+            fileContents += "}\n";
+            FileWriter myWriter = new FileWriter(headerClassFile.getAbsolutePath());
+            myWriter.write(fileContents);
+            myWriter.close();
+        }
+
+        //TODO: handle packages here
 
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
