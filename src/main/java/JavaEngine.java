@@ -30,11 +30,77 @@ public class JavaEngine {
 
         ArrayNode classes = (ArrayNode) rootNode.get("classes");
         for (JsonNode class_iter : classes) {
+
+            double x = class_iter.get("info").get("x").doubleValue();
+            double y = class_iter.get("info").get("y").doubleValue();
+
             File classFile = new File("out/code/" + class_iter.get("name").textValue() + ".java");
             classFile.createNewFile();
             String fileContents = "public class " + class_iter.get("name").textValue() + " ";
 
-            //TODO: handle inheritance and implementations here
+            boolean inheritanceFlag = false;
+            boolean implementationFlag = false;
+            ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y && line.get("type").textValue().equals("inheritance")){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetClass = null;
+                    for (JsonNode target_class_iter : classes) {
+                        if (target_class_iter.get("info").get("x").doubleValue() == targetX && target_class_iter.get("info").get("y").doubleValue() == targetY) {
+                            targetClass = (ObjectNode) target_class_iter;
+                            break;
+                        }
+                    }
+                    if (!inheritanceFlag){
+                        inheritanceFlag = true;
+                        fileContents += "extends " + targetClass.get("name").textValue() + " ";
+                    }
+                    else{
+                        if (!implementationFlag){
+                            implementationFlag = true;
+                            fileContents += "implements " + targetClass.get("name").textValue() + "_interface" + " ";
+                        }
+                        else{
+                            fileContents += ", " + targetClass.get("name").textValue() + "_interface" + " ";
+                        }
+                        File tempFile = new File("out/code/" + targetClass.get("name").textValue() + "_interface" + ".java");
+                        tempFile.createNewFile();
+                        String tempFileContents = "public interface " + targetClass.get("name").textValue() + "_interface {\n\n";
+                        ArrayNode tempClassMethods = (ArrayNode) targetClass.get("info").get("methods");
+
+                        for (JsonNode method : tempClassMethods){
+                            tempFileContents += "public " + method.get("return").textValue() + method.get("name") + "();\n\n";
+                        }
+                        tempFileContents += "}\n";
+                        FileWriter tempWriter = new FileWriter(tempFile.getAbsolutePath());
+                        tempWriter.write(tempFileContents);
+                        tempWriter.close();
+                    }
+                }
+            }
+
+            lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y && line.get("type").textValue().equals("implementation")){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetInterface = null;
+                    for (JsonNode target_interf_iter : (ArrayNode) rootNode.get("interfaces")) {
+                        if (target_interf_iter.get("info").get("x").doubleValue() == targetX && target_interf_iter.get("info").get("y").doubleValue() == targetY) {
+                            targetInterface = (ObjectNode) target_interf_iter;
+                            break;
+                        }
+                    }
+                    if (!implementationFlag){
+                        implementationFlag = true;
+                        fileContents += "implements " + targetInterface.get("name").textValue();
+                    }
+                    else{
+                        fileContents += ", " + targetInterface.get("name").textValue() + " ";
+                    }
+                }
+            }
 
             fileContents += "{\n\n";
             ArrayNode attributes = (ArrayNode) class_iter.get("info").get("attributes");
@@ -48,7 +114,22 @@ public class JavaEngine {
                 fileContents += attribute.get("name").textValue() + ";\n\n";
             }
 
-            //TODO: handle compositions here
+            lines = (ArrayNode) rootNode.get("lines");
+            int compositionId = 1;
+            for (JsonNode line : lines){
+                if (line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y && line.get("type").textValue().equals("composition")){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetClass = null;
+                    for (JsonNode target_class_iter : classes) {
+                        if (target_class_iter.get("info").get("x").doubleValue() == targetX && target_class_iter.get("info").get("y").doubleValue() == targetY) {
+                            targetClass = (ObjectNode) target_class_iter;
+                            break;
+                        }
+                    }
+                    fileContents += "private " + targetClass.get("name").textValue() + " composition" + compositionId + ";\n\n";
+                }
+            }
 
             ArrayNode methods = (ArrayNode) class_iter.get("info").get("methods");
             for (JsonNode method : methods){
@@ -72,7 +153,31 @@ public class JavaEngine {
             interfaceFile.createNewFile();
             String fileContents = "public interface " + interf_iter.get("name").textValue() + " ";
 
-            //TODO: handle inheritance here
+            double x = interf_iter.get("info").get("x").doubleValue();
+            double y = interf_iter.get("info").get("y").doubleValue();
+
+            boolean inheritanceFlag = false;
+            ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y && line.get("type").textValue().equals("inheritance")){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetInterface = null;
+                    for (JsonNode target_interf_iter : interfaces) {
+                        if (target_interf_iter.get("info").get("x").doubleValue() == targetX && target_interf_iter.get("info").get("y").doubleValue() == targetY) {
+                            targetInterface = (ObjectNode) target_interf_iter;
+                            break;
+                        }
+                    }
+                    if (!inheritanceFlag){
+                        inheritanceFlag = true;
+                        fileContents += "extends " + targetInterface.get("name").textValue();
+                    }
+                    else{
+                        fileContents += ", " + targetInterface.get("name").textValue() + " ";
+                    }
+                }
+            }
 
             fileContents += "{\n\n";
             ArrayNode methods = (ArrayNode) interf_iter.get("info").get("methods");
