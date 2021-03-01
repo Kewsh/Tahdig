@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -62,7 +63,7 @@ public class JavaEngine {
                             fileContents += "implements " + targetClass.get("name").textValue() + "_interface" + " ";
                         }
                         else{
-                            fileContents += ", " + targetClass.get("name").textValue() + "_interface" + " ";
+                            fileContents += " , " + targetClass.get("name").textValue() + "_interface" + " ";
                         }
                         File tempFile = new File("out/code/" + targetClass.get("name").textValue() + "_interface" + ".java");
                         tempFile.createNewFile();
@@ -97,7 +98,7 @@ public class JavaEngine {
                         fileContents += "implements " + targetInterface.get("name").textValue();
                     }
                     else{
-                        fileContents += ", " + targetInterface.get("name").textValue() + " ";
+                        fileContents += " , " + targetInterface.get("name").textValue() + " ";
                     }
                 }
             }
@@ -127,7 +128,7 @@ public class JavaEngine {
                             break;
                         }
                     }
-                    fileContents += "\tprivate " + targetClass.get("name").textValue() + " composition" + compositionId + ";\n\n";
+                    fileContents += "\tprivate " + targetClass.get("name").textValue() + " composition" + compositionId++ + ";\n\n";
                 }
             }
 
@@ -174,7 +175,7 @@ public class JavaEngine {
                         fileContents += "extends " + targetInterface.get("name").textValue();
                     }
                     else{
-                        fileContents += ", " + targetInterface.get("name").textValue() + " ";
+                        fileContents += " , " + targetInterface.get("name").textValue() + " ";
                     }
                 }
             }
@@ -226,16 +227,20 @@ public class JavaEngine {
             myWriter.close();
         }
 
-        //TODO: handle packages here
         //implementing only one level of packages for now
 
         ArrayNode packages = (ArrayNode) rootNode.get("packages");
         for (JsonNode package_iter : packages){
+
+            final int MAX_PACKAGE_SIZE = 100;
             double x = package_iter.get("info").get("x").doubleValue();
             double y = package_iter.get("info").get("y").doubleValue();
             File packageFolder = new File("out/code/" + package_iter.get("name").textValue());
             packageFolder.mkdir();
             ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            String[] packageContents = new String[MAX_PACKAGE_SIZE];
+            int packageSize = 0;
+
             for (JsonNode line : lines){
                 if (line.get("type").textValue().equals("containment") &&
                         line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
@@ -257,16 +262,73 @@ public class JavaEngine {
                         }
                     }
                     moveFile(name, packageFolder.getAbsolutePath());
+                    packageContents[packageSize++] = name;
                 }
             }
-            //TODO: fix import and mention paths in all files except those in this folder
 
+            final int MAX_FILE_SIZE = 4096;
+            File codeDirectory = new File("out/code/");
+            File packageDirectory = new File("out/code/" + package_iter.get("name").textValue());
+            for (File file : codeDirectory.listFiles()){
+                if (file.getName().equals(package_iter.get("name").textValue())) continue;
+                if (file.isDirectory()){
+                    for (File subDirectoryFile : file.listFiles()){
+                        for (File packageFile : packageDirectory.listFiles()) {
+                            char[] buffer = new char[MAX_FILE_SIZE];
+                            FileReader myReader = new FileReader(subDirectoryFile.getAbsolutePath());
+                            myReader.read(buffer);
+                            myReader.close();
+                            editOccurrencesInFile(buffer, packageFile.getName().substring(0, packageFile.getName().indexOf(".")),
+                                    package_iter.get("name").textValue(), subDirectoryFile);
+                        }
+                    }
+                }
+                else{
+                    for (File packageFile : packageDirectory.listFiles()) {
+                        char[] buffer = new char[MAX_FILE_SIZE];
+                        FileReader myReader = new FileReader(file.getAbsolutePath());
+                        myReader.read(buffer);
+                        myReader.close();
+                        try {
+                            editOccurrencesInFile(buffer, packageFile.getName().substring(0, packageFile.getName().indexOf(".")),
+                                    package_iter.get("name").textValue(), file);
+                        } catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void editOccurrencesInFile(char[] haystack, String needle, String packageName, File file) throws IOException {
+        String editedString = "";
+        for (int i = 0; haystack[i] != '\0'; i++){
+            if (haystack[i] == needle.charAt(0)){
+                boolean flag = false;
+                int j;
+                for (j = 0; j < needle.length(); j++) {
+                    if (haystack[i + j] != needle.charAt(j)) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag){                         //occurrence found
+                    i += j-1;
+                    editedString += packageName + "." + needle;
+                    continue;
+                }
+            }
+            editedString += haystack[i];
+        }
+        FileWriter myWriter = new FileWriter(file.getAbsolutePath());
+        myWriter.write(editedString);
+        myWriter.close();
     }
 
     private void moveFile(String name, String path){
