@@ -319,13 +319,24 @@ public class PackageHexagonActions {
                 }
                 ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
                 ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                for (JsonNode interf_iter : interfaces)
+                ArrayNode lines = (ArrayNode) rootNode.get("lines");
 
-                    //TODO: handle duplicates here (i.e. interfaces and classes that already are connected via containment with this package)
-
+                skip_interface: for (JsonNode interf_iter : interfaces) {
+                    for (JsonNode line : lines){                                            //skip if interface is already contained by a package (this is due to the one-level package support)
+                        if (line.get("type").textValue().equals("containment") &&
+                                line.get("endX").doubleValue() == interf_iter.get("info").get("x").doubleValue() &&
+                                line.get("endY").doubleValue() == interf_iter.get("info").get("y").doubleValue()) continue skip_interface;
+                    }
                     containmentComboBox.getItems().add(interf_iter.get("name").textValue());
-                for (JsonNode class_iter : classes)
+                }
+                skip_class: for (JsonNode class_iter : classes) {
+                    for (JsonNode line : lines){
+                        if (line.get("type").textValue().equals("containment") &&
+                                line.get("endX").doubleValue() == class_iter.get("info").get("x").doubleValue() &&
+                                line.get("endY").doubleValue() == class_iter.get("info").get("y").doubleValue()) continue skip_class;
+                    }
                     containmentComboBox.getItems().add(class_iter.get("name").textValue());
+                }
                 try {
                     objectMapper.writeValue(CanvasContents, rootNode);
                 } catch (IOException e) {
@@ -438,9 +449,6 @@ public class PackageHexagonActions {
 
         info.put("x", x);
         info.put("y", y);
-        info.put("classes", objectMapper.createArrayNode());
-        info.put("interfaces", objectMapper.createArrayNode());
-
         thisPack.put("name", name);
         thisPack.put("info", info);
 

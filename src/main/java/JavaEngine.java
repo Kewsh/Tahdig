@@ -70,7 +70,7 @@ public class JavaEngine {
                         ArrayNode tempClassMethods = (ArrayNode) targetClass.get("info").get("methods");
 
                         for (JsonNode method : tempClassMethods){
-                            tempFileContents += "public " + method.get("return").textValue() + " " + method.get("name") + "();\n\n";
+                            tempFileContents += "\tpublic " + method.get("return").textValue() + " " + method.get("name").textValue() + "();\n\n";
                         }
                         tempFileContents += "}\n";
                         FileWriter tempWriter = new FileWriter(tempFile.getAbsolutePath());
@@ -227,12 +227,60 @@ public class JavaEngine {
         }
 
         //TODO: handle packages here
+        //implementing only one level of packages for now
 
+        ArrayNode packages = (ArrayNode) rootNode.get("packages");
+        for (JsonNode package_iter : packages){
+            double x = package_iter.get("info").get("x").doubleValue();
+            double y = package_iter.get("info").get("y").doubleValue();
+            File packageFolder = new File("out/code/" + package_iter.get("name").textValue());
+            packageFolder.mkdir();
+            ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("type").textValue().equals("containment") &&
+                        line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    String name = null;
+                    for (JsonNode interf_iter : rootNode.get("interfaces")){
+                        if (interf_iter.get("info").get("x").doubleValue() == targetX && interf_iter.get("info").get("y").doubleValue() == targetY){
+                            name = interf_iter.get("name").textValue();
+                            break;
+                        }
+                    }
+                    if (name == null){
+                        for (JsonNode class_iter : rootNode.get("classes")){
+                            if (class_iter.get("info").get("x").doubleValue() == targetX && class_iter.get("info").get("y").doubleValue() == targetY){
+                                name = class_iter.get("name").textValue();
+                                break;
+                            }
+                        }
+                    }
+                    moveFile(name, packageFolder.getAbsolutePath());
+                }
+            }
+            //TODO: fix import and mention paths in all files except those in this folder
+
+        }
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void moveFile(String name, String path){
+        File codeDirectory = new File("out/code/");
+        File targetFile = null;
+        for (File file : codeDirectory.listFiles()){
+            if (file.getAbsolutePath().contains("\\" + name + ".java")) {
+                targetFile = file;
+                break;
+            }
+        }
+        targetFile.renameTo(new File(path + "\\" + name + ".java"));
+
+        //TODO: move [name]_interface.java as well?
     }
 
     public boolean isPossible(){
