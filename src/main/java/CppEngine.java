@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,8 +18,6 @@ public class CppEngine {
 
     public void generateCode() throws IOException {
 
-        //TODO: some types such as boolean and byte are different in cpp, handle this
-
         (new File("out/code/")).mkdir();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;
@@ -29,13 +28,131 @@ public class CppEngine {
             e.printStackTrace();
         }
 
+        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+        for (JsonNode interf_iter : interfaces){
+
+            File interfaceFile = new File("out/code/" + interf_iter.get("name").textValue() + "_absCLASS" + ".cpp");
+            if (!interfaceFile.exists())
+                interfaceFile.createNewFile();
+            String fileContents = "class " + interf_iter.get("name").textValue() + "_absCLASS" + " ";
+
+            double x = interf_iter.get("info").get("x").doubleValue();
+            double y = interf_iter.get("info").get("y").doubleValue();
+
+            boolean inheritanceFlag = false;
+            ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("type").textValue().equals("inheritance") &&
+                        line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetInterface = null;
+                    for (JsonNode target_interf_iter : interfaces) {
+                        if (target_interf_iter.get("info").get("x").doubleValue() == targetX &&
+                                target_interf_iter.get("info").get("y").doubleValue() == targetY) {
+                            targetInterface = (ObjectNode) target_interf_iter;
+                            break;
+                        }
+                    }
+                    File tempFile = new File("out/code/" + targetInterface.get("name").textValue() + "_absCLASS" + ".cpp");
+                    tempFile.createNewFile();
+
+                    String tempFileContents = "class " + targetInterface.get("name").textValue() + "_absCLASS" + " {\n\n";
+                    tempFileContents += "{\n\n\tprivate: void dummy()=0;\n\n";          // this pure virtual dummy method makes the class abstract
+                    ArrayNode methods = (ArrayNode) targetInterface.get("info").get("methods");
+                    for (JsonNode method : methods){
+                        tempFileContents += "\tpublic: ";
+                        if (method.get("extra").textValue().contains("static")) tempFileContents += "static ";
+                        tempFileContents += method.get("return").textValue() + " ";
+                        tempFileContents += method.get("name").textValue() + "();\n\n";
+
+                        //TODO: handle parameters here
+                    }
+                    tempFileContents += "};\n";
+                    FileWriter tempWriter = new FileWriter(tempFile.getAbsolutePath());
+                    tempWriter.write(tempFileContents);
+                    tempWriter.close();
+
+                    if (!inheritanceFlag){
+                        inheritanceFlag = true;
+                        fileContents += ": public " + targetInterface.get("name").textValue() + "_absCLASS ";
+                    } else{
+                        fileContents += ", " + targetInterface.get("name").textValue() + "_absCLASS ";
+                    }
+                }
+            }
+
+            fileContents += "{\n\n\tprivate: void dummy()=0;\n\n";
+            ArrayNode methods = (ArrayNode) interf_iter.get("info").get("methods");
+            for (JsonNode method : methods){
+                fileContents += "\tpublic: ";
+                if (method.get("extra").textValue().contains("static")) fileContents += "static ";
+                fileContents += method.get("return").textValue() + " ";
+                fileContents += method.get("name").textValue() + "();\n\n";
+
+                //TODO: handle parameters here
+            }
+            fileContents += "};\n";
+            FileWriter myWriter = new FileWriter(interfaceFile.getAbsolutePath());
+            myWriter.write(fileContents);
+            myWriter.close();
+        }
+
         ArrayNode classes = (ArrayNode) rootNode.get("classes");
         for (JsonNode class_iter : classes) {
             File classFile = new File("out/code/" + class_iter.get("name").textValue() + ".cpp");
             classFile.createNewFile();
             String fileContents = "class " + class_iter.get("name").textValue() + " ";
 
-            //TODO: handle inheritance and implementations here
+            double x = class_iter.get("info").get("x").doubleValue();
+            double y = class_iter.get("info").get("y").doubleValue();
+
+            boolean inheritanceFlag = false;
+            ArrayNode lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("type").textValue().equals("inheritance") &&
+                        line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetClass = null;
+                    for (JsonNode target_class_iter : classes){
+                        if (target_class_iter.get("info").get("x").doubleValue() == targetX &&
+                                target_class_iter.get("info").get("y").doubleValue() == targetY){
+                            targetClass = (ObjectNode) target_class_iter;
+                            break;
+                        }
+                    }
+                    if (!inheritanceFlag){
+                        inheritanceFlag = true;
+                        fileContents += ": public " + targetClass.get("name").textValue() + " ";
+                    } else{
+                        fileContents += ", " + targetClass.get("name").textValue();
+                    }
+                }
+            }
+
+            lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("type").textValue().equals("implementation") &&
+                        line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetInterface = null;
+                    for (JsonNode target_interf_iter : rootNode.get("interfaces")){
+                        if (target_interf_iter.get("info").get("x").doubleValue() == targetX &&
+                                target_interf_iter.get("info").get("y").doubleValue() == targetY){
+                            targetInterface = (ObjectNode) target_interf_iter;
+                            break;
+                        }
+                    }
+                    if (!inheritanceFlag){
+                        inheritanceFlag = true;
+                        fileContents += ": public " + targetInterface.get("name").textValue() + "_absCLASS ";
+                    } else{
+                        fileContents += ", " + targetInterface.get("name").textValue() + "_absCLASS ";
+                    }
+                }
+            }
 
             fileContents += "{\n\n";
             ArrayNode attributes = (ArrayNode) class_iter.get("info").get("attributes");
@@ -47,7 +164,12 @@ public class CppEngine {
                     fileContents += attribute.get("access").textValue() + ": ";
                 if (attribute.get("extra").textValue().contains("static")) fileContents += "static ";
                 if (attribute.get("extra").textValue().contains("constant")) fileContents += "const ";
-                fileContents += attribute.get("type").textValue() + " ";
+                if (attribute.get("type").textValue().equals("byte"))
+                    fileContents += "char ";
+                else if (attribute.get("type").textValue().equals("boolean"))
+                    fileContents += "bool ";
+                else
+                    fileContents += attribute.get("type").textValue() + " ";
                 fileContents += attribute.get("name").textValue() + ";\n\n";
             }
 
@@ -74,31 +196,7 @@ public class CppEngine {
             myWriter.write(fileContents);
             myWriter.close();
         }
-        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-        for (JsonNode interf_iter : interfaces){
-            File interfaceFile = new File("out/code/" + interf_iter.get("name").textValue() + ".cpp");
-            interfaceFile.createNewFile();
-            String fileContents = "class " + interf_iter.get("name").textValue() + " ";
 
-            //TODO: handle inheritance here
-
-            fileContents += "{\n\n";
-            ArrayNode methods = (ArrayNode) interf_iter.get("info").get("methods");
-            for (JsonNode method : methods){
-                fileContents += "\tpublic: ";
-                if (method.get("extra").textValue().contains("static")) fileContents += "static ";
-                fileContents += method.get("return").textValue() + " ";
-                fileContents += method.get("name").textValue() + "()=0;\n\n";
-
-                //TODO: Interface1.cpp:3:21: error: initializer specified for static member function 'static int Interface1::farda()'
-                //    3 |  public: static int farda()=0; handle this
-                //TODO: handle parameters here
-            }
-            fileContents += "};\n";
-            FileWriter myWriter = new FileWriter(interfaceFile.getAbsolutePath());
-            myWriter.write(fileContents);
-            myWriter.close();
-        }
         ArrayNode functions = (ArrayNode) rootNode.get("functions");
         if (functions.size() != 0){
             File functionsFile = new File("out/code/GlobalFunctions.cpp");                     //TODO: protect this name
@@ -114,6 +212,8 @@ public class CppEngine {
             myWriter.write(fileContents);
             myWriter.close();
         }
+
+        //TODO: handle header files and packages here
 
         try {
             objectMapper.writeValue(CanvasContents, rootNode);

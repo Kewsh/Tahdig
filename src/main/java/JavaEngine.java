@@ -227,19 +227,16 @@ public class JavaEngine {
             myWriter.close();
         }
 
-        //implementing only one level of packages for now
+        //TODO: consider implementing multi-level packages (sub-packages)
 
         ArrayNode packages = (ArrayNode) rootNode.get("packages");
         for (JsonNode package_iter : packages){
 
-            final int MAX_PACKAGE_SIZE = 100;
             double x = package_iter.get("info").get("x").doubleValue();
             double y = package_iter.get("info").get("y").doubleValue();
             File packageFolder = new File("out/code/" + package_iter.get("name").textValue());
             packageFolder.mkdir();
             ArrayNode lines = (ArrayNode) rootNode.get("lines");
-            String[] packageContents = new String[MAX_PACKAGE_SIZE];
-            int packageSize = 0;
 
             for (JsonNode line : lines){
                 if (line.get("type").textValue().equals("containment") &&
@@ -262,7 +259,6 @@ public class JavaEngine {
                         }
                     }
                     moveFile(name, packageFolder.getAbsolutePath());
-                    packageContents[packageSize++] = name;
                 }
             }
 
@@ -307,6 +303,9 @@ public class JavaEngine {
     }
 
     private void editOccurrencesInFile(char[] haystack, String needle, String packageName, File file) throws IOException {
+
+        //TODO: make sure that the needles found are actual types, not variable names or etc
+
         String editedString = "";
         for (int i = 0; haystack[i] != '\0'; i++){
             if (haystack[i] == needle.charAt(0)){
