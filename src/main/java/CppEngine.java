@@ -58,7 +58,7 @@ public class CppEngine {
                     tempFile.createNewFile();
 
                     String tempFileContents = "class " + targetInterface.get("name").textValue() + "_absCLASS" + " {\n\n";
-                    tempFileContents += "{\n\n\tprivate: void dummy()=0;\n\n";          // this pure virtual dummy method makes the class abstract
+                    tempFileContents += "\tprivate: void dummy()=0;\n\n";          // this pure virtual dummy method makes the class abstract
                     ArrayNode methods = (ArrayNode) targetInterface.get("info").get("methods");
                     for (JsonNode method : methods){
                         tempFileContents += "\tpublic: ";
@@ -126,7 +126,7 @@ public class CppEngine {
                         inheritanceFlag = true;
                         fileContents += ": public " + targetClass.get("name").textValue() + " ";
                     } else{
-                        fileContents += ", " + targetClass.get("name").textValue();
+                        fileContents += ", " + targetClass.get("name").textValue() + " ";
                     }
                 }
             }
@@ -227,9 +227,29 @@ public class CppEngine {
             myWriter.close();
         }
 
-        //TODO: handle header files and packages here
+        ArrayNode headers = (ArrayNode) rootNode.get("headers");
+        for (JsonNode header : headers){
+            File headerFile = new File("out/code/" + header.get("name").textValue() + ".hpp");
+            headerFile.createNewFile();
+            String fileContents = "#pragma once\n\n";
 
+            for (JsonNode variable : header.get("info").get("variables")){
+                fileContents += variable.get("type").textValue() + " " + variable.get("name").textValue() + "\n\n";
+            }
+            for (JsonNode function : header.get("info").get("functions")){
+                fileContents += function.get("return").textValue() + " " + function.get("name").textValue() + "();\n\n";
+            }
+            for (JsonNode class_iter : header.get("info").get("classes")){
+                fileContents += "class " + class_iter.get("name").textValue() + ";\n\n";
+            }
+            FileWriter myWriter = new FileWriter(headerFile.getAbsolutePath());
+            myWriter.write(fileContents);
+            myWriter.close();
+        }
 
+        //TODO:  handle packages here
+        //      ignoring packages for now ---> is it even possible in cpp?
+        //      like, can it be done without having header-files for every class?
 
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
@@ -251,7 +271,9 @@ public class CppEngine {
         ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
         if (interfaces.size() != 0)
             state = false;
-        // are packages also considered java-only?
+
+        //TODO: answer this: are packages also considered java-only?
+
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
         } catch (IOException e) {
