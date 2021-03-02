@@ -139,6 +139,9 @@ public class JavaEngine {
                     fileContents += method.get("access").textValue() + " ";
                 if (method.get("extra").textValue().contains("static")) fileContents += "static ";
                 if (!method.get("extra").textValue().contains("virtual")) fileContents += "final ";
+
+                //TODO: implement other keywords parallel to ClassRectangleActions method generator
+
                 fileContents += method.get("return").textValue() + " ";
                 fileContents += method.get("name").textValue() + "();\n\n";
             }

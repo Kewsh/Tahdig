@@ -1081,6 +1081,22 @@ public class ClassRectangleActions {
         extraButtons.add(new JFXCheckBox("virtual"));
         extraButtons.add(new JFXCheckBox("static"));
 
+        extraButtons.get(0).setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                extraButtons.get(1).setDisable(!extraButtons.get(1).isDisabled());           // can be either static or virtual
+            }
+        });
+
+        extraButtons.get(1).setOnAction(new EventHandler<ActionEvent>(){
+            @Override
+            public void handle(ActionEvent event) {
+                extraButtons.get(0).setDisable(!extraButtons.get(0).isDisabled());
+            }
+        });
+
+        //TODO: implement other keywords for methods? such as synchronized
+
         return new VBox(extraButtons.get(0), extraButtons.get(1));
     }
 

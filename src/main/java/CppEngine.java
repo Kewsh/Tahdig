@@ -173,7 +173,24 @@ public class CppEngine {
                 fileContents += attribute.get("name").textValue() + ";\n\n";
             }
 
-            //TODO: handle compositions here
+            int compositionId = 1;
+            lines = (ArrayNode) rootNode.get("lines");
+            for (JsonNode line : lines){
+                if (line.get("type").textValue().equals("composition") &&
+                        line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y){
+                    double targetX = line.get("endX").doubleValue();
+                    double targetY = line.get("endY").doubleValue();
+                    ObjectNode targetClass = null;
+                    for (JsonNode target_class_iter : classes){
+                        if (target_class_iter.get("info").get("x").doubleValue() == targetX &&
+                                target_class_iter.get("info").get("y").doubleValue() == targetY){
+                            targetClass = (ObjectNode) target_class_iter;
+                            break;
+                        }
+                    }
+                    fileContents += "\tprivate " + targetClass.get("name").textValue() + " composition" + compositionId++ + ";\n\n";
+                }
+            }
 
             ArrayNode methods = (ArrayNode) class_iter.get("info").get("methods");
             for (JsonNode method : methods){
@@ -184,9 +201,6 @@ public class CppEngine {
                     fileContents += method.get("access").textValue() + ": ";
                 if (method.get("extra").textValue().contains("static")) fileContents += "static ";
                 if (method.get("extra").textValue().contains("virtual")) fileContents += "virtual ";
-
-                //TODO: apparently methods cannot be static and virtual at the same time in cpp, handle this
-
                 fileContents += method.get("return").textValue() + " ";
                 fileContents += method.get("name").textValue() + "();\n\n";
             }
@@ -214,6 +228,8 @@ public class CppEngine {
         }
 
         //TODO: handle header files and packages here
+
+
 
         try {
             objectMapper.writeValue(CanvasContents, rootNode);
