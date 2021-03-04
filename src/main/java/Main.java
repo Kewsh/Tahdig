@@ -251,7 +251,7 @@ public class Main extends Application {
 
         Separator separator = new Separator(Orientation.VERTICAL);
 
-        HBox hBox =  new HBox(leftControl, separator, new DrawingPane(primaryStage, scene).getPane());
+        HBox hBox =  new HBox(leftControl, separator, new DrawingPane(scene).getPane());
 
         Menu menu1 = new Menu("Menu 1");
         Menu menu2 = new Menu("Menu 2");

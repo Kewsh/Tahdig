@@ -1,4 +1,3 @@
-import elements.actions.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
@@ -13,8 +12,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,7 +20,6 @@ import java.io.IOException;
 
 public class DrawingPane {
 
-    private Stage stage;
     private Scene scene;
     private ScrollPane scrollPane;
     private Canvas canvas;
@@ -32,7 +28,7 @@ public class DrawingPane {
     private int width;
     private int height;
 
-    public DrawingPane(Stage stage, Scene scene){
+    public DrawingPane(Scene scene){
 
         /*
          * height and width of the canvas both start from 2000, and can continue to grow to up to 6000px.
@@ -43,17 +39,15 @@ public class DrawingPane {
          * causes the application to crash, do make sure to reconsider the maximum size for the sake
          * of cross-platform functionality.
          */
+
         height = 2000;
         width = 2000;
-
         this.scene = scene;
-        this.stage = stage;
         defaultIdArray = new int[]{1, 1, 1, 1, 1};
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
         canvas.setHeight(height);
         canvas.setWidth(width);
-
         root = new Group();
         root.getChildren().add(canvas);
         scrollPane.setContent(root);
@@ -114,12 +108,10 @@ public class DrawingPane {
                         e.printStackTrace();
                     }
                     event.setDropCompleted(true);
-                }
-                else
+                } else
                     event.setDropCompleted(false);
-            } else {
+            } else
                 event.setDropCompleted(false);
-            }
             event.consume();
         });
     }
@@ -139,13 +131,11 @@ public class DrawingPane {
     }
 
     private void placeShapeOnCanvas(double x, double y, String shape, File CanvasContents) throws FileNotFoundException {
-
         String name;
-        Text text;
         StackPane stack;
 
-        switch(shape)
-        {
+        switch(shape) {
+
             case "circle":
 
                 name = "Function" + defaultIdArray[0];
@@ -153,22 +143,8 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawCircle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-
-                new FunctionCircleActions(x, y, name, root, stack, CanvasContents);
-
-                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.HAND);
-                    }
-                });
-                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.DEFAULT);
-                    }
-                });
-
+                new elements.FunctionCircle.Actions(x, y, name, root, stack, CanvasContents);
+                setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
@@ -179,22 +155,8 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawRectangle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-
-                new ClassRectangleActions(x, y, name, root, stack, CanvasContents);
-
-                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.HAND);
-                    }
-                });
-                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.DEFAULT);
-                    }
-                });
-
+                new elements.ClassRectangle.Actions(x, y, name, root, stack, CanvasContents);
+                setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
@@ -205,22 +167,8 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawDiamond(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-
-                new InterfaceDiamondActions(x, y, name, root, stack, CanvasContents);
-
-                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.HAND);
-                    }
-                });
-                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.DEFAULT);
-                    }
-                });
-
+                new elements.InterfaceDiamond.Actions(x, y, name, root, stack, CanvasContents);
+                setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
@@ -231,22 +179,8 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawHexagon(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-
-                new PackageHexagonActions(x, y, name, root, stack, CanvasContents);
-
-                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.HAND);
-                    }
-                });
-                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.DEFAULT);
-                    }
-                });
-
+                new elements.PackageHexagon.Actions(x, y, name, root, stack, CanvasContents);
+                setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
@@ -257,24 +191,25 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawEllipse(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-
-                new HeaderFileEllipseActions(x, y, name, root, stack, CanvasContents);
-
-                stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.HAND);
-                    }
-                });
-                stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-                    @Override
-                    public void handle(MouseEvent event) {
-                        scene.setCursor(Cursor.DEFAULT);
-                    }
-                });
-
+                new elements.HeaderFileEllipse.Actions(x, y, name, root, stack, CanvasContents);
+                setCursor(stack);
                 root.getChildren().add(stack);
         }
+    }
+
+    private void setCursor(StackPane stack){
+        stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                scene.setCursor(Cursor.HAND);
+            }
+        });
+        stack.setOnMouseExited(new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                scene.setCursor(Cursor.DEFAULT);
+            }
+        });
     }
 
     public ScrollPane getPane(){
