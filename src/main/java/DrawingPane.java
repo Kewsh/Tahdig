@@ -13,12 +13,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -154,18 +148,9 @@ public class DrawingPane {
         {
             case "circle":
 
-                Circle circle = new Circle();
-                circle.setRadius(60);
-                circle.setStroke(Color.BLUE);
-                circle.setStrokeWidth(2);
-                circle.setFill(Color.YELLOW);
-
                 name = "Function" + defaultIdArray[0];
-                text = new Text(name);
                 defaultIdArray[0] += 1;
-                text.setFont(new Font("monospace", 20));
-                stack = new StackPane();
-                stack.getChildren().addAll(circle, text);
+                stack = tools.ShapeDrawer.drawCircle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
@@ -177,7 +162,6 @@ public class DrawingPane {
                         scene.setCursor(Cursor.HAND);
                     }
                 });
-
                 stack.setOnMouseExited(new EventHandler<MouseEvent>(){
                     @Override
                     public void handle(MouseEvent event) {
@@ -190,21 +174,9 @@ public class DrawingPane {
 
             case "rectangle":
 
-                Rectangle rectangle = new Rectangle();
-                rectangle.setWidth(100);
-                rectangle.setHeight(120);
-                rectangle.setArcWidth(30.0);
-                rectangle.setArcHeight(20.0);
-                rectangle.setStroke(Color.BLUE);
-                rectangle.setStrokeWidth(2);
-                rectangle.setFill(Color.YELLOW);
-
                 name = "Class" + defaultIdArray[1];
-                text = new Text(name);
                 defaultIdArray[1] += 1;
-                text.setFont(new Font("monospace", 20));
-                stack = new StackPane();
-                stack.getChildren().addAll(rectangle, text);
+                stack = tools.ShapeDrawer.drawRectangle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
@@ -216,7 +188,6 @@ public class DrawingPane {
                         scene.setCursor(Cursor.HAND);
                     }
                 });
-
                 stack.setOnMouseExited(new EventHandler<MouseEvent>(){
                     @Override
                     public void handle(MouseEvent event) {
@@ -229,21 +200,9 @@ public class DrawingPane {
 
             case "diamond":
 
-                Polygon diamond = new Polygon();
-                diamond.getPoints().addAll(300.0, 60.0,
-                        375.0, 0.0,
-                        450.0, 60.0,
-                        375.0, 120.0);
-                diamond.setStroke(Color.BLUE);
-                diamond.setStrokeWidth(2);
-                diamond.setFill(Color.YELLOW);
-
                 name = "Interface" + defaultIdArray[2];
-                text = new Text(name);
                 defaultIdArray[2] += 1;
-                text.setFont(new Font("monospace", 20));
-                stack = new StackPane();
-                stack.getChildren().addAll(diamond, text);
+                stack = tools.ShapeDrawer.drawDiamond(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
@@ -255,7 +214,6 @@ public class DrawingPane {
                         scene.setCursor(Cursor.HAND);
                     }
                 });
-
                 stack.setOnMouseExited(new EventHandler<MouseEvent>(){
                     @Override
                     public void handle(MouseEvent event) {
@@ -268,23 +226,9 @@ public class DrawingPane {
 
             case "hexagon":
 
-                Polygon hexagon = new Polygon();
-                hexagon.getPoints().addAll(0.0, 50.0,
-                        50.0, 0.0,
-                        100.0, 0.0,
-                        150.0, 50.0,
-                        100.0, 100.0,
-                        50.0, 100.0);
-                hexagon.setStroke(Color.BLUE);
-                hexagon.setStrokeWidth(2);
-                hexagon.setFill(Color.YELLOW);
-
                 name = "Package" + defaultIdArray[3];
-                text = new Text(name);
                 defaultIdArray[3] += 1;
-                text.setFont(new Font("monospace", 20));
-                stack = new StackPane();
-                stack.getChildren().addAll(hexagon, text);
+                stack = tools.ShapeDrawer.drawHexagon(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
@@ -296,7 +240,6 @@ public class DrawingPane {
                         scene.setCursor(Cursor.HAND);
                     }
                 });
-
                 stack.setOnMouseExited(new EventHandler<MouseEvent>(){
                     @Override
                     public void handle(MouseEvent event) {
@@ -309,17 +252,9 @@ public class DrawingPane {
 
             default:            //ellipse
 
-                Ellipse ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
-                ellipse.setStroke(Color.BLUE);
-                ellipse.setStrokeWidth(2);
-                ellipse.setFill(Color.YELLOW);
-
                 name = "Header-File" + defaultIdArray[4];
-                text = new Text(name);
                 defaultIdArray[4] += 1;
-                text.setFont(new Font("monospace", 20));
-                stack = new StackPane();
-                stack.getChildren().addAll(ellipse, text);
+                stack = tools.ShapeDrawer.drawEllipse(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
 
@@ -331,7 +266,6 @@ public class DrawingPane {
                         scene.setCursor(Cursor.HAND);
                     }
                 });
-
                 stack.setOnMouseExited(new EventHandler<MouseEvent>(){
                     @Override
                     public void handle(MouseEvent event) {

@@ -42,11 +42,11 @@ public class Main extends Application {
         label.setId("11");
         Separator separator3 = new Separator(Orientation.HORIZONTAL);
 
-        HBox hBox2 = new HBox(new FunctionCircle(scene).getElement(), new ClassRectangle(scene).getElement(), new InterfaceDiamond(scene).getElement());
+        HBox hBox2 = new HBox(new FunctionCircle().getElement(), new ClassRectangle().getElement(), new InterfaceDiamond().getElement());
         hBox2.setPadding(new Insets(50, 30, 0, 30));
         hBox2.setSpacing(40);
 
-        HBox hBox4 = new HBox(new PackageHexagon(scene).getElement(), new HeaderFileEllipse(scene).getElement());
+        HBox hBox4 = new HBox(new PackageHexagon().getElement(), new HeaderFileEllipse().getElement());
         hBox4.setPadding(new Insets(50, 50, 0, 50));
         hBox4.setSpacing(50);
 

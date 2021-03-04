@@ -1,6 +1,5 @@
 package elements;
 
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -8,10 +7,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+import tools.ShapeDrawer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,23 +15,11 @@ import java.io.FileNotFoundException;
 
 public class HeaderFileEllipse {
 
-    private Scene scene;
-    private Ellipse ellipse;
-    private final Text text;
     private final StackPane stack;
 
-    public HeaderFileEllipse(Scene scene){
+    public HeaderFileEllipse(){
 
-        this.scene = scene;
-        ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
-        ellipse.setStroke(Color.BLUE);
-        ellipse.setStrokeWidth(2);
-        ellipse.setFill(Color.YELLOW);
-
-        text = new Text("Header-File");
-        text.setFont(new Font("monospace", 20));
-        stack = new StackPane();
-        stack.getChildren().addAll(ellipse, text);
+        stack = ShapeDrawer.drawEllipse("Header-File");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
@@ -59,7 +43,7 @@ public class HeaderFileEllipse {
             db.setContent(content);
         });
 
-        ellipse.setOnMouseDragged((MouseEvent event) -> {
+        stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }

@@ -1,6 +1,5 @@
 package elements;
 
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -8,10 +7,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,26 +14,11 @@ import java.io.FileNotFoundException;
 
 public class ClassRectangle {
 
-    private Scene scene;
-    private Rectangle rectangle;
-    private final Text text;
     private final StackPane stack;
-    public ClassRectangle(Scene scene){
 
-        this.scene = scene;
-        rectangle = new Rectangle();
-        rectangle.setWidth(100);
-        rectangle.setHeight(120);
-        rectangle.setArcWidth(30.0);
-        rectangle.setArcHeight(20.0);
-        rectangle.setStroke(Color.BLUE);
-        rectangle.setStrokeWidth(2);
-        rectangle.setFill(Color.YELLOW);
+    public ClassRectangle(){
 
-        text = new Text("Class");
-        text.setFont(new Font("monospace", 20));
-        stack = new StackPane();
-        stack.getChildren().addAll(rectangle, text);
+        stack = tools.ShapeDrawer.drawRectangle("Class");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
@@ -62,7 +42,7 @@ public class ClassRectangle {
             db.setContent(content);
         });
 
-        rectangle.setOnMouseDragged((MouseEvent event) -> {
+        stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }

@@ -1,8 +1,5 @@
 package elements;
 
-import javafx.event.EventHandler;
-import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -10,10 +7,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,24 +14,11 @@ import java.io.FileNotFoundException;
 
 public class FunctionCircle {
 
-    private Scene scene;
-    private Circle circle;
-    private final Text text;
     private final StackPane stack;
 
-    public FunctionCircle(Scene scene){
+    public FunctionCircle(){
 
-        this.scene = scene;
-        circle = new Circle();
-        circle.setRadius(60);
-        circle.setStroke(Color.BLUE);
-        circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
-
-        text = new Text ("Function");
-        text.setFont(new Font("monospace", 20));
-        stack = new StackPane();
-        stack.getChildren().addAll(circle, text);
+        stack = tools.ShapeDrawer.drawCircle("Function");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
@@ -63,7 +43,7 @@ public class FunctionCircle {
             db.setContent(content);
         });
 
-        circle.setOnMouseDragged((MouseEvent event) -> {
+        stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
         });
     }

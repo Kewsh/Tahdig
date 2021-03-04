@@ -71,14 +71,12 @@ public abstract class Engine {
     }
 
     protected void openJsonFile(){
-        if (rootNode == null) {
-            objectMapper = new ObjectMapper();
-            rootNode = null;
-            try {
-                rootNode = objectMapper.readTree(CanvasContents);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        objectMapper = new ObjectMapper();
+        rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(CanvasContents);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
