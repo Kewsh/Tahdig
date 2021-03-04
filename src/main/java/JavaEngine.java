@@ -1,19 +1,17 @@
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
-public class JavaEngine {
+public class JavaEngine extends Engine {
 
     private static JavaEngine engine = null;
-    private File CanvasContents;
-    private JsonNode rootNode;
-    private ObjectMapper objectMapper;
+
+    private JavaEngine(){
+        super();
+    }
 
     public static JavaEngine getInstance(){                             // singleton
         if (engine == null)
@@ -21,17 +19,18 @@ public class JavaEngine {
         return engine;
     }
 
-    public boolean isPossible(){
+    @Override
+    public boolean isPossible() {
         boolean state = true;
         openJsonFile();
 
         if (rootNode.get("headers").size() != 0)
             state = false;
-        for (JsonNode class_iter : rootNode.get("classes")){
+        for (JsonNode class_iter : rootNode.get("classes")) {
             double x = class_iter.get("info").get("x").doubleValue();
             double y = class_iter.get("info").get("y").doubleValue();
             int count = 0;
-            for (JsonNode line : rootNode.get("lines")){
+            for (JsonNode line : rootNode.get("lines")) {
                 if (line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y && line.get("type").textValue().equals("inheritance"))
                     count++;
                 if (count == 2)
@@ -45,47 +44,8 @@ public class JavaEngine {
         return state;
     }
 
-    public boolean isReady(){
-
-        if (!CanvasContents.exists()) return false;
-        boolean state;
-        openJsonFile();
-
-        ArrayNode classes, functions, interfaces, headers, packages;
-        classes = (ArrayNode) rootNode.get("classes");
-        functions = (ArrayNode) rootNode.get("functions");
-        interfaces = (ArrayNode) rootNode.get("interfaces");
-        headers = (ArrayNode) rootNode.get("headers");
-        packages = (ArrayNode) rootNode.get("packages");
-
-        if (classes.size() == 0 && functions.size() == 0 && interfaces.size() == 0 && headers.size() == 0 && packages.size() == 0)
-            state = false;
-        else
-            state = true;
-        return state;
-    }
-
-    public void generateCode() throws IOException {
-
-        (new File("out/code/")).mkdir();            // create code folder
-        openJsonFile();
-        try{
-            generateClassCode();
-            generateInterfaceCode();
-            generateFunctionCode();
-            generateHeaderCode();
-            handlePackages();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        updateJsonFile();
-    }
-
-    private JavaEngine(){
-        CanvasContents = new File("out/canvas_contents.json");
-    }
-
-    private void handlePackages() throws IOException {
+    @Override
+    protected void handlePackages() throws IOException {
 
         //TODO: consider implementing multi-level packages (sub-packages)
 
@@ -148,7 +108,8 @@ public class JavaEngine {
         }
     }
 
-    private void generateHeaderCode() throws IOException {
+    @Override
+    protected void generateHeaderCode() throws IOException {
 
         for (JsonNode header : rootNode.get("headers")){
             File headerClassFile = new File("out/code/" + header.get("name").textValue() + "_class" + ".java");
@@ -160,14 +121,15 @@ public class JavaEngine {
             for (JsonNode function : header.get("info").get("functions"))
                 fileContents += "\tpublic " + function.get("return").textValue() + " " + function.get("name").textValue() + "();\n\n";
             for (JsonNode class_iter : header.get("info").get("classes"))
-                fileContents += "\tpublic class " + class_iter.get("name").textValue() + " {}\n\n";
+                fileContents += "\tpublic class " + class_iter.get("name").textValue() + ";\n\n";
 
             fileContents += "}\n";
             writeToFile(headerClassFile, fileContents);
         }
     }
 
-    private void generateFunctionCode() throws IOException {
+    @Override
+    protected void generateFunctionCode() throws IOException {
 
         ArrayNode functions = (ArrayNode) rootNode.get("functions");
         if (functions.size() != 0) {
@@ -185,7 +147,8 @@ public class JavaEngine {
         }
     }
 
-    private void generateInterfaceCode() throws IOException {
+    @Override
+    protected void generateInterfaceCode() throws IOException {
 
         ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
         for (JsonNode interf_iter : interfaces){
@@ -225,7 +188,8 @@ public class JavaEngine {
         }
     }
 
-    private void generateClassCode() throws IOException {
+    @Override
+    protected void generateClassCode() throws IOException {
 
         ArrayNode classes = (ArrayNode) rootNode.get("classes");
         for (JsonNode class_iter : classes) {
@@ -315,49 +279,6 @@ public class JavaEngine {
             fileContents += "}\n";
             writeToFile(classFile, fileContents);
         }
-    }
-
-    private void updateJsonFile(){
-        try {
-            objectMapper.writeValue(CanvasContents, rootNode);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openJsonFile(){
-        if (rootNode == null) {
-            objectMapper = new ObjectMapper();
-            rootNode = null;
-            try {
-                rootNode = objectMapper.readTree(CanvasContents);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private char[] readFromFile(File file) throws IOException {
-        final int MAX_FILE_SIZE = 4096;
-        char[] buffer = new char[MAX_FILE_SIZE];
-        FileReader myReader = new FileReader(file.getAbsolutePath());
-        myReader.read(buffer);
-        myReader.close();
-        return buffer;
-    }
-
-    private void writeToFile(File file, String text) throws IOException {
-        FileWriter writer = new FileWriter(file.getAbsolutePath());
-        writer.write(text);
-        writer.close();
-    }
-
-    private ObjectNode findTargetObject(double x, double y, ArrayNode array){
-        for (JsonNode target_iter : array){
-            if (target_iter.get("info").get("x").doubleValue() == x && target_iter.get("info").get("y").doubleValue() == y)
-                return (ObjectNode) target_iter;
-        }
-        return null;
     }
 
     private void editOccurrencesInFile(char[] haystack, String needle, String packageName, File file) throws IOException {
