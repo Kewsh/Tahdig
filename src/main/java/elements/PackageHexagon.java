@@ -53,12 +53,10 @@ public class PackageHexagon {
         private String name;
         private File CanvasContents;
         private Group root;
-        private StackPane stack, actionsStack, deleteStack, connectionsStack;
+        private StackPane stack, actionsStack, connectionsStack;
         private JFXPopup actionsPopup, connectionsPopup;
-        private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
+        private JFXButton deleteButton;
         private JFXButton connectionsButton, containmentButton, editButton;
-        private JFXDialog deleteDialog;
-        private JFXDialogLayout deleteDialogLayout;
 
         private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
@@ -80,13 +78,8 @@ public class PackageHexagon {
             setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
             setButtonStyles(containmentButton, "containmentButton", 40, 50);
 
-            deleteButton = new JFXButton();
-            String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
-            deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
-            deleteButton.setDisableVisualFocus(true);
-
             editButton = new JFXButton();
-            path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
             editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
             editButton.setMinSize(68,70);
             editButton.setDisableVisualFocus(true);
@@ -211,77 +204,6 @@ public class PackageHexagon {
 
                     //
 
-                }
-            });
-
-            // delete button
-
-            deleteButton.setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent event) {
-                    for (Node node : root.getChildren()){
-                        if (node == stack){
-
-                            deleteDialog = new JFXDialog(new StackPane(),
-                                    new Region(),
-                                    JFXDialog.DialogTransition.CENTER,
-                                    false);
-                            deleteDialogConfirmButton = new JFXButton("Yes");
-                            deleteDialogCancelButton = new JFXButton("Cancel");
-
-                            deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    root.getChildren().remove(node);
-                                    actionsPopup.hide();
-                                    deleteDialog.close();
-
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    JsonNode rootNode = null;
-
-                                    try {
-                                        rootNode = objectMapper.readTree(CanvasContents);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    ArrayNode packages = (ArrayNode) rootNode.get("packages");
-                                    for (int i = 0; i < packages.size(); i++){
-                                        ObjectNode temp_package = (ObjectNode) packages.get(i);
-                                        ObjectNode info = (ObjectNode) temp_package.get("info");
-                                        if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
-                                            packages.remove(i);
-                                    }
-                                    try {
-                                        objectMapper.writeValue(CanvasContents, rootNode);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    //TODO: hide and close all dialogs and popups related to this object here
-                                    //TODO: also handle all relations and dependencies
-                                }
-                            });
-                            deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    deleteDialog.close();
-                                }
-                            });
-
-                            deleteDialogLayout = new JFXDialogLayout();
-                            deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
-                            deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
-                            deleteDialog.setContent(deleteDialogLayout);
-
-                            deleteStack = new StackPane();
-                            deleteStack.setLayoutX(x+150);
-                            deleteStack.setLayoutY(y);
-                            root.getChildren().add(deleteStack);
-                            deleteDialog.show(deleteStack);
-
-                            break;
-                        }
-                    }
                 }
             });
 
@@ -412,13 +334,19 @@ public class PackageHexagon {
 
             // actions button
 
+            actionsPopup = new JFXPopup();
             actionsStack = new StackPane();
             actionsStack.setLayoutX(x-40);
             actionsStack.setLayoutY(y-85);
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            actionsPopup = new JFXPopup();
+            try {
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                        CanvasContents, buttons.DeleteButton.Element.HEXAGON)).getButton();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             actionsPopup.setPopupContent(new HBox(editButton, connectionsButton, deleteButton));
             actionsPopup.setAutoHide(true);
             actionsPopup.setHideOnEscape(true);

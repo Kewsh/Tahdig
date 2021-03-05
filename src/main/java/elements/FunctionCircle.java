@@ -56,11 +56,9 @@ public class FunctionCircle {
         private String name, returnType;
         private File CanvasContents;
         private Group root;
-        private StackPane stack, actionsStack, deleteStack;
+        private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
-        private JFXButton editButton, deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
-        private JFXDialog deleteDialog;
-        private JFXDialogLayout deleteDialogLayout;
+        private JFXButton editButton, deleteButton;
 
         private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
@@ -243,92 +241,21 @@ public class FunctionCircle {
                 }
             });
 
-            // delete button
-
-            deleteButton = new JFXButton();
-            path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
-            deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
-            deleteButton.setDisableVisualFocus(true);
-
-            deleteButton.setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent event) {
-                    for (Node node : root.getChildren()){
-                        if (node == stack){
-
-                            deleteDialog = new JFXDialog(new StackPane(),
-                                    new Region(),
-                                    JFXDialog.DialogTransition.CENTER,
-                                    false);
-                            deleteDialogConfirmButton = new JFXButton("Yes");
-                            deleteDialogCancelButton = new JFXButton("Cancel");
-
-                            deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    root.getChildren().remove(node);
-                                    actionsPopup.hide();
-                                    deleteDialog.close();
-
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    JsonNode rootNode = null;
-
-                                    try {
-                                        rootNode = objectMapper.readTree(CanvasContents);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    ArrayNode functions = (ArrayNode) rootNode.get("functions");
-                                    for (int i = 0; i < functions.size(); i++){
-                                        ObjectNode temp_function = (ObjectNode) functions.get(i);
-                                        ObjectNode info = (ObjectNode) temp_function.get("info");
-                                        if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
-                                            functions.remove(i);
-                                    }
-                                    try {
-                                        objectMapper.writeValue(CanvasContents, rootNode);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    //TODO: hide and close all dialogs and popups related to this object here
-                                    //TODO: also handle all relations and dependencies
-                                }
-                            });
-
-                            deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    deleteDialog.close();
-                                }
-                            });
-
-                            deleteDialogLayout = new JFXDialogLayout();
-                            deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
-                            deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
-                            deleteDialog.setContent(deleteDialogLayout);
-
-                            deleteStack = new StackPane();
-                            deleteStack.setLayoutX(x+150);
-                            deleteStack.setLayoutY(y);
-                            root.getChildren().add(deleteStack);
-                            deleteDialog.show(deleteStack);
-
-                            break;
-                        }
-                    }
-                }
-            });
-
             // actions button
 
+            actionsPopup = new JFXPopup();
             actionsStack = new StackPane();
             actionsStack.setLayoutX(x-10);
             actionsStack.setLayoutY(y-85);
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            actionsPopup = new JFXPopup();
+            try {
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                        CanvasContents, buttons.DeleteButton.Element.CIRCLE)).getButton();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             actionsPopup.setPopupContent(new HBox(editButton, deleteButton));
             actionsPopup.setAutoHide(true);
             actionsPopup.setHideOnEscape(true);

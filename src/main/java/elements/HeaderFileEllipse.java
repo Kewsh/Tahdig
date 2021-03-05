@@ -63,14 +63,14 @@ public class HeaderFileEllipse {
         private File CanvasContents;
         private Group root;
         private VBox variablesDialogContent, functionsDialogContent, classesDialogContent;
-        private StackPane stack, actionsStack, deleteStack, variablesStack, functionsStack, classesStack;
+        private StackPane stack, actionsStack, variablesStack, functionsStack, classesStack;
         private JFXPopup actionsPopup;
-        private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
+        private JFXButton deleteButton;
         private JFXButton functionsButton, variablesButton, classesButton;
         private JFXButton variablesCloseButton, addVariableButton, addFunctionButton, functionsCloseButton;
         private JFXButton addClassButton, classesCloseButton, editButton;
-        private JFXDialog deleteDialog, variablesDialog, functionsDialog, classesDialog;
-        private JFXDialogLayout deleteDialogLayout, variablesDialogLayout, functionsDialogLayout, classesDialogLayout;
+        private JFXDialog variablesDialog, functionsDialog, classesDialog;
+        private JFXDialogLayout variablesDialogLayout, functionsDialogLayout, classesDialogLayout;
         private JFXTreeTableView variableTreeView, functionTreeView, classTreeView;
 
         private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
@@ -87,13 +87,8 @@ public class HeaderFileEllipse {
             this.CanvasContents = CanvasContents;
             addHeaderToCanvasContents();
 
-            deleteButton = new JFXButton();
-            String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
-            deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
-            deleteButton.setDisableVisualFocus(true);
-
             editButton = new JFXButton();
-            path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+            String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
             editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
             editButton.setMinSize(68,70);
             editButton.setDisableVisualFocus(true);
@@ -823,86 +818,21 @@ public class HeaderFileEllipse {
                 }
             });
 
-            // delete button
-
-            deleteButton.setOnAction(new EventHandler<ActionEvent>(){
-                @Override
-                public void handle(ActionEvent event) {
-                    for (Node node : root.getChildren()){
-                        if (node == stack){
-
-                            deleteDialog = new JFXDialog(new StackPane(),
-                                    new Region(),
-                                    JFXDialog.DialogTransition.CENTER,
-                                    false);
-                            deleteDialogConfirmButton = new JFXButton("Yes");
-                            deleteDialogCancelButton = new JFXButton("Cancel");
-
-                            deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    root.getChildren().remove(node);
-                                    actionsPopup.hide();
-                                    deleteDialog.close();
-
-                                    ObjectMapper objectMapper = new ObjectMapper();
-                                    JsonNode rootNode = null;
-
-                                    try {
-                                        rootNode = objectMapper.readTree(CanvasContents);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    ArrayNode headers = (ArrayNode) rootNode.get("headers");
-                                    for (int i = 0; i < headers.size(); i++){
-                                        ObjectNode temp_header = (ObjectNode) headers.get(i);
-                                        ObjectNode info = (ObjectNode) temp_header.get("info");
-                                        if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y)
-                                            headers.remove(i);
-                                    }
-                                    try {
-                                        objectMapper.writeValue(CanvasContents, rootNode);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    //TODO: hide and close all dialogs and popups related to this object here
-                                    //TODO: also handle all relations and dependencies
-                                }
-                            });
-                            deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    deleteDialog.close();
-                                }
-                            });
-
-                            deleteDialogLayout = new JFXDialogLayout();
-                            deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
-                            deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
-                            deleteDialog.setContent(deleteDialogLayout);
-
-                            deleteStack = new StackPane();
-                            deleteStack.setLayoutX(x+210);
-                            deleteStack.setLayoutY(y);
-                            root.getChildren().add(deleteStack);
-                            deleteDialog.show(deleteStack);
-
-                            break;
-                        }
-                    }
-                }
-            });
-
             // actions button
 
+            actionsPopup = new JFXPopup();
             actionsStack = new StackPane();
             actionsStack.setLayoutX(x-120);
             actionsStack.setLayoutY(y-85);
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            actionsPopup = new JFXPopup();
+            try {
+                deleteButton = (new buttons.DeleteButton(x, y, 210, 0, name, root, stack, actionsPopup,
+                        CanvasContents, buttons.DeleteButton.Element.ELLIPSE)).getButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             actionsPopup.setPopupContent(new HBox(editButton, classesButton, functionsButton, variablesButton, deleteButton));
             actionsPopup.setAutoHide(true);
             actionsPopup.setHideOnEscape(true);
