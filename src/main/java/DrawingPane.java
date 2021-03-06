@@ -21,6 +21,7 @@ import java.io.IOException;
 public class DrawingPane {
 
     private Scene scene;
+    private StackPane baseStack;
     private ScrollPane scrollPane;
     private Canvas canvas;
     private Group root;
@@ -28,7 +29,7 @@ public class DrawingPane {
     private int width;
     private int height;
 
-    public DrawingPane(Scene scene){
+    public DrawingPane(Scene scene, StackPane baseStack){
 
         /*
          * height and width of the canvas both start from 2000, and can continue to grow to up to 6000px.
@@ -43,6 +44,7 @@ public class DrawingPane {
         height = 2000;
         width = 2000;
         this.scene = scene;
+        this.baseStack = baseStack;
         defaultIdArray = new int[]{1, 1, 1, 1, 1};
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
@@ -143,7 +145,7 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawCircle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.FunctionCircle.Actions(x, y, name, root, stack, CanvasContents);
+                new elements.FunctionCircle.Actions(x, y, name, root, stack, baseStack, CanvasContents);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -155,7 +157,7 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawRectangle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.ClassRectangle.Actions(x, y, name, root, stack, CanvasContents);
+                new elements.ClassRectangle.Actions(x, y, name, root, stack, baseStack, CanvasContents);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -167,7 +169,7 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawDiamond(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.InterfaceDiamond.Actions(x, y, name, root, stack, CanvasContents);
+                new elements.InterfaceDiamond.Actions(x, y, name, root, stack, baseStack, CanvasContents);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -179,7 +181,7 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawHexagon(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.PackageHexagon.Actions(x, y, name, root, stack, CanvasContents);
+                new elements.PackageHexagon.Actions(x, y, name, root, stack, baseStack, CanvasContents);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -191,7 +193,7 @@ public class DrawingPane {
                 stack = tools.ShapeDrawer.drawEllipse(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.HeaderFileEllipse.Actions(x, y, name, root, stack, CanvasContents);
+                new elements.HeaderFileEllipse.Actions(x, y, name, root, stack, baseStack, CanvasContents);
                 setCursor(stack);
                 root.getChildren().add(stack);
         }

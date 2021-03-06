@@ -77,7 +77,7 @@ public class HeaderFileEllipse {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
@@ -124,13 +124,7 @@ public class HeaderFileEllipse {
 
                     headerEditLayout.setBody(editVBox);
                     headerEditDialog.setContent(headerEditLayout);
-
-                    StackPane headerEditStack = new StackPane();
-                    headerEditStack.setLayoutX(x + 130);
-                    headerEditStack.setLayoutY(y);
-
-                    root.getChildren().add(headerEditStack);
-                    headerEditDialog.show(headerEditStack);
+                    headerEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
                     Label nameAlreadyExists = new Label("*this name has already been used");
@@ -270,13 +264,7 @@ public class HeaderFileEllipse {
 
                     classGenerateLayout.setBody(classesVBox);
                     classGenerateDialog.setContent(classGenerateLayout);
-
-                    StackPane classGenerateStack = new StackPane();
-                    classGenerateStack.setLayoutX(x + 130);
-                    classGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(classGenerateStack);
-                    classGenerateDialog.show(classGenerateStack);
+                    classGenerateDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
                     Label nameAlreadyExists = new Label("*this name has already been used");
@@ -399,16 +387,11 @@ public class HeaderFileEllipse {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    classesStack = new StackPane();
-                    classesStack.setLayoutX(x + 130);
-                    classesStack.setLayoutY(y);
-                    root.getChildren().add(classesStack);
-
                     classTreeView = getClasses();
                     classesDialogContent = new VBox(classTreeView, addClassButton);
                     classesDialogContent.setSpacing(15);
                     classesDialogLayout.setBody(classesDialogContent);
-                    classesDialog.show(classesStack);
+                    classesDialog.show(baseStack);
                 }
             });
 
@@ -462,13 +445,7 @@ public class HeaderFileEllipse {
 
                     functionGenerateLayout.setBody(functionsVBox);
                     functionGenerateDialog.setContent(functionGenerateLayout);
-
-                    StackPane functionGenerateStack = new StackPane();
-                    functionGenerateStack.setLayoutX(x + 130);
-                    functionGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(functionGenerateStack);
-                    functionGenerateDialog.show(functionGenerateStack);
+                    functionGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -602,16 +579,11 @@ public class HeaderFileEllipse {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    functionsStack = new StackPane();
-                    functionsStack.setLayoutX(x + 130);
-                    functionsStack.setLayoutY(y);
-                    root.getChildren().add(functionsStack);
-
                     functionTreeView = getFunctions();
                     functionsDialogContent = new VBox(functionTreeView, addFunctionButton);
                     functionsDialogContent.setSpacing(15);
                     functionsDialogLayout.setBody(functionsDialogContent);
-                    functionsDialog.show(functionsStack);
+                    functionsDialog.show(baseStack);
                 }
             });
 
@@ -665,13 +637,7 @@ public class HeaderFileEllipse {
 
                     variableGenerateLayout.setBody(variablesVBox);
                     variableGenerateDialog.setContent(variableGenerateLayout);
-
-                    StackPane variableGenerateStack = new StackPane();
-                    variableGenerateStack.setLayoutX(x + 130);
-                    variableGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(variableGenerateStack);
-                    variableGenerateDialog.show(variableGenerateStack);
+                    variableGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no data type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -805,16 +771,11 @@ public class HeaderFileEllipse {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    variablesStack = new StackPane();
-                    variablesStack.setLayoutX(x + 130);
-                    variablesStack.setLayoutY(y);
-                    root.getChildren().add(variablesStack);
-
                     variableTreeView = getVariables();
                     variablesDialogContent = new VBox(variableTreeView, addVariableButton);
                     variablesDialogContent.setSpacing(15);
                     variablesDialogLayout.setBody(variablesDialogContent);
-                    variablesDialog.show(variablesStack);
+                    variablesDialog.show(baseStack);
                 }
             });
 
@@ -828,7 +789,7 @@ public class HeaderFileEllipse {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 210, 0, name, root, stack, actionsPopup,
+                deleteButton = (new buttons.DeleteButton(x, y, 210, 0, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, buttons.DeleteButton.Element.ELLIPSE)).getButton();
             } catch (Exception e) {
                 e.printStackTrace();

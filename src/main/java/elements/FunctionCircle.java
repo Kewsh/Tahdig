@@ -64,7 +64,7 @@ public class FunctionCircle {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
@@ -109,13 +109,7 @@ public class FunctionCircle {
 
                     functionEditLayout.setBody(editVBox);
                     functionEditDialog.setContent(functionEditLayout);
-
-                    StackPane functionEditStack = new StackPane();
-                    functionEditStack.setLayoutX(x + 130);
-                    functionEditStack.setLayoutY(y);
-
-                    root.getChildren().add(functionEditStack);
-                    functionEditDialog.show(functionEditStack);
+                    functionEditDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -251,7 +245,7 @@ public class FunctionCircle {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, buttons.DeleteButton.Element.CIRCLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();

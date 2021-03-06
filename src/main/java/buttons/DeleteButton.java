@@ -34,7 +34,7 @@ public class DeleteButton {
     }
 
     public DeleteButton(double x, double y, double offsetX, double offsetY, String name, Group root, StackPane stack,
-                        JFXPopup actionsPopup, File CanvasContents, Element element) throws IOException {
+                        StackPane baseStack, JFXPopup actionsPopup, File CanvasContents, Element element) throws IOException {
 
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
@@ -113,13 +113,7 @@ public class DeleteButton {
                         deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
                         deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
                         deleteDialog.setContent(deleteDialogLayout);
-
-                        deleteStack = new StackPane();
-                        deleteStack.setLayoutX(x + offsetX);
-                        deleteStack.setLayoutY(y + offsetY);
-                        root.getChildren().add(deleteStack);
-                        deleteDialog.show(deleteStack);
-
+                        deleteDialog.show(baseStack);
                         break;
                     }
                 }

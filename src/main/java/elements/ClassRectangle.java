@@ -79,7 +79,7 @@ public class ClassRectangle {
         //TODO: implement edit for the entire class, including class name attributes and methods
         //for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
@@ -134,13 +134,7 @@ public class ClassRectangle {
 
                     classEditLayout.setBody(editVBox);
                     classEditDialog.setContent(classEditLayout);
-
-                    StackPane classEditStack = new StackPane();
-                    classEditStack.setLayoutX(x + 130);
-                    classEditStack.setLayoutY(y);
-
-                    root.getChildren().add(classEditStack);
-                    classEditDialog.show(classEditStack);
+                    classEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
                     Label nameAlreadyExists = new Label("*this name has already been used");
@@ -301,13 +295,7 @@ public class ClassRectangle {
 
                     methodGenerateLayout.setBody(methodsVBox);
                     methodGenerateDialog.setContent(methodGenerateLayout);
-
-                    StackPane methodGenerateStack = new StackPane();
-                    methodGenerateStack.setLayoutX(x + 130);
-                    methodGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(methodGenerateStack);
-                    methodGenerateDialog.show(methodGenerateStack);
+                    methodGenerateDialog.show(baseStack);
 
                     Label accessNotSpecified = new Label("*no access type specified");
                     Label typeNotSpecified = new Label("*no return type specified");
@@ -448,16 +436,11 @@ public class ClassRectangle {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    methodsStack = new StackPane();
-                    methodsStack.setLayoutX(x + 130);
-                    methodsStack.setLayoutY(y);
-                    root.getChildren().add(methodsStack);
-
                     methodTreeView = getMethods();
                     methodsDialogContent = new VBox(methodTreeView, addMethodButton);
                     methodsDialogContent.setSpacing(15);
                     methodsDialogLayout.setBody(methodsDialogContent);
-                    methodsDialog.show(methodsStack);
+                    methodsDialog.show(baseStack);
                 }
             });
 
@@ -518,13 +501,7 @@ public class ClassRectangle {
 
                     attributeGenerateLayout.setBody(attributesVBox);
                     attributeGenerateDialog.setContent(attributeGenerateLayout);
-
-                    StackPane attributeGenerateStack = new StackPane();
-                    attributeGenerateStack.setLayoutX(x + 130);
-                    attributeGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(attributeGenerateStack);
-                    attributeGenerateDialog.show(attributeGenerateStack);
+                    attributeGenerateDialog.show(baseStack);
 
                     Label accessNotSpecified = new Label("*no access type specified");
                     Label typeNotSpecified = new Label("*no data type specified");
@@ -664,16 +641,11 @@ public class ClassRectangle {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    attributesStack = new StackPane();
-                    attributesStack.setLayoutX(x + 130);
-                    attributesStack.setLayoutY(y);
-                    root.getChildren().add(attributesStack);
-
                     attributeTreeView = getAttributes();
                     attributesDialogContent = new VBox(attributeTreeView, addAttributeButton);
                     attributesDialogContent.setSpacing(15);
                     attributesDialogLayout.setBody(attributesDialogContent);
-                    attributesDialog.show(attributesStack);
+                    attributesDialog.show(baseStack);
                 }
             });
 
@@ -940,7 +912,7 @@ public class ClassRectangle {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, DeleteButton.Element.RECTANGLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();

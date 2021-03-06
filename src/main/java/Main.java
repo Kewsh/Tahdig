@@ -23,6 +23,10 @@ import java.io.IOException;
 //TODO: set validations on method/variable/function/... names (handle spaces, signs such as $#%^...)
 //TODO: do not allow inheritance/implementation for elements that are already inherited/implemented by the target class
 //TODO: implement drag and drop for object that are already on the canvas
+//TODO: place all important and big dialogs on base stack (i.e. line 37, stackPane)
+//TODO: decide about the connections button, this one is so far the only one that doesn't popup on the base stack
+//TODO: for every dialog that is displayed on base stack, close all other popups and disable them while this dialog is open
+//TODO: edit the style of all these dialogs, (i.e. better looking buttons, proper labels and etc)
 
 public class Main extends Application {
 
@@ -254,7 +258,7 @@ public class Main extends Application {
 
         Separator separator = new Separator(Orientation.VERTICAL);
 
-        HBox hBox =  new HBox(leftControl, separator, new DrawingPane(scene).getPane());
+        HBox hBox =  new HBox(leftControl, separator, new DrawingPane(scene, stackPane).getPane());
 
         Menu menu1 = new Menu("Menu 1");
         Menu menu2 = new Menu("Menu 2");

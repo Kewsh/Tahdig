@@ -75,8 +75,7 @@ public class InterfaceDiamond {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
-
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
             this.x = x;
             this.y = y;
             this.name = name;
@@ -122,13 +121,7 @@ public class InterfaceDiamond {
 
                     interfaceEditLayout.setBody(editVBox);
                     interfaceEditDialog.setContent(interfaceEditLayout);
-
-                    StackPane interfaceEditStack = new StackPane();
-                    interfaceEditStack.setLayoutX(x + 130);
-                    interfaceEditStack.setLayoutY(y);
-
-                    root.getChildren().add(interfaceEditStack);
-                    interfaceEditDialog.show(interfaceEditStack);
+                    interfaceEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
                     Label nameAlreadyExists = new Label("*this name has already been used");
@@ -286,13 +279,7 @@ public class InterfaceDiamond {
 
                     methodGenerateLayout.setBody(methodsVBox);
                     methodGenerateDialog.setContent(methodGenerateLayout);
-
-                    StackPane methodGenerateStack = new StackPane();
-                    methodGenerateStack.setLayoutX(x + 130);
-                    methodGenerateStack.setLayoutY(y);
-
-                    root.getChildren().add(methodGenerateStack);
-                    methodGenerateDialog.show(methodGenerateStack);
+                    methodGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -410,16 +397,11 @@ public class InterfaceDiamond {
                 @Override
                 public void handle(ActionEvent event) {
 
-                    methodsStack = new StackPane();
-                    methodsStack.setLayoutX(x + 130);
-                    methodsStack.setLayoutY(y);
-                    root.getChildren().add(methodsStack);
-
                     methodTreeView = getMethods();
                     methodsDialogContent = new VBox(methodTreeView, addMethodButton);
                     methodsDialogContent.setSpacing(15);
                     methodsDialogLayout.setBody(methodsDialogContent);
-                    methodsDialog.show(methodsStack);
+                    methodsDialog.show(baseStack);
                 }
             });
 
@@ -537,7 +519,7 @@ public class InterfaceDiamond {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, buttons.DeleteButton.Element.DIAMOND)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();

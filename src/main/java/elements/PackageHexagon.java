@@ -62,8 +62,7 @@ public class PackageHexagon {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, File CanvasContents) throws FileNotFoundException {
-
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
             this.x = x;
             this.y = y;
             this.name = name;
@@ -107,13 +106,7 @@ public class PackageHexagon {
 
                     packageEditLayout.setBody(editVBox);
                     packageEditDialog.setContent(packageEditLayout);
-
-                    StackPane packageEditStack = new StackPane();
-                    packageEditStack.setLayoutX(x + 130);
-                    packageEditStack.setLayoutY(y);
-
-                    root.getChildren().add(packageEditStack);
-                    packageEditDialog.show(packageEditStack);
+                    packageEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
                     Label nameAlreadyExists = new Label("*this name has already been used");
@@ -342,7 +335,7 @@ public class PackageHexagon {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, actionsPopup,
+                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, buttons.DeleteButton.Element.HEXAGON)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
