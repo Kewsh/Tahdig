@@ -13,6 +13,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -20,6 +21,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 //TODO: set validations on method/variable/function/... names (handle spaces, signs such as $#%^...)
+//TODO: do not allow inheritance/implementation for elements that are already inherited/implemented by the target class
+//TODO: implement drag and drop for object that are already on the canvas
 
 public class Main extends Application {
 
@@ -256,6 +259,7 @@ public class Main extends Application {
         Menu menu1 = new Menu("Menu 1");
         Menu menu2 = new Menu("Menu 2");
         MenuBar menuBar = new MenuBar();
+        menuBar.setBackground(new Background(new BackgroundFill(Paint.valueOf("#393e46"), new CornerRadii(0), new Insets(0, 0, 0, 0))));
         menuBar.getMenus().add(menu1);
         menuBar.getMenus().add(menu2);
 

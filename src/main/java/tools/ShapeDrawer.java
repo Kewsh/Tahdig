@@ -2,6 +2,7 @@ package tools;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Polygon;
@@ -23,9 +24,9 @@ public abstract class ShapeDrawer {
     public static StackPane drawEllipse(String text){
 
         Ellipse ellipse = new Ellipse(0.0, 0.0, 100.0, 50.0);
-        ellipse.setStroke(Color.BLUE);
+        ellipse.setStroke(Color.BLACK);
         ellipse.setStrokeWidth(2);
-        ellipse.setFill(Color.YELLOW);
+        ellipse.setFill(Paint.valueOf("#6593f5"));
 
         return putShapeOnStackPane(ellipse, text);
     }
@@ -39,9 +40,9 @@ public abstract class ShapeDrawer {
                 150.0, 50.0,
                 100.0, 100.0,
                 50.0, 100.0);
-        hexagon.setStroke(Color.BLUE);
+        hexagon.setStroke(Color.BLACK);
         hexagon.setStrokeWidth(2);
-        hexagon.setFill(Color.YELLOW);
+        hexagon.setFill(Paint.valueOf("#6593f5"));
 
         return putShapeOnStackPane(hexagon, text);
     }
@@ -53,9 +54,9 @@ public abstract class ShapeDrawer {
                 375.0, 0.0,
                 450.0, 60.0,
                 375.0, 120.0);
-        diamond.setStroke(Color.BLUE);
+        diamond.setStroke(Color.BLACK);
         diamond.setStrokeWidth(2);
-        diamond.setFill(Color.YELLOW);
+        diamond.setFill(Paint.valueOf("#6593f5"));
 
         return putShapeOnStackPane(diamond, text);
     }
@@ -64,9 +65,9 @@ public abstract class ShapeDrawer {
 
         Circle circle = new Circle();
         circle.setRadius(60);
-        circle.setStroke(Color.BLUE);
+        circle.setStroke(Color.BLACK);
         circle.setStrokeWidth(2);
-        circle.setFill(Color.YELLOW);
+        circle.setFill(Paint.valueOf("#6593f5"));
 
         return putShapeOnStackPane(circle, text);
     }
@@ -78,9 +79,9 @@ public abstract class ShapeDrawer {
         rectangle.setHeight(120);
         rectangle.setArcWidth(30.0);
         rectangle.setArcHeight(20.0);
-        rectangle.setStroke(Color.BLUE);
+        rectangle.setStroke(Color.BLACK);
         rectangle.setStrokeWidth(2);
-        rectangle.setFill(Color.YELLOW);
+        rectangle.setFill(Paint.valueOf("#6593f5"));
 
         return putShapeOnStackPane(rectangle, text);
     }

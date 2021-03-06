@@ -980,8 +980,12 @@ public class ClassRectangle {
             accessButtons.add(new JFXRadioButton("protected"));
             accessButtons.add(new JFXRadioButton("default"));
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++) {
+                //for some reason, after changing the styles, the text on these buttons became invisible
+                //so we have to reset it to black. we're probably changing this whole button thing though, so no worries
+                accessButtons.get(i).setStyle("-fx-text-fill: black;");
                 accessButtons.get(i).setToggleGroup(accessGroup);
+            }
             return new VBox(accessButtons.get(0), accessButtons.get(1), accessButtons.get(2), accessButtons.get(3));
         }
 

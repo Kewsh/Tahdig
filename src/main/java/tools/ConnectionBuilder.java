@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.scene.Group;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 
 import java.io.File;
@@ -45,6 +46,7 @@ public abstract class ConnectionBuilder {
             line = new Line(srcPoints[0].x, srcPoints[0].y, destPoints[2].x, destPoints[2].y);
 
         line.setStrokeWidth(2.2);
+        line.setStroke(Paint.valueOf("white"));
         root.getChildren().add(line);
 
         ObjectMapper objectMapper = new ObjectMapper();

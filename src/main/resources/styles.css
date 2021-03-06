@@ -34,22 +34,14 @@
     -fx-font-family: Verdana;
 }
 
-#butt1:hover {
-    -fx-background-color: red;          // hover
-}
-
-#butt2:hover {
-    -fx-background-color: blue;
-}
-
 #butt1, #butt2 {
-    -fx-background-color: yellow;
+    -fx-background-color: #6593f5;
     -fx-text-fill: black;
     -fx-font-size: 40px;
     -fx-background-radius: 15px;        // rounded corners
     -fx-border-radius: 15px;
-    -fx-border-color: blue;
-    -fx-border-width: 3px;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
     -fx-font-family: Arial;
 }
 
@@ -82,16 +74,20 @@
     -fx-border-color: black;
 }
 
+.menu-button .label{
+    -fx-text-fill: whitesmoke;
+}
+
 #tools {
-    -fx-background-color: #d3d3d3;
+    -fx-background-color: #4b5d67;
 }
 
 #drawForm {
-    -fx-background: rgb(245,245,220);
+    -fx-background: #393e46;
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: red;
+    -fx-background-color: #6593f5;
 }
 
 .scroll-bar {
