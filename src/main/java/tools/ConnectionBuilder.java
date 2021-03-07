@@ -77,7 +77,7 @@ public abstract class ConnectionBuilder {
 
     }
 
-    private static final class Point{
+    public static final class Point{
         public double x, y;
         public Point(double x, double y) {
             this.x = x;

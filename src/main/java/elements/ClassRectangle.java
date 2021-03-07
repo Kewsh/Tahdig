@@ -1,6 +1,6 @@
 package elements;
 
-import buttons.DeleteButton;
+import buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,10 +64,9 @@ public class ClassRectangle {
         private File CanvasContents;
         private Group root;
         private VBox attributesDialogContent, methodsDialogContent;
-        private StackPane stack, actionsStack, connectionsStack, attributesStack, methodsStack;
-        private JFXPopup actionsPopup, connectionsPopup;
+        private StackPane stack, actionsStack;
+        private JFXPopup actionsPopup;
         private JFXButton connectionsButton, methodsButton, attributesButton, deleteButton;
-        private JFXButton compositionButton, inheritanceButton, implementationButton;
         private JFXButton attributesCloseButton, methodsCloseButton, addAttributeButton, addMethodButton, editButton;
         private JFXDialog attributesDialog, methodsDialog;
         private JFXDialogLayout attributesDialogLayout, methodsDialogLayout;
@@ -89,7 +88,6 @@ public class ClassRectangle {
             this.CanvasContents = CanvasContents;
             addClassToCanvasContents();
 
-            connectionsButton = new JFXButton("Connect");
             methodsButton = new JFXButton("Methods");
             attributesButton = new JFXButton("Attributes");
 
@@ -99,17 +97,8 @@ public class ClassRectangle {
             editButton.setMinSize(68,70);
             editButton.setDisableVisualFocus(true);
 
-            setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
             setButtonStyles(methodsButton, "classMethodsButton", 50, 70);
             setButtonStyles(attributesButton, "attributesButton", 50, 70);
-
-            compositionButton = new JFXButton("Composition");
-            inheritanceButton = new JFXButton("Inheritance");
-            implementationButton = new JFXButton("Implementation");
-
-            setButtonStyles(compositionButton, "compositionButton", 135, 50);
-            setButtonStyles(inheritanceButton, "classInheritanceButton", 135, 50);
-            setButtonStyles(implementationButton, "implementationButton", 135, 50);
 
             // edit button
 
@@ -649,259 +638,6 @@ public class ClassRectangle {
                 }
             });
 
-            // connections button
-
-            connectionsStack = new StackPane();
-            connectionsStack.setLayoutX(x - 125);
-            connectionsStack.setLayoutY(y - 5);
-            connectionsStack.setMinHeight(100);
-            root.getChildren().add(connectionsStack);
-
-            connectionsPopup = new JFXPopup();
-            connectionsPopup.setPopupContent(new VBox(compositionButton, inheritanceButton, implementationButton));
-            connectionsPopup.setAutoHide(true);
-            connectionsPopup.setHideOnEscape(true);
-
-            connectionsButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    if (flag[0] && flag[1]) {
-                        flag[0] = false;
-                        flag[1] = false;
-                    }
-                    if (flag[0])
-                        connectionsPopup.hide();
-                    else
-                        connectionsPopup.show(connectionsStack);
-                    flag[0] = !flag[0];
-                }
-            });
-
-            // composition button
-
-            compositionButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    JFXPopup compositionPopup = new JFXPopup();
-                    StackPane compositionStack = new StackPane();
-                    root.getChildren().add(compositionStack);
-
-                    compositionStack.setLayoutX(x + 15);
-                    compositionStack.setLayoutY(y - 5);
-                    compositionPopup.setAutoHide(true);
-                    compositionPopup.setHideOnEscape(true);
-                    JFXComboBox compositionComboBox = new JFXComboBox();
-                    compositionComboBox.setPromptText("Composition target");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode rootNode = null;
-                    try {
-                        rootNode = objectMapper.readTree(CanvasContents);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                    for (JsonNode class_iter : classes){
-                        if (class_iter.get("name").textValue().equals(getName()))
-                            continue;
-
-                        //TODO: handle duplicates here (i.e. classes that already are connected with composition with this class)
-
-                        compositionComboBox.getItems().add(class_iter.get("name").textValue());
-                    }
-                    try {
-                        objectMapper.writeValue(CanvasContents, rootNode);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    compositionPopup.setPopupContent(compositionComboBox);
-                    compositionPopup.show(compositionStack);
-
-                    //TODO: handle duplicates
-
-                    compositionComboBox.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            JsonNode rootNode = null;
-                            ObjectNode targetClass = null;
-                            try {
-                                rootNode = objectMapper.readTree(CanvasContents);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                            for (JsonNode class_iter : classes){
-                                if (class_iter.get("name").textValue().equals(compositionComboBox.getValue().toString())){
-                                    targetClass = (ObjectNode) class_iter;
-                                    break;
-                                }
-                            }
-                            try {
-                                objectMapper.writeValue(CanvasContents, rootNode);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
-                            tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'c', "composition", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
-                            compositionPopup.hide();
-                            connectionsPopup.hide();
-                            actionsPopup.hide();
-                        }
-                    });
-                }
-            });
-
-            // inheritance button
-
-            inheritanceButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    JFXPopup inheritancePopup = new JFXPopup();
-                    StackPane inheritanceStack = new StackPane();
-                    root.getChildren().add(inheritanceStack);
-
-                    inheritanceStack.setLayoutX(x + 15);
-                    inheritanceStack.setLayoutY(y - 5);
-                    inheritancePopup.setAutoHide(true);
-                    inheritancePopup.setHideOnEscape(true);
-                    JFXComboBox inheritanceComboBox = new JFXComboBox();
-                    inheritanceComboBox.setPromptText("Inheritance target");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode rootNode = null;
-                    try {
-                        rootNode = objectMapper.readTree(CanvasContents);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                    for (JsonNode class_iter : classes){
-                        if (class_iter.get("name").textValue().equals(getName()))
-                            continue;
-
-                        //TODO: handle duplicates here (i.e. classes that already are connected with inheritance with this class)
-
-                        inheritanceComboBox.getItems().add(class_iter.get("name").textValue());
-                    }
-                    try {
-                        objectMapper.writeValue(CanvasContents, rootNode);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    inheritancePopup.setPopupContent(inheritanceComboBox);
-                    inheritancePopup.show(inheritanceStack);
-
-                    //TODO: handle duplicates
-
-                    inheritanceComboBox.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            JsonNode rootNode = null;
-                            ObjectNode targetClass = null;
-                            try {
-                                rootNode = objectMapper.readTree(CanvasContents);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                            for (JsonNode class_iter : classes){
-                                if (class_iter.get("name").textValue().equals(inheritanceComboBox.getValue().toString())){
-                                    targetClass = (ObjectNode) class_iter;
-                                    break;
-                                }
-                            }
-                            try {
-                                objectMapper.writeValue(CanvasContents, rootNode);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ObjectNode targetInfo = (ObjectNode) targetClass.get("info");
-                            tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'c', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
-                            inheritancePopup.hide();
-                            connectionsPopup.hide();
-                            actionsPopup.hide();
-                        }
-                    });
-                }
-            });
-
-            // implementation button
-
-            implementationButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    JFXPopup implementationPopup = new JFXPopup();
-                    StackPane implementationStack = new StackPane();
-                    root.getChildren().add(implementationStack);
-
-                    implementationStack.setLayoutX(x + 15);
-                    implementationStack.setLayoutY(y - 5);
-                    implementationPopup.setAutoHide(true);
-                    implementationPopup.setHideOnEscape(true);
-                    JFXComboBox implementationComboBox = new JFXComboBox();
-                    implementationComboBox.setPromptText("Implementation target");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode rootNode = null;
-                    try {
-                        rootNode = objectMapper.readTree(CanvasContents);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                    for (JsonNode interf_iter : interfaces)
-
-                        //TODO: handle duplicates here (i.e. interfaces that already are connected with implementation with this class)
-
-                        implementationComboBox.getItems().add(interf_iter.get("name").textValue());
-                    try {
-                        objectMapper.writeValue(CanvasContents, rootNode);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    implementationPopup.setPopupContent(implementationComboBox);
-                    implementationPopup.show(implementationStack);
-
-                    //TODO: handle duplicates
-
-                    implementationComboBox.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            JsonNode rootNode = null;
-                            ObjectNode targetInterface = null;
-                            try {
-                                rootNode = objectMapper.readTree(CanvasContents);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                            for (JsonNode interf_iter : interfaces){
-                                if (interf_iter.get("name").textValue().equals(implementationComboBox.getValue().toString())){
-                                    targetInterface = (ObjectNode) interf_iter;
-                                    break;
-                                }
-                            }
-                            try {
-                                objectMapper.writeValue(CanvasContents, rootNode);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ObjectNode targetInfo = (ObjectNode) targetInterface.get("info");
-                            tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'i', "implementation", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
-                            implementationPopup.hide();
-                            connectionsPopup.hide();
-                            actionsPopup.hide();
-                        }
-                    });
-                }
-            });
-
             // actions button
 
             actionsPopup = new JFXPopup();
@@ -911,9 +647,10 @@ public class ClassRectangle {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
+            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.RECTANGLE, CanvasContents).getButton());
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, DeleteButton.Element.RECTANGLE)).getButton();
+                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        CanvasContents, Element.RECTANGLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }

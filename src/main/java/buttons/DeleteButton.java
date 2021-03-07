@@ -24,16 +24,11 @@ import java.io.IOException;
 
 public class DeleteButton {
 
-    private StackPane deleteStack;
     private JFXButton deleteButton, deleteDialogConfirmButton, deleteDialogCancelButton;
     private JFXDialog deleteDialog;
     private JFXDialogLayout deleteDialogLayout;
 
-    public enum Element{
-        CIRCLE, RECTANGLE, DIAMOND, HEXAGON, ELLIPSE;
-    }
-
-    public DeleteButton(double x, double y, double offsetX, double offsetY, String name, Group root, StackPane stack,
+    public DeleteButton(double x, double y, String name, Group root, StackPane stack,
                         StackPane baseStack, JFXPopup actionsPopup, File CanvasContents, Element element) throws IOException {
 
         deleteButton = new JFXButton();

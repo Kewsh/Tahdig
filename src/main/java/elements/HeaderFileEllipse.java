@@ -1,5 +1,6 @@
 package elements;
 
+import buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -789,8 +790,8 @@ public class HeaderFileEllipse {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 210, 0, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, buttons.DeleteButton.Element.ELLIPSE)).getButton();
+                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        CanvasContents, Element.ELLIPSE)).getButton();
             } catch (Exception e) {
                 e.printStackTrace();
             }

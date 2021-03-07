@@ -1,5 +1,6 @@
 package elements;
 
+import buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -245,8 +246,8 @@ public class FunctionCircle {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, buttons.DeleteButton.Element.CIRCLE)).getButton();
+                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        CanvasContents, Element.CIRCLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }

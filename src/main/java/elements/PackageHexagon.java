@@ -1,5 +1,6 @@
 package elements;
 
+import buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,8 +54,8 @@ public class PackageHexagon {
         private String name;
         private File CanvasContents;
         private Group root;
-        private StackPane stack, actionsStack, connectionsStack;
-        private JFXPopup actionsPopup, connectionsPopup;
+        private StackPane stack, actionsStack;
+        private JFXPopup actionsPopup;
         private JFXButton deleteButton;
         private JFXButton connectionsButton, containmentButton, editButton;
 
@@ -200,131 +201,6 @@ public class PackageHexagon {
                 }
             });
 
-            // connections button
-
-            connectionsStack = new StackPane();
-            connectionsStack.setLayoutX(x - 5);
-            connectionsStack.setLayoutY(y - 5);
-            connectionsStack.setMinHeight(100);
-            root.getChildren().add(connectionsStack);
-
-            connectionsPopup = new JFXPopup();
-            connectionsPopup.setPopupContent(new VBox(containmentButton));
-            connectionsPopup.setAutoHide(true);
-            connectionsPopup.setHideOnEscape(true);
-
-            connectionsButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    if (flag[0] && flag[1]) {
-                        flag[0] = false;
-                        flag[1] = false;
-                    }
-                    if (flag[0])
-                        connectionsPopup.hide();
-                    else
-                        connectionsPopup.show(connectionsStack);
-                    flag[0] = !flag[0];
-                }
-            });
-
-            // containment button
-
-            containmentButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    JFXPopup containmentPopup = new JFXPopup();
-                    StackPane containmentStack = new StackPane();
-                    root.getChildren().add(containmentStack);
-
-                    containmentStack.setLayoutX(x + 115);
-                    containmentStack.setLayoutY(y - 5);
-                    containmentPopup.setAutoHide(true);
-                    containmentPopup.setHideOnEscape(true);
-                    JFXComboBox containmentComboBox = new JFXComboBox();
-                    containmentComboBox.setPromptText("Containment target");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode rootNode = null;
-                    try {
-                        rootNode = objectMapper.readTree(CanvasContents);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                    ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                    ArrayNode lines = (ArrayNode) rootNode.get("lines");
-
-                    skip_interface: for (JsonNode interf_iter : interfaces) {
-                        for (JsonNode line : lines){                                            //skip if interface is already contained by a package (this is due to the one-level package support)
-                            if (line.get("type").textValue().equals("containment") &&
-                                    line.get("endX").doubleValue() == interf_iter.get("info").get("x").doubleValue() &&
-                                    line.get("endY").doubleValue() == interf_iter.get("info").get("y").doubleValue()) continue skip_interface;
-                        }
-                        containmentComboBox.getItems().add(interf_iter.get("name").textValue());
-                    }
-                    skip_class: for (JsonNode class_iter : classes) {
-                        for (JsonNode line : lines){
-                            if (line.get("type").textValue().equals("containment") &&
-                                    line.get("endX").doubleValue() == class_iter.get("info").get("x").doubleValue() &&
-                                    line.get("endY").doubleValue() == class_iter.get("info").get("y").doubleValue()) continue skip_class;
-                        }
-                        containmentComboBox.getItems().add(class_iter.get("name").textValue());
-                    }
-                    try {
-                        objectMapper.writeValue(CanvasContents, rootNode);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    containmentPopup.setPopupContent(containmentComboBox);
-                    containmentPopup.show(containmentStack);
-
-                    //TODO: handle duplicates
-
-                    containmentComboBox.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            JsonNode rootNode = null;
-                            ObjectNode targetElement = null;
-                            boolean isInterface = false;
-                            try {
-                                rootNode = objectMapper.readTree(CanvasContents);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                            for (JsonNode interf_iter : interfaces){
-                                if (interf_iter.get("name").textValue().equals(containmentComboBox.getValue().toString())){
-                                    targetElement = (ObjectNode) interf_iter;
-                                    isInterface = true;
-                                    break;
-                                }
-                            }
-                            if (targetElement == null){
-                                for (JsonNode class_iter : classes){
-                                    if (class_iter.get("name").textValue().equals(containmentComboBox.getValue().toString())){
-                                        targetElement = (ObjectNode) class_iter;
-                                        break;
-                                    }
-                                }
-                            }
-                            try {
-                                objectMapper.writeValue(CanvasContents, rootNode);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ObjectNode targetInfo = (ObjectNode) targetElement.get("info");
-                            tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'p', isInterface ? 'i':'c', "containment", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
-                            containmentPopup.hide();
-                            connectionsPopup.hide();
-                            actionsPopup.hide();
-                        }
-                    });
-                }
-            });
-
             // actions button
 
             actionsPopup = new JFXPopup();
@@ -334,9 +210,10 @@ public class PackageHexagon {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
+            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.HEXAGON, CanvasContents)).getButton();
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, buttons.DeleteButton.Element.HEXAGON)).getButton();
+                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        CanvasContents, Element.HEXAGON)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }

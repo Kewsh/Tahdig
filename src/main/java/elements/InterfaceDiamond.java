@@ -1,5 +1,6 @@
 package elements;
 
+import buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -63,8 +64,8 @@ public class InterfaceDiamond {
         private File CanvasContents;
         private Group root;
         private VBox methodsDialogContent;
-        private StackPane stack, actionsStack, methodsStack, connectionsStack;
-        private JFXPopup actionsPopup, connectionsPopup;
+        private StackPane stack, actionsStack;
+        private JFXPopup actionsPopup;
         private JFXDialog methodsDialog;
         private JFXButton methodsCloseButton, addMethodButton, deleteButton, methodsButton;
         private JFXButton inheritanceButton, connectionsButton, editButton;
@@ -405,110 +406,6 @@ public class InterfaceDiamond {
                 }
             });
 
-            // connections button
-
-            connectionsStack = new StackPane();
-            connectionsStack.setLayoutX(x - 50);
-            connectionsStack.setLayoutY(y - 5);
-            connectionsStack.setMinHeight(100);
-            root.getChildren().add(connectionsStack);
-
-            connectionsPopup = new JFXPopup();
-            connectionsPopup.setPopupContent(new VBox(inheritanceButton));
-            connectionsPopup.setAutoHide(true);
-            connectionsPopup.setHideOnEscape(true);
-
-            connectionsButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    if (flag[0] && flag[1]) {
-                        flag[0] = false;
-                        flag[1] = false;
-                    }
-                    if (flag[0])
-                        connectionsPopup.hide();
-                    else
-                        connectionsPopup.show(connectionsStack);
-                    flag[0] = !flag[0];
-                }
-            });
-
-            // inheritance button
-
-            inheritanceButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    JFXPopup inheritancePopup = new JFXPopup();
-                    StackPane inheritanceStack = new StackPane();
-                    root.getChildren().add(inheritanceStack);
-
-                    inheritanceStack.setLayoutX(x + 55);
-                    inheritanceStack.setLayoutY(y - 5);
-                    inheritancePopup.setAutoHide(true);
-                    inheritancePopup.setHideOnEscape(true);
-                    JFXComboBox inheritanceComboBox = new JFXComboBox();
-                    inheritanceComboBox.setPromptText("Inheritance target");
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode rootNode = null;
-                    try {
-                        rootNode = objectMapper.readTree(CanvasContents);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                    for (JsonNode interf_iter : interfaces){
-                        if (interf_iter.get("name").textValue().equals(getName()))
-                            continue;
-
-                        //TODO: handle duplicates here (i.e. interfaces that already are connected with inheritance with this interface)
-
-                        inheritanceComboBox.getItems().add(interf_iter.get("name").textValue());
-                    }
-                    try {
-                        objectMapper.writeValue(CanvasContents, rootNode);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    inheritancePopup.setPopupContent(inheritanceComboBox);
-                    inheritancePopup.show(inheritanceStack);
-
-                    //TODO: handle duplicates
-
-                    inheritanceComboBox.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            JsonNode rootNode = null;
-                            ObjectNode targetInterface = null;
-                            try {
-                                rootNode = objectMapper.readTree(CanvasContents);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                            for (JsonNode interf_iter : interfaces){
-                                if (interf_iter.get("name").textValue().equals(inheritanceComboBox.getValue().toString())){
-                                    targetInterface = (ObjectNode) interf_iter;
-                                    break;
-                                }
-                            }
-                            try {
-                                objectMapper.writeValue(CanvasContents, rootNode);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            ObjectNode targetInfo = (ObjectNode) targetInterface.get("info");
-                            tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'i', 'i', "inheritance", x, y, targetInfo.get("x").doubleValue(), targetInfo.get("y").doubleValue());
-                            inheritancePopup.hide();
-                            connectionsPopup.hide();
-                            actionsPopup.hide();
-                        }
-                    });
-                }
-            });
-
             // actions button
 
             actionsPopup = new JFXPopup();
@@ -518,9 +415,10 @@ public class InterfaceDiamond {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
+            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.DIAMOND, CanvasContents)).getButton();
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, 150, 0, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, buttons.DeleteButton.Element.DIAMOND)).getButton();
+                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        CanvasContents, Element.DIAMOND)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }
