@@ -26,7 +26,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,11 +71,9 @@ public class ClassRectangle {
         private JFXDialogLayout attributesDialogLayout, methodsDialogLayout;
         private JFXTreeTableView attributeTreeView, methodTreeView;
 
-        private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
-
         //TODO: implement edit for all remaining shapes
         //TODO: implement edit for the entire class, including class name attributes and methods
-        //for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
+        //  for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
 
         public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
 
@@ -118,11 +115,11 @@ public class ClassRectangle {
                     VBox editVBox = new VBox(nameField, applyChangesButton);
                     editVBox.setSpacing(30);
                     editVBox.setMaxHeight(200);
-
                     JFXDialogLayout classEditLayout = new JFXDialogLayout();
-
                     classEditLayout.setBody(editVBox);
                     classEditDialog.setContent(classEditLayout);
+
+                    actionsPopup.hide();
                     classEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -219,11 +216,6 @@ public class ClassRectangle {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
-
-                    //
-
                 }
             });
 
@@ -278,12 +270,12 @@ public class ClassRectangle {
                     HBox methodsHBox = new HBox(accessButtonsVBox, extraButtonsVBox, typeButtonsVBox, nameField, methodGenerateButton);
                     methodsHBox.setSpacing(50);
                     methodsHBox.setMinWidth(800);
-
                     VBox methodsVBox = new VBox(methodsHBox);
                     JFXDialogLayout methodGenerateLayout = new JFXDialogLayout();
-
                     methodGenerateLayout.setBody(methodsVBox);
                     methodGenerateDialog.setContent(methodGenerateLayout);
+
+                    actionsPopup.hide();
                     methodGenerateDialog.show(baseStack);
 
                     Label accessNotSpecified = new Label("*no access type specified");
@@ -412,12 +404,6 @@ public class ClassRectangle {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add method" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -429,6 +415,8 @@ public class ClassRectangle {
                     methodsDialogContent = new VBox(methodTreeView, addMethodButton);
                     methodsDialogContent.setSpacing(15);
                     methodsDialogLayout.setBody(methodsDialogContent);
+
+                    actionsPopup.hide();
                     methodsDialog.show(baseStack);
                 }
             });
@@ -484,12 +472,12 @@ public class ClassRectangle {
                     HBox attributesHBox = new HBox(accessButtonsVBox, extraButtonsVBox, typeButtonsVBox, nameField, attributeGenerateButton);
                     attributesHBox.setSpacing(50);
                     attributesHBox.setMinWidth(800);
-
                     VBox attributesVBox = new VBox(attributesHBox);
                     JFXDialogLayout attributeGenerateLayout = new JFXDialogLayout();
-
                     attributeGenerateLayout.setBody(attributesVBox);
                     attributeGenerateDialog.setContent(attributeGenerateLayout);
+
+                    actionsPopup.hide();
                     attributeGenerateDialog.show(baseStack);
 
                     Label accessNotSpecified = new Label("*no access type specified");
@@ -617,12 +605,6 @@ public class ClassRectangle {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add attribute" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -634,6 +616,8 @@ public class ClassRectangle {
                     attributesDialogContent = new VBox(attributeTreeView, addAttributeButton);
                     attributesDialogContent.setSpacing(15);
                     attributesDialogLayout.setBody(attributesDialogContent);
+
+                    actionsPopup.hide();
                     attributesDialog.show(baseStack);
                 }
             });
@@ -647,7 +631,7 @@ public class ClassRectangle {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.RECTANGLE, CanvasContents).getButton());
+            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.RECTANGLE, CanvasContents).getButton());
             try {
                 deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, Element.RECTANGLE)).getButton();
@@ -662,14 +646,6 @@ public class ClassRectangle {
                 @Override
                 public void handle(MouseEvent event) {
                     actionsPopup.show(actionsStack);
-                }
-            });
-
-            actionsPopup.setOnHiding(new EventHandler<WindowEvent>(){
-                @Override
-                public void handle(WindowEvent event) {
-                    if (flag[0])
-                        flag[1] = true;
                 }
             });
         }
@@ -747,14 +723,14 @@ public class ClassRectangle {
             extraButtons.get(0).setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
-                    extraButtons.get(1).setDisable(!extraButtons.get(1).isDisabled());           // can be either static or virtual
+                    extraButtons.get(1).setSelected(false);             // can be either static or virtual
                 }
             });
 
             extraButtons.get(1).setOnAction(new EventHandler<ActionEvent>(){
                 @Override
                 public void handle(ActionEvent event) {
-                    extraButtons.get(0).setDisable(!extraButtons.get(0).isDisabled());
+                    extraButtons.get(0).setSelected(false);
                 }
             });
 

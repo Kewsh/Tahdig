@@ -3,10 +3,7 @@ package buttons;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.*;
 import javafx.scene.Group;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -28,7 +25,7 @@ public class ConnectionButton {
     private JFXDialogLayout connectionsDialogLayout;
     private JFXComboBox targetsComboBox, connectionsComboBox;
 
-    public ConnectionButton(double x, double y, StackPane baseStack, Group root, Element element, File CanvasContents){
+    public ConnectionButton(double x, double y, JFXPopup actionsPopup, StackPane baseStack, Group root, Element element, File CanvasContents){
 
         this.CanvasContents = CanvasContents;
         this.root = root;
@@ -51,7 +48,6 @@ public class ConnectionButton {
                 connectionsComboBox.getItems().add("Containment");
         }
         connectionsComboBox.setOnAction(event -> setTargets(x, y, element));
-
         connectionsDialog = new JFXDialog(new StackPane(),
                 new Region(),
                 JFXDialog.DialogTransition.CENTER,
@@ -73,12 +69,16 @@ public class ConnectionButton {
         connectionButton.setMinSize(50, 70);
         connectionButton.setId("connectionsButton");
         connectionButton.setDisableVisualFocus(true);
-        connectionButton.setOnAction(event -> connectionsDialog.show(baseStack));
+
+        connectionButton.setOnAction(event -> {
+            actionsPopup.hide();
+            connectionsDialog.show(baseStack);
+        });
     }
 
     private void formConnection(double x, double y, Element element){
 
-        if (connectionsComboBox.getValue() == null)
+        if (targetsComboBox.getValue() == null)
             return;
         Point targetPoint;
         switch(connectionsComboBox.getValue().toString()){

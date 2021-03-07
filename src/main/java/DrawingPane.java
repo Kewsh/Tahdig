@@ -48,9 +48,10 @@ public class DrawingPane {
         defaultIdArray = new int[]{1, 1, 1, 1, 1};
         scrollPane  = new ScrollPane();
         canvas = new Canvas();
+        root = new Group();
+
         canvas.setHeight(height);
         canvas.setWidth(width);
-        root = new Group();
         root.getChildren().add(canvas);
         scrollPane.setContent(root);
         scrollPane.setId("drawForm");
@@ -80,8 +81,7 @@ public class DrawingPane {
                         if (scrollBar.getOrientation() == Orientation.VERTICAL)
                             verticalBar = scrollBar;
                     }
-                    if (horizontalBar != null && verticalBar != null)
-                        break;
+                    if (horizontalBar != null && verticalBar != null) break;
                 }
 
                 double x = event.getSceneX() + horizontalBar.valueProperty().getValue()*(width-1400) - 500;
@@ -96,9 +96,8 @@ public class DrawingPane {
                             outDirectory.mkdir();
                             CanvasContents.createNewFile();
                             FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
-                            myWriter.write("{\"classes\": [], \"functions\": [], " +
-                                            "\"interfaces\": [], \"headers\": [], " +
-                                            "\"packages\": [], \"lines\": []}");
+                            myWriter.write("{\"classes\": [], \"functions\": [], " + "\"interfaces\": [], \"headers\": [], " +
+                                                "\"packages\": [], \"lines\": []}");
                             myWriter.close();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -110,10 +109,8 @@ public class DrawingPane {
                         e.printStackTrace();
                     }
                     event.setDropCompleted(true);
-                } else
-                    event.setDropCompleted(false);
-            } else
-                event.setDropCompleted(false);
+                } else event.setDropCompleted(false);
+            } else event.setDropCompleted(false);
             event.consume();
         });
     }
@@ -186,7 +183,7 @@ public class DrawingPane {
                 root.getChildren().add(stack);
                 break;
 
-            default:            //ellipse
+            case "ellipse":
 
                 name = "Header-File" + defaultIdArray[4];
                 defaultIdArray[4] += 1;

@@ -26,7 +26,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,7 +63,7 @@ public class HeaderFileEllipse {
         private File CanvasContents;
         private Group root;
         private VBox variablesDialogContent, functionsDialogContent, classesDialogContent;
-        private StackPane stack, actionsStack, variablesStack, functionsStack, classesStack;
+        private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
         private JFXButton deleteButton;
         private JFXButton functionsButton, variablesButton, classesButton;
@@ -73,8 +72,6 @@ public class HeaderFileEllipse {
         private JFXDialog variablesDialog, functionsDialog, classesDialog;
         private JFXDialogLayout variablesDialogLayout, functionsDialogLayout, classesDialogLayout;
         private JFXTreeTableView variableTreeView, functionTreeView, classTreeView;
-
-        private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
         //TODO: implement rename
 
@@ -120,11 +117,11 @@ public class HeaderFileEllipse {
                     VBox editVBox = new VBox(nameField, applyChangesButton);
                     editVBox.setSpacing(30);
                     editVBox.setMaxHeight(200);
-
                     JFXDialogLayout headerEditLayout = new JFXDialogLayout();
-
                     headerEditLayout.setBody(editVBox);
                     headerEditDialog.setContent(headerEditLayout);
+
+                    actionsPopup.hide();
                     headerEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -211,11 +208,6 @@ public class HeaderFileEllipse {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
-
-                    //
-
                 }
             });
 
@@ -259,12 +251,12 @@ public class HeaderFileEllipse {
                     HBox classesHBox = new HBox(nameField, classGenerateButton);
                     classesHBox.setSpacing(50);
                     classesHBox.setMinWidth(450);
-
                     VBox classesVBox = new VBox(classesHBox);
                     JFXDialogLayout classGenerateLayout = new JFXDialogLayout();
-
                     classGenerateLayout.setBody(classesVBox);
                     classGenerateDialog.setContent(classGenerateLayout);
+
+                    actionsPopup.hide();
                     classGenerateDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -375,12 +367,6 @@ public class HeaderFileEllipse {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add attribute" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -392,6 +378,8 @@ public class HeaderFileEllipse {
                     classesDialogContent = new VBox(classTreeView, addClassButton);
                     classesDialogContent.setSpacing(15);
                     classesDialogLayout.setBody(classesDialogContent);
+
+                    actionsPopup.hide();
                     classesDialog.show(baseStack);
                 }
             });
@@ -440,12 +428,12 @@ public class HeaderFileEllipse {
                     HBox functionsHBox = new HBox(typeButtonsVBox, nameField, functionGenerateButton);
                     functionsHBox.setSpacing(50);
                     functionsHBox.setMinWidth(450);
-
                     VBox functionsVBox = new VBox(functionsHBox);
                     JFXDialogLayout functionGenerateLayout = new JFXDialogLayout();
-
                     functionGenerateLayout.setBody(functionsVBox);
                     functionGenerateDialog.setContent(functionGenerateLayout);
+
+                    actionsPopup.hide();
                     functionGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
@@ -567,12 +555,6 @@ public class HeaderFileEllipse {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add method" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -584,6 +566,8 @@ public class HeaderFileEllipse {
                     functionsDialogContent = new VBox(functionTreeView, addFunctionButton);
                     functionsDialogContent.setSpacing(15);
                     functionsDialogLayout.setBody(functionsDialogContent);
+
+                    actionsPopup.hide();
                     functionsDialog.show(baseStack);
                 }
             });
@@ -632,12 +616,12 @@ public class HeaderFileEllipse {
                     HBox variablesHBox = new HBox(typeButtonsVBox, nameField, variableGenerateButton);
                     variablesHBox.setSpacing(50);
                     variablesHBox.setMinWidth(450);
-
                     VBox variablesVBox = new VBox(variablesHBox);
                     JFXDialogLayout variableGenerateLayout = new JFXDialogLayout();
-
                     variableGenerateLayout.setBody(variablesVBox);
                     variableGenerateDialog.setContent(variableGenerateLayout);
+
+                    actionsPopup.hide();
                     variableGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no data type specified");
@@ -759,12 +743,6 @@ public class HeaderFileEllipse {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add attribute" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -776,6 +754,8 @@ public class HeaderFileEllipse {
                     variablesDialogContent = new VBox(variableTreeView, addVariableButton);
                     variablesDialogContent.setSpacing(15);
                     variablesDialogLayout.setBody(variablesDialogContent);
+
+                    actionsPopup.hide();
                     variablesDialog.show(baseStack);
                 }
             });
@@ -803,14 +783,6 @@ public class HeaderFileEllipse {
                 @Override
                 public void handle(MouseEvent event) {
                     actionsPopup.show(actionsStack);
-                }
-            });
-
-            actionsPopup.setOnHiding(new EventHandler<WindowEvent>(){
-                @Override
-                public void handle(WindowEvent event) {
-                    if (flag[0])
-                        flag[1] = true;
                 }
             });
         }

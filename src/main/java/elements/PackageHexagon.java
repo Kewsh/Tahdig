@@ -19,7 +19,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,9 +56,7 @@ public class PackageHexagon {
         private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
         private JFXButton deleteButton;
-        private JFXButton connectionsButton, containmentButton, editButton;
-
-        private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
+        private JFXButton connectionsButton, editButton;
 
         //TODO: implement rename
 
@@ -71,12 +68,6 @@ public class PackageHexagon {
             this.stack = stack;
             this.CanvasContents = CanvasContents;
             addPackageToCanvasContents();
-
-            connectionsButton = new JFXButton("Connect");
-            containmentButton = new JFXButton("Containment");
-
-            setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
-            setButtonStyles(containmentButton, "containmentButton", 40, 50);
 
             editButton = new JFXButton();
             String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
@@ -102,11 +93,11 @@ public class PackageHexagon {
                     VBox editVBox = new VBox(nameField, applyChangesButton);
                     editVBox.setSpacing(30);
                     editVBox.setMaxHeight(200);
-
                     JFXDialogLayout packageEditLayout = new JFXDialogLayout();
-
                     packageEditLayout.setBody(editVBox);
                     packageEditDialog.setContent(packageEditLayout);
+
+                    actionsPopup.hide();
                     packageEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -193,11 +184,6 @@ public class PackageHexagon {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
-
-                    //
-
                 }
             });
 
@@ -210,7 +196,7 @@ public class PackageHexagon {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.HEXAGON, CanvasContents)).getButton();
+            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.HEXAGON, CanvasContents)).getButton();
             try {
                 deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, Element.HEXAGON)).getButton();
@@ -225,14 +211,6 @@ public class PackageHexagon {
                 @Override
                 public void handle(MouseEvent event) {
                     actionsPopup.show(actionsStack);
-                }
-            });
-
-            actionsPopup.setOnHiding(new EventHandler<WindowEvent>(){
-                @Override
-                public void handle(WindowEvent event) {
-                    if (flag[0])
-                        flag[1] = true;
                 }
             });
         }

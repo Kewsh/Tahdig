@@ -20,19 +20,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+//TODO: clean the code :) like for real.. clean the entirety of the code
 //TODO: set validations on method/variable/function/... names (handle spaces, signs such as $#%^...)
-//TODO: do not allow inheritance/implementation for elements that are already inherited/implemented by the target class
 //TODO: implement drag and drop for object that are already on the canvas
-//TODO: place all important and big dialogs on base stack (i.e. line 37, stackPane)
-//TODO: for the connections button, we move its action to a new dialog that pops up on the base stack
-//  this dialog will have an hbox that consists of 2 combo boxes(left one is the connection type and right one is target)
-//TODO: from this, we conclude that the only popup that we have that isn't shown on the base stack, is the actions popup itself
-//  which can be easily passed to different methods and they can hide it if its being shown. this should handle duplicate dialogs
-//TODO: for every dialog that is displayed on base stack, close all other popups and disable them while this dialog is open
 //TODO: edit the style of all these dialogs, (i.e. better looking buttons, proper labels and etc)
+//TODO: set all dialogs to overLayClose false and put a close a button for them
 //TODO: change all fonts to some beautiful font either from defaults or from google fonts
 //  e.g. @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
-//TODO: set all dialogs to overLayClose false and put a close a button for them
 
 public class Main extends Application {
 

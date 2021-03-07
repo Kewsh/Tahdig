@@ -39,9 +39,9 @@ public class DeleteButton {
         deleteButton.setOnAction(new EventHandler<ActionEvent>(){
             @Override
             public void handle(ActionEvent event) {
+
                 for (Node node : root.getChildren()){
                     if (node == stack){
-
                         deleteDialog = new JFXDialog(new StackPane(),
                                 new Region(),
                                 JFXDialog.DialogTransition.CENTER,
@@ -52,6 +52,7 @@ public class DeleteButton {
                         deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
                             @Override
                             public void handle(ActionEvent event) {
+
                                 root.getChildren().remove(node);
                                 actionsPopup.hide();
                                 deleteDialog.close();
@@ -80,8 +81,6 @@ public class DeleteButton {
                                     case ELLIPSE:
                                         array = (ArrayNode) rootNode.get("headers");
                                 }
-                                //TODO: change all default statements in switch cases to what they point to. default is not necessary
-
                                 for (int i = 0; i < array.size(); i++){
                                     ObjectNode object = (ObjectNode) array.get(i);
                                     if (object.get("info").get("x").doubleValue() == x && object.get("info").get("y").doubleValue() == y)
@@ -92,9 +91,7 @@ public class DeleteButton {
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-
-                                //TODO: hide and close all dialogs and popups related to this object here
-                                //TODO: also handle all relations and dependencies
+                                //TODO: handle all relations and dependencies of this object
                             }
                         });
                         deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -108,6 +105,8 @@ public class DeleteButton {
                         deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
                         deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
                         deleteDialog.setContent(deleteDialogLayout);
+
+                        actionsPopup.hide();
                         deleteDialog.show(baseStack);
                         break;
                     }

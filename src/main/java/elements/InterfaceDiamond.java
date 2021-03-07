@@ -26,7 +26,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,11 +67,9 @@ public class InterfaceDiamond {
         private JFXPopup actionsPopup;
         private JFXDialog methodsDialog;
         private JFXButton methodsCloseButton, addMethodButton, deleteButton, methodsButton;
-        private JFXButton inheritanceButton, connectionsButton, editButton;
+        private JFXButton connectionsButton, editButton;
         private JFXDialogLayout methodsDialogLayout;
         private JFXTreeTableView methodTreeView;
-
-        private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
         //TODO: implement rename
 
@@ -86,12 +83,7 @@ public class InterfaceDiamond {
             addInterfaceToCanvasContents();
 
             methodsButton = new JFXButton("Methods");
-            connectionsButton = new JFXButton("Connect");
-            inheritanceButton = new JFXButton("Inheritance");
-
             setButtonStyles(methodsButton, "interfaceMethodsButton", 50, 70);
-            setButtonStyles(connectionsButton, "connectionsButton", 50, 70);
-            setButtonStyles(inheritanceButton, "interfaceInheritanceButton", 40, 50);
 
             editButton = new JFXButton();
             String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
@@ -117,11 +109,11 @@ public class InterfaceDiamond {
                     VBox editVBox = new VBox(nameField, applyChangesButton);
                     editVBox.setSpacing(30);
                     editVBox.setMaxHeight(200);
-
                     JFXDialogLayout interfaceEditLayout = new JFXDialogLayout();
-
                     interfaceEditLayout.setBody(editVBox);
                     interfaceEditDialog.setContent(interfaceEditLayout);
+
+                    actionsPopup.hide();
                     interfaceEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
@@ -218,11 +210,6 @@ public class InterfaceDiamond {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "edit" dialogs are shown)
-
-                    //
-
                 }
             });
 
@@ -274,12 +261,12 @@ public class InterfaceDiamond {
                     HBox methodsHBox = new HBox(extraButtonsVBox, typeButtonsVBox, nameField, methodGenerateButton);
                     methodsHBox.setSpacing(50);
                     methodsHBox.setMinWidth(600);
-
                     VBox methodsVBox = new VBox(methodsHBox);
                     JFXDialogLayout methodGenerateLayout = new JFXDialogLayout();
-
                     methodGenerateLayout.setBody(methodsVBox);
                     methodGenerateDialog.setContent(methodGenerateLayout);
+
+                    actionsPopup.hide();
                     methodGenerateDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
@@ -385,12 +372,6 @@ public class InterfaceDiamond {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add method" dialogs are shown)
-
-                    //
-
-
                 }
             });
 
@@ -402,6 +383,8 @@ public class InterfaceDiamond {
                     methodsDialogContent = new VBox(methodTreeView, addMethodButton);
                     methodsDialogContent.setSpacing(15);
                     methodsDialogLayout.setBody(methodsDialogContent);
+
+                    actionsPopup.hide();
                     methodsDialog.show(baseStack);
                 }
             });
@@ -415,7 +398,7 @@ public class InterfaceDiamond {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, baseStack, root, Element.DIAMOND, CanvasContents)).getButton();
+            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.DIAMOND, CanvasContents)).getButton();
             try {
                 deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
                         CanvasContents, Element.DIAMOND)).getButton();
@@ -430,14 +413,6 @@ public class InterfaceDiamond {
                 @Override
                 public void handle(MouseEvent event) {
                     actionsPopup.show(actionsStack);
-                }
-            });
-
-            actionsPopup.setOnHiding(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent event) {
-                    if (flag[0])
-                        flag[1] = true;
                 }
             });
         }

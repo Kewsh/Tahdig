@@ -20,7 +20,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,8 +59,6 @@ public class FunctionCircle {
         private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
         private JFXButton editButton, deleteButton;
-
-        private final boolean flag[] = {false, false};          // used to make sure popups are shown and hidden properly
 
         //TODO: implement rename
 
@@ -104,12 +101,12 @@ public class FunctionCircle {
                     HBox editHBox = new HBox(typeButtonsVBox, nameField, applyChangesButton);
                     editHBox.setSpacing(50);
                     editHBox.setMinWidth(450);
-
                     VBox editVBox = new VBox(editHBox);
                     JFXDialogLayout functionEditLayout = new JFXDialogLayout();
-
                     functionEditLayout.setBody(editVBox);
                     functionEditDialog.setContent(functionEditLayout);
+
+                    actionsPopup.hide();
                     functionEditDialog.show(baseStack);
 
                     Label typeNotSpecified = new Label("*no return type specified");
@@ -228,11 +225,6 @@ public class FunctionCircle {
                             }
                         }
                     });
-
-                    //TODO: handle duplicate dialogs here (basically when two different "add method" dialogs are shown)
-
-                    //
-
                 }
             });
 
@@ -259,14 +251,6 @@ public class FunctionCircle {
                 @Override
                 public void handle(MouseEvent event) {
                     actionsPopup.show(actionsStack);
-                }
-            });
-
-            actionsPopup.setOnHiding(new EventHandler<WindowEvent>(){
-                @Override
-                public void handle(WindowEvent event) {
-                    if (flag[0])
-                        flag[1] = true;
                 }
             });
         }
