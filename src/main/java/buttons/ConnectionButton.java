@@ -79,7 +79,7 @@ public class ConnectionButton {
     private void formConnection(double x, double y, Element element){
 
         if (targetsComboBox.getValue() == null)
-            return;
+            return;         //TODO: print some error message?
         Point targetPoint;
         switch(connectionsComboBox.getValue().toString()){
             case "Inheritance":

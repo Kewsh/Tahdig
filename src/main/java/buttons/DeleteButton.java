@@ -103,6 +103,9 @@ public class DeleteButton {
 
                         deleteDialogLayout = new JFXDialogLayout();
                         deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
+
+                        //TODO: fix: this name isn't updated when element name has changed
+
                         deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
                         deleteDialog.setContent(deleteDialogLayout);
 

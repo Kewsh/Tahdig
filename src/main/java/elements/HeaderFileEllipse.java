@@ -125,31 +125,37 @@ public class HeaderFileEllipse {
                     headerEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < 3; i++)
                                 errorFlags[i] = false;
 
                             if (editVBox.getChildren().contains(nameAlreadyExists))
                                 editVBox.getChildren().remove(nameAlreadyExists);
                             if (editVBox.getChildren().contains(nameNotGiven))
                                 editVBox.getChildren().remove(nameNotGiven);
+                            if (editVBox.getChildren().contains(nameNotValid))
+                                editVBox.getChildren().remove(nameNotValid);
 
                             String inputName = nameField.getText();
                             if (inputName.equals("")) {
                                 editVBox.getChildren().add(nameNotGiven);
                                 errorFlags[0] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                editVBox.getChildren().add(nameNotValid);
+                                errorFlags[1] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
 
@@ -163,12 +169,12 @@ public class HeaderFileEllipse {
                                     for (JsonNode header_iter : headers) {
                                         if (header_iter.get("name").textValue().equals(inputName)) {
                                             editVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[1] = true;
+                                            errorFlags[2] = true;
                                             break;
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
 
                                     ArrayNode headers = (ArrayNode) rootNode.get("headers");
                                     ObjectNode targetHeader = null;
@@ -260,11 +266,13 @@ public class HeaderFileEllipse {
                     classGenerateDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     classGenerateButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -272,20 +280,24 @@ public class HeaderFileEllipse {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < 3; i++)
                                 errorFlags[i] = false;
 
                             if (classesVBox.getChildren().contains(nameAlreadyExists))
                                 classesVBox.getChildren().remove(nameAlreadyExists);
                             if (classesVBox.getChildren().contains(nameNotGiven))
                                 classesVBox.getChildren().remove(nameNotGiven);
+                            if (classesVBox.getChildren().contains(nameNotValid))
+                                classesVBox.getChildren().remove(nameNotValid);
 
                             String inputName = nameField.getText();
                             if (inputName.equals("")) {
                                 classesVBox.getChildren().add(nameNotGiven);
                                 errorFlags[0] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                classesVBox.getChildren().add(nameNotValid);
+                                errorFlags[1] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 ArrayNode classes;
@@ -300,11 +312,11 @@ public class HeaderFileEllipse {
                                 for (JsonNode class_iter : classes){
                                     if (class_iter.get("name").textValue().equals(inputName)){
                                         classesVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[1] = true;
+                                        errorFlags[2] = true;
                                         break;
                                     }
                                 }
-                                if (!errorFlags[1]){
+                                if (!errorFlags[2]){
                                     headers = (ArrayNode) rootNode.get("headers");
                                     for (JsonNode header_iter : headers){
                                         ObjectNode info = (ObjectNode) header_iter.get("info");
@@ -313,26 +325,26 @@ public class HeaderFileEllipse {
                                             for (JsonNode variable : variables){
                                                 if (variable.get("name").textValue().equals(inputName)){
                                                     classesVBox.getChildren().add(nameAlreadyExists);
-                                                    errorFlags[1] = true;
+                                                    errorFlags[2] = true;
                                                     break;
                                                 }
                                             }
-                                            if (!errorFlags[1]){
+                                            if (!errorFlags[2]){
                                                 ArrayNode functions = (ArrayNode) info.get("functions");
                                                 for (JsonNode function : functions){
                                                     if (function.get("name").textValue().equals(inputName)){
                                                         classesVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[1] = true;
+                                                        errorFlags[2] = true;
                                                         break;
                                                     }
                                                 }
                                             }
-                                            if (!errorFlags[1]){
+                                            if (!errorFlags[2]){
                                                 classes = (ArrayNode) info.get("classes");
                                                 for (JsonNode class_iter : classes){
                                                     if (class_iter.get("name").textValue().equals(inputName)){
                                                         classesVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[1] = true;
+                                                        errorFlags[2] = true;
                                                         break;
                                                     }
                                                 }
@@ -340,7 +352,7 @@ public class HeaderFileEllipse {
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
 
                                     ArrayNode classList = null;
                                     ObjectNode targetClass = objectMapper.createObjectNode();
@@ -438,12 +450,14 @@ public class HeaderFileEllipse {
 
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false, false};               //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
 
                     typeNotSpecified.setStyle("-fx-text-fill: red;");
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     functionGenerateButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -451,7 +465,7 @@ public class HeaderFileEllipse {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 3; i++)
+                            for (int i = 0; i < 4; i++)
                                 errorFlags[i] = false;
 
                             if (functionsVBox.getChildren().contains(nameAlreadyExists))
@@ -460,6 +474,8 @@ public class HeaderFileEllipse {
                                 functionsVBox.getChildren().remove(typeNotSpecified);
                             if (functionsVBox.getChildren().contains(nameNotGiven))
                                 functionsVBox.getChildren().remove(nameNotGiven);
+                            if (functionsVBox.getChildren().contains(nameNotValid))
+                                functionsVBox.getChildren().remove(nameNotValid);
 
                             JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
                             if (selectedType == null) {
@@ -471,8 +487,10 @@ public class HeaderFileEllipse {
                             if (inputName.equals("")) {
                                 functionsVBox.getChildren().add(nameNotGiven);
                                 errorFlags[1] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                functionsVBox.getChildren().add(nameNotValid);
+                                errorFlags[2] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 ArrayNode classes;
@@ -487,11 +505,11 @@ public class HeaderFileEllipse {
                                 for (JsonNode class_iter : classes){
                                     if (class_iter.get("name").textValue().equals(inputName)){
                                         functionsVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[2] = true;
+                                        errorFlags[3] = true;
                                         break;
                                     }
                                 }
-                                if (!errorFlags[2]){
+                                if (!errorFlags[3]){
                                     headers = (ArrayNode) rootNode.get("headers");
                                     for (JsonNode header_iter : headers){
                                         ObjectNode info = (ObjectNode) header_iter.get("info");
@@ -500,26 +518,26 @@ public class HeaderFileEllipse {
                                             for (JsonNode variable : variables){
                                                 if (variable.get("name").textValue().equals(inputName)){
                                                     functionsVBox.getChildren().add(nameAlreadyExists);
-                                                    errorFlags[2] = true;
+                                                    errorFlags[3] = true;
                                                     break;
                                                 }
                                             }
-                                            if (!errorFlags[2]){
+                                            if (!errorFlags[3]){
                                                 ArrayNode functions = (ArrayNode) info.get("functions");
                                                 for (JsonNode function : functions){
                                                     if (function.get("name").textValue().equals(inputName)){
                                                         functionsVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[2] = true;
+                                                        errorFlags[3] = true;
                                                         break;
                                                     }
                                                 }
                                             }
-                                            if (!errorFlags[2]){
+                                            if (!errorFlags[3]){
                                                 classes = (ArrayNode) info.get("classes");
                                                 for (JsonNode class_iter : classes){
                                                     if (class_iter.get("name").textValue().equals(inputName)){
                                                         functionsVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[2] = true;
+                                                        errorFlags[3] = true;
                                                         break;
                                                     }
                                                 }
@@ -527,7 +545,7 @@ public class HeaderFileEllipse {
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
 
                                     ArrayNode functionList = null;
                                     ObjectNode targetFunction = objectMapper.createObjectNode();
@@ -626,12 +644,14 @@ public class HeaderFileEllipse {
 
                     Label typeNotSpecified = new Label("*no data type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false, false};               //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
 
                     typeNotSpecified.setStyle("-fx-text-fill: red;");
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     variableGenerateButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -639,7 +659,7 @@ public class HeaderFileEllipse {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 3; i++)
+                            for (int i = 0; i < 4; i++)
                                 errorFlags[i] = false;
 
                             if (variablesVBox.getChildren().contains(nameAlreadyExists))
@@ -648,6 +668,8 @@ public class HeaderFileEllipse {
                                 variablesVBox.getChildren().remove(typeNotSpecified);
                             if (variablesVBox.getChildren().contains(nameNotGiven))
                                 variablesVBox.getChildren().remove(nameNotGiven);
+                            if (variablesVBox.getChildren().contains(nameNotValid))
+                                variablesVBox.getChildren().remove(nameNotValid);
 
                             JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
                             if (selectedType == null) {
@@ -659,8 +681,10 @@ public class HeaderFileEllipse {
                             if (inputName.equals("")) {
                                 variablesVBox.getChildren().add(nameNotGiven);
                                 errorFlags[1] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                variablesVBox.getChildren().add(nameNotValid);
+                                errorFlags[2] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 ArrayNode classes;
@@ -675,11 +699,11 @@ public class HeaderFileEllipse {
                                 for (JsonNode class_iter : classes){
                                     if (class_iter.get("name").textValue().equals(inputName)){
                                         variablesVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[2] = true;
+                                        errorFlags[3] = true;
                                         break;
                                     }
                                 }
-                                if (!errorFlags[2]){
+                                if (!errorFlags[3]){
                                     headers = (ArrayNode) rootNode.get("headers");
                                     for (JsonNode header_iter : headers){
                                         ObjectNode info = (ObjectNode) header_iter.get("info");
@@ -688,26 +712,26 @@ public class HeaderFileEllipse {
                                             for (JsonNode variable : variables){
                                                 if (variable.get("name").textValue().equals(inputName)){
                                                     variablesVBox.getChildren().add(nameAlreadyExists);
-                                                    errorFlags[2] = true;
+                                                    errorFlags[3] = true;
                                                     break;
                                                 }
                                             }
-                                            if (!errorFlags[2]){
+                                            if (!errorFlags[3]){
                                                 ArrayNode functions = (ArrayNode) info.get("functions");
                                                 for (JsonNode function : functions){
                                                     if (function.get("name").textValue().equals(inputName)){
                                                         variablesVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[2] = true;
+                                                        errorFlags[3] = true;
                                                         break;
                                                     }
                                                 }
                                             }
-                                            if (!errorFlags[2]){
+                                            if (!errorFlags[3]){
                                                 classes = (ArrayNode) info.get("classes");
                                                 for (JsonNode class_iter : classes){
                                                     if (class_iter.get("name").textValue().equals(inputName)){
                                                         variablesVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[2] = true;
+                                                        errorFlags[3] = true;
                                                         break;
                                                     }
                                                 }
@@ -715,7 +739,7 @@ public class HeaderFileEllipse {
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
 
                                     ArrayNode variableList = null;
                                     ObjectNode targetVariable = objectMapper.createObjectNode();
@@ -793,6 +817,21 @@ public class HeaderFileEllipse {
 
         private String getName(){
             return this.name;
+        }
+
+        private boolean checkNameValidity(String name){
+
+            if (!Character.isAlphabetic(name.charAt(0)) && name.charAt(0) != '_')
+                return false;
+            boolean state = true;
+            for (int i = 0; i < name.length(); i++){
+                char c = name.charAt(i);
+                if (!Character.isDigit(c) && !Character.isAlphabetic(c) && c != '_'){
+                    state = false;
+                    break;
+                }
+            }
+            return state;
         }
 
         private void setButtonStyles(JFXButton button, String buttonName, double width, double length){

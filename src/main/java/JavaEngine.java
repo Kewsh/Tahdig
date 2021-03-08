@@ -283,8 +283,6 @@ public class JavaEngine extends Engine {
 
     private void editOccurrencesInFile(char[] haystack, String needle, String packageName, File file) throws IOException {
 
-        //TODO: make sure that the needles found are actual types, not variable names or etc
-
         String editedString = "";
         for (int i = 0; haystack[i] != '\0'; i++){
             if (haystack[i] == needle.charAt(0)){
@@ -296,7 +294,8 @@ public class JavaEngine extends Engine {
                         break;
                     }
                 }
-                if (!flag){                         //occurrence found
+                if (!flag && (haystack[i-1] == ' ' || haystack[i-1] == '\n' || haystack[i-1] == '\t') &&        // proper occurrence found
+                        (haystack[i+j] == ' ' || haystack[i+j] == '\n' || haystack[i+j] == '\t' || haystack[i+j] == '{')){
                     i += j-1;
                     editedString += packageName + "." + needle;
                     continue;
@@ -308,16 +307,24 @@ public class JavaEngine extends Engine {
     }
 
     private void moveFile(String name, String path){
+
         File codeDirectory = new File("out/code/");
-        File targetFile = null;
+        File targetFile = null, generatedInterfaceFile = null;
+
         for (File file : codeDirectory.listFiles()){
             if (file.getAbsolutePath().contains("\\" + name + ".java")) {
                 targetFile = file;
+                for (File interface_file : codeDirectory.listFiles()){
+                    if (interface_file.getAbsolutePath().contains("\\" + name + "_interface.java")) {
+                        generatedInterfaceFile = interface_file;
+                        break;
+                    }
+                }
                 break;
             }
         }
         targetFile.renameTo(new File(path + "\\" + name + ".java"));
-
-        //TODO: move [name]_interface.java as well?
+        if (generatedInterfaceFile != null)
+            generatedInterfaceFile.renameTo(new File(path + "\\" + name + "_interface.java"));
     }
 }

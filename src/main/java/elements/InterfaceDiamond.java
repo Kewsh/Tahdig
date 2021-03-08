@@ -117,29 +117,36 @@ public class InterfaceDiamond {
                     interfaceEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < 3; i++)
                                 errorFlags[i] = false;
 
                             if (editVBox.getChildren().contains(nameAlreadyExists))
                                 editVBox.getChildren().remove(nameAlreadyExists);
                             if (editVBox.getChildren().contains(nameNotGiven))
                                 editVBox.getChildren().remove(nameNotGiven);
+                            if (editVBox.getChildren().contains(nameNotValid))
+                                editVBox.getChildren().remove(nameNotValid);
 
                             String inputName = nameField.getText();
                             if (inputName.equals("")) {
                                 editVBox.getChildren().add(nameNotGiven);
                                 errorFlags[0] = true;
+                            } else if (!checkNameValidity(inputName)){
+                                editVBox.getChildren().add(nameNotValid);
+                                errorFlags[1] = true;
                             }
                             else{
                                 ObjectMapper objectMapper = new ObjectMapper();
@@ -155,22 +162,22 @@ public class InterfaceDiamond {
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
                                             editVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[1] = true;
+                                            errorFlags[2] = true;
                                             break;
                                         }
                                     }
-                                    if (!errorFlags[1]){
+                                    if (!errorFlags[2]){
                                         ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
                                         for (JsonNode interf_iter : interfaces){
                                             if (interf_iter.get("name").textValue().equals(inputName)){
                                                 editVBox.getChildren().add(nameAlreadyExists);
-                                                errorFlags[1] = true;
+                                                errorFlags[2] = true;
                                                 break;
                                             }
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
 
                                     ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
                                     ObjectNode targetInterface = null;
@@ -271,12 +278,14 @@ public class InterfaceDiamond {
 
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false, false};               //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
 
                     typeNotSpecified.setStyle("-fx-text-fill: red;");
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     methodGenerateButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -284,7 +293,7 @@ public class InterfaceDiamond {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 3; i++)
+                            for (int i = 0; i < 4; i++)
                                 errorFlags[i] = false;
 
                             if (methodsVBox.getChildren().contains(nameAlreadyExists))
@@ -293,6 +302,8 @@ public class InterfaceDiamond {
                                 methodsVBox.getChildren().remove(typeNotSpecified);
                             if (methodsVBox.getChildren().contains(nameNotGiven))
                                 methodsVBox.getChildren().remove(nameNotGiven);
+                            if (methodsVBox.getChildren().contains(nameNotValid))
+                                methodsVBox.getChildren().remove(nameNotValid);
 
                             JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
                             if (selectedType == null) {
@@ -304,7 +315,11 @@ public class InterfaceDiamond {
                             if (inputName.equals("")) {
                                 methodsVBox.getChildren().add(nameNotGiven);
                                 errorFlags[1] = true;
-                            } else {
+                            } else if (!checkNameValidity(inputName)){
+                                methodsVBox.getChildren().add(nameNotValid);
+                                errorFlags[2] = true;
+                            }
+                            else {
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 ArrayNode methods = null;
@@ -319,7 +334,7 @@ public class InterfaceDiamond {
                                 for (JsonNode interf_iter : interfaces) {
                                     if (interf_iter.get("name").textValue().equals(inputName)) {
                                         methodsVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[2] = true;
+                                        errorFlags[3] = true;
                                         break;
                                     }
                                     ObjectNode info = (ObjectNode) interf_iter.get("info");
@@ -328,23 +343,23 @@ public class InterfaceDiamond {
                                         for (JsonNode method : methods) {
                                             if (method.get("name").textValue().equals(inputName)) {
                                                 methodsVBox.getChildren().add(nameAlreadyExists);
-                                                errorFlags[2] = true;
+                                                errorFlags[3] = true;
                                                 break;
                                             }
                                         }
-                                        if (errorFlags[2]) break;
+                                        if (errorFlags[3]) break;
                                     }
                                 }
-                                if (!errorFlags[2]) {
+                                if (!errorFlags[3]) {
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
                                             methodsVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[2] = true;
+                                            errorFlags[3] = true;
                                             break;
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]) {
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]) {
 
                                     ObjectNode targetMethod = objectMapper.createObjectNode();
                                     StringBuilder extraTypes = new StringBuilder();
@@ -423,6 +438,21 @@ public class InterfaceDiamond {
 
         private String getName(){
             return this.name;
+        }
+
+        private boolean checkNameValidity(String name){
+
+            if (!Character.isAlphabetic(name.charAt(0)) && name.charAt(0) != '_')
+                return false;
+            boolean state = true;
+            for (int i = 0; i < name.length(); i++){
+                char c = name.charAt(i);
+                if (!Character.isDigit(c) && !Character.isAlphabetic(c) && c != '_'){
+                    state = false;
+                    break;
+                }
+            }
+            return state;
         }
 
         private void setButtonStyles(JFXButton button, String buttonName, double width, double length){

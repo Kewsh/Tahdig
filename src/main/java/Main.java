@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 //TODO: clean the code :) like for real.. clean the entirety of the code
-//TODO: set validations on method/variable/function/... names (handle spaces, signs such as $#%^...)
+//TODO: implement settings, help, save, open and etc
 //TODO: implement drag and drop for object that are already on the canvas
 //TODO: edit the style of all these dialogs, (i.e. better looking buttons, proper labels and etc)
 //TODO: set all dialogs to overLayClose false and put a close a button for them

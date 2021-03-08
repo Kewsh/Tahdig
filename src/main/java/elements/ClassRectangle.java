@@ -123,31 +123,37 @@ public class ClassRectangle {
                     classEditDialog.show(baseStack);
 
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false};                  //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 2; i++)
+                            for (int i = 0; i < 3; i++)
                                 errorFlags[i] = false;
 
                             if (editVBox.getChildren().contains(nameAlreadyExists))
                                 editVBox.getChildren().remove(nameAlreadyExists);
                             if (editVBox.getChildren().contains(nameNotGiven))
                                 editVBox.getChildren().remove(nameNotGiven);
+                            if (editVBox.getChildren().contains(nameNotValid))
+                                editVBox.getChildren().remove(nameNotValid);
 
                             String inputName = nameField.getText();
                             if (inputName.equals("")) {
                                 editVBox.getChildren().add(nameNotGiven);
                                 errorFlags[0] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                editVBox.getChildren().add(nameNotValid);
+                                errorFlags[1] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
 
@@ -161,22 +167,22 @@ public class ClassRectangle {
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
                                             editVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[1] = true;
+                                            errorFlags[2] = true;
                                             break;
                                         }
                                     }
-                                    if (!errorFlags[1]){
+                                    if (!errorFlags[2]){
                                         ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
                                         for (JsonNode interf_iter : interfaces){
                                             if (interf_iter.get("name").textValue().equals(inputName)){
                                                 editVBox.getChildren().add(nameAlreadyExists);
-                                                errorFlags[1] = true;
+                                                errorFlags[2] = true;
                                                 break;
                                             }
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2]){
 
                                     ArrayNode classes = (ArrayNode) rootNode.get("classes");
                                     ObjectNode targetClass = null;
@@ -201,7 +207,7 @@ public class ClassRectangle {
                                     for (Node node : root.getChildren()){
                                         if (node == stack){
                                             Text text = (Text) stack.getChildren().get(1);
-                                            text.setText(inputName);                            // updating the name on the shape
+                                            text.setText(inputName);            // updating the name on the shape
                                             break;
                                         }
                                     }
@@ -235,7 +241,6 @@ public class ClassRectangle {
             });
 
             methodsDialogLayout = new JFXDialogLayout();
-            methodsDialogLayout.setHeading(new Label("Methods"));
             methodsDialogLayout.setActions(methodsCloseButton);
             methodsDialog.setContent(methodsDialogLayout);
 
@@ -281,13 +286,15 @@ public class ClassRectangle {
                     Label accessNotSpecified = new Label("*no access type specified");
                     Label typeNotSpecified = new Label("*no return type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false, false, false};               //specifies whether each error label is set
 
                     accessNotSpecified.setStyle("-fx-text-fill: red;");
                     typeNotSpecified.setStyle("-fx-text-fill: red;");
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     methodGenerateButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -295,7 +302,7 @@ public class ClassRectangle {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 4; i++)
+                            for (int i = 0; i < 5; i++)
                                 errorFlags[i] = false;
 
                             if (methodsVBox.getChildren().contains(nameAlreadyExists))
@@ -306,6 +313,8 @@ public class ClassRectangle {
                                 methodsVBox.getChildren().remove(typeNotSpecified);
                             if (methodsVBox.getChildren().contains(nameNotGiven))
                                 methodsVBox.getChildren().remove(nameNotGiven);
+                            if (methodsVBox.getChildren().contains(nameNotValid))
+                                methodsVBox.getChildren().remove(nameNotValid);
 
                             JFXRadioButton selectedAccess = (JFXRadioButton) accessGroup.getSelectedToggle();
                             if (selectedAccess == null) {
@@ -323,8 +332,10 @@ public class ClassRectangle {
                             if (inputName.equals("")) {
                                 methodsVBox.getChildren().add(nameNotGiven);
                                 errorFlags[2] = true;
-                            }
-                            else{
+                            } else if (!checkNameValidity(inputName)){
+                                methodsVBox.getChildren().add(nameNotValid);
+                                errorFlags[3] = true;
+                            } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 ArrayNode attributes;
@@ -340,15 +351,15 @@ public class ClassRectangle {
                                 for (JsonNode interf_iter : interfaces){
                                     if (interf_iter.get("name").textValue().equals(inputName)){
                                         methodsVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[3] = true;
+                                        errorFlags[4] = true;
                                         break;
                                     }
                                 }
-                                if (!errorFlags[3]) {
+                                if (!errorFlags[4]) {
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
                                             methodsVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[3] = true;
+                                            errorFlags[4] = true;
                                             break;
                                         }
                                         ObjectNode info = (ObjectNode) class_iter.get("info");
@@ -358,24 +369,24 @@ public class ClassRectangle {
                                             for (JsonNode attribute : attributes) {
                                                 if (attribute.get("name").textValue().equals(inputName)) {
                                                     methodsVBox.getChildren().add(nameAlreadyExists);
-                                                    errorFlags[3] = true;
+                                                    errorFlags[4] = true;
                                                     break;
                                                 }
                                             }
-                                            if (!errorFlags[3]) {
+                                            if (!errorFlags[4]) {
                                                 for (JsonNode method : methods) {
                                                     if (method.get("name").textValue().equals(inputName)) {
                                                         methodsVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[3] = true;
+                                                        errorFlags[4] = true;
                                                         break;
                                                     }
                                                 }
                                             }
-                                            if (errorFlags[3]) break;
+                                            if (errorFlags[4]) break;
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3] && !errorFlags[4]){
 
                                     ObjectNode targetMethod = objectMapper.createObjectNode();
                                     StringBuilder extraTypes = new StringBuilder();
@@ -415,6 +426,7 @@ public class ClassRectangle {
                     methodsDialogContent = new VBox(methodTreeView, addMethodButton);
                     methodsDialogContent.setSpacing(15);
                     methodsDialogLayout.setBody(methodsDialogContent);
+                    methodsDialogLayout.setHeading(new Label(getName() + "'s Methods"));        // update heading everytime
 
                     actionsPopup.hide();
                     methodsDialog.show(baseStack);
@@ -437,7 +449,6 @@ public class ClassRectangle {
             });
 
             attributesDialogLayout = new JFXDialogLayout();
-            attributesDialogLayout.setHeading(new Label("Attributes"));
             attributesDialogLayout.setActions(attributesCloseButton);
             attributesDialog.setContent(attributesDialogLayout);
 
@@ -483,13 +494,15 @@ public class ClassRectangle {
                     Label accessNotSpecified = new Label("*no access type specified");
                     Label typeNotSpecified = new Label("*no data type specified");
                     Label nameNotGiven = new Label("*name field must not be empty");
+                    Label nameNotValid = new Label("*name contains illegal characters");
                     Label nameAlreadyExists = new Label("*this name has already been used");
 
-                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
+                    boolean[] errorFlags = {false, false, false, false, false};               //specifies whether each error label is set
 
                     accessNotSpecified.setStyle("-fx-text-fill: red;");
                     typeNotSpecified.setStyle("-fx-text-fill: red;");
                     nameNotGiven.setStyle("-fx-text-fill: red;");
+                    nameNotValid.setStyle("-fx-text-fill: red;");
                     nameAlreadyExists.setStyle("-fx-text-fill: red;");
 
                     attributeGenerateButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -497,7 +510,7 @@ public class ClassRectangle {
                         @Override
                         public void handle(ActionEvent event) {
 
-                            for (int i = 0; i < 4; i++)
+                            for (int i = 0; i < 5; i++)
                                 errorFlags[i] = false;
 
                             if (attributesVBox.getChildren().contains(nameAlreadyExists))
@@ -508,6 +521,8 @@ public class ClassRectangle {
                                 attributesVBox.getChildren().remove(typeNotSpecified);
                             if (attributesVBox.getChildren().contains(nameNotGiven))
                                 attributesVBox.getChildren().remove(nameNotGiven);
+                            if (attributesVBox.getChildren().contains(nameNotValid))
+                                attributesVBox.getChildren().remove(nameNotValid);
 
                             JFXRadioButton selectedAccess = (JFXRadioButton) accessGroup.getSelectedToggle();
                             if (selectedAccess == null) {
@@ -525,6 +540,9 @@ public class ClassRectangle {
                             if (inputName.equals("")) {
                                 attributesVBox.getChildren().add(nameNotGiven);
                                 errorFlags[2] = true;
+                            } else if (!checkNameValidity(inputName)){
+                                attributesVBox.getChildren().add(nameNotValid);
+                                errorFlags[3] = true;
                             }
                             else{
                                 ObjectMapper objectMapper = new ObjectMapper();
@@ -542,15 +560,15 @@ public class ClassRectangle {
                                 for (JsonNode interf_iter : interfaces){
                                     if (interf_iter.get("name").textValue().equals(inputName)){
                                         attributesVBox.getChildren().add(nameAlreadyExists);
-                                        errorFlags[3] = true;
+                                        errorFlags[4] = true;
                                         break;
                                     }
                                 }
-                                if (!errorFlags[3]) {
+                                if (!errorFlags[4]) {
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
                                             attributesVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[3] = true;
+                                            errorFlags[4] = true;
                                             break;
                                         }
                                         ObjectNode info = (ObjectNode) class_iter.get("info");
@@ -560,24 +578,24 @@ public class ClassRectangle {
                                             for (JsonNode attribute : attributes) {
                                                 if (attribute.get("name").textValue().equals(inputName)) {
                                                     attributesVBox.getChildren().add(nameAlreadyExists);
-                                                    errorFlags[3] = true;
+                                                    errorFlags[4] = true;
                                                     break;
                                                 }
                                             }
-                                            if (!errorFlags[3]) {
+                                            if (!errorFlags[4]) {
                                                 for (JsonNode method : methods) {
                                                     if (method.get("name").textValue().equals(inputName)) {
                                                         attributesVBox.getChildren().add(nameAlreadyExists);
-                                                        errorFlags[3] = true;
+                                                        errorFlags[4] = true;
                                                         break;
                                                     }
                                                 }
                                             }
-                                            if (errorFlags[3]) break;
+                                            if (errorFlags[4]) break;
                                         }
                                     }
                                 }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
+                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3] && !errorFlags[4]){
 
                                     ObjectNode targetAttribute = objectMapper.createObjectNode();
                                     StringBuilder extraTypes = new StringBuilder();
@@ -616,6 +634,7 @@ public class ClassRectangle {
                     attributesDialogContent = new VBox(attributeTreeView, addAttributeButton);
                     attributesDialogContent.setSpacing(15);
                     attributesDialogLayout.setBody(attributesDialogContent);
+                    attributesDialogLayout.setHeading(new Label(getName() + "'s Attributes"));
 
                     actionsPopup.hide();
                     attributesDialog.show(baseStack);
@@ -656,6 +675,21 @@ public class ClassRectangle {
 
         private String getName(){
             return this.name;
+        }
+
+        private boolean checkNameValidity(String name){
+
+            if (!Character.isAlphabetic(name.charAt(0)) && name.charAt(0) != '_')
+                return false;
+            boolean state = true;
+            for (int i = 0; i < name.length(); i++){
+                char c = name.charAt(i);
+                if (!Character.isDigit(c) && !Character.isAlphabetic(c) && c != '_'){
+                    state = false;
+                    break;
+                }
+            }
+            return state;
         }
 
         private VBox createAccessButtonsVBox(List<JFXRadioButton> accessButtons, ToggleGroup accessGroup){
