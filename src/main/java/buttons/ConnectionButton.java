@@ -4,13 +4,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jfoenix.controls.*;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import tools.ConnectionBuilder.Point;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ConnectionButton {
@@ -32,8 +39,12 @@ public class ConnectionButton {
 
         targetsComboBox = new JFXComboBox();
         targetsComboBox.setPromptText("Target");
+        targetsComboBox.setPadding(new Insets(20, 0, 0, 0));
+        targetsComboBox.setStyle("-fx-font-size: 18px;");
         connectionsComboBox = new JFXComboBox();
         connectionsComboBox.setPromptText("Connection");
+        connectionsComboBox.setPadding(new Insets(20, 0, 0, 0));
+        connectionsComboBox.setStyle("-fx-font-size: 18px;");
 
         switch(element){
             case RECTANGLE:
@@ -48,21 +59,36 @@ public class ConnectionButton {
                 connectionsComboBox.getItems().add("Containment");
         }
         connectionsComboBox.setOnAction(event -> setTargets(x, y, element));
+
         connectionsDialog = new JFXDialog(new StackPane(),
                 new Region(),
                 JFXDialog.DialogTransition.CENTER,
                 true);
         connectionsDialogLayout = new JFXDialogLayout();
-        connectionHbox = new HBox(connectionsComboBox, targetsComboBox);
-        connectionHbox.setSpacing(20);
+
+        ImageView connectionIcon = null;
+        try {
+            connectionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Connect.png").getAbsolutePath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StackPane connectionIconStack = new StackPane(connectionIcon);
+        connectionIconStack.setPadding(new Insets(20, 0, 0, 0));
+
+        connectionHbox = new HBox(connectionIconStack, connectionsComboBox, targetsComboBox);
+        connectionHbox.setSpacing(25);
         connectionsDialogLayout.setBody(connectionHbox);
 
         closeButton = new JFXButton("Close");
+        closeButton.setFont(new Font(18));
         closeButton.setOnAction(event -> connectionsDialog.close());
         formConnectionButton = new JFXButton("Connect");
+        formConnectionButton.setFont(new Font(18));
         formConnectionButton.setOnAction(event -> formConnection(x, y, element));
 
         connectionsDialogLayout.setActions(closeButton, formConnectionButton);
+        connectionsDialogLayout.setHeading(new Label("Connect"));
+        connectionsDialogLayout.setMinSize(500, 100);
         connectionsDialog.setContent(connectionsDialogLayout);
 
         connectionButton = new JFXButton("Connect");
@@ -155,9 +181,11 @@ public class ConnectionButton {
             array = (ArrayNode) rootNode.get("classes");
             array2 = (ArrayNode) rootNode.get("interfaces");
         }
-        connectionHbox.getChildren().remove(1);         // remove previous targetsComboBox
+        connectionHbox.getChildren().remove(2);         // remove previous targetsComboBox
         targetsComboBox = new JFXComboBox();
         targetsComboBox.setPromptText("Target");
+        targetsComboBox.setPadding(new Insets(20, 0, 0, 0));
+        targetsComboBox.setStyle("-fx-font-size: 18px;");
         connectionHbox.getChildren().add(targetsComboBox);
 
         String sourceName = getSourceName(x, y, element);

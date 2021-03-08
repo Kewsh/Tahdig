@@ -12,21 +12,28 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Separator;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+
+//TODO: implement the rest of dialog designs
 
 //TODO: clean the code :) like for real.. clean the entirety of the code
 //TODO: implement settings, help, save, open and etc
 //TODO: implement drag and drop for object that are already on the canvas
 //TODO: edit the style of all these dialogs, (i.e. better looking buttons, proper labels and etc)
+//TODO: add icons to dialogs
 //TODO: set all dialogs to overLayClose false and put a close a button for them
-//TODO: change all fonts to some beautiful font either from defaults or from google fonts
-//  e.g. @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+//TODO: change all dialog message fonts to Muli
 
 public class Main extends Application {
 
@@ -40,6 +47,10 @@ public class Main extends Application {
         StackPane stackPane = new StackPane(vBox);
         Scene scene = new Scene(stackPane, 720, 720);
         scene.getStylesheets().add("styles.css");
+
+        // internet connection is required in order to load this font. if no connection is present,
+        // default font will automatically be used in all cases
+        //scene.getStylesheets().add("https://fonts.googleapis.com/css?family=Muli&display=swap");
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Tahdig");
@@ -83,10 +94,11 @@ public class Main extends Application {
                 if (!cppEngine.isReady()) {
 
                     JFXButton okButton = new JFXButton("OK");
-                    Text text = new Text("Canvas is empty");
-                    text.setFont(Font.font(20));
+                    okButton.setFont(new Font(20));
+                    Text text = new Text("Canvas is empty!");
+                    text.setFont(Font.font("Muli", 20));
                     StackPane textStack = new StackPane(text);
-                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    textStack.setPadding(new Insets(20, 0, 0, 60));
                     JFXDialog canvasEmpty = new JFXDialog(new StackPane(),
                             new Region(),
                             JFXDialog.DialogTransition.CENTER,
@@ -99,9 +111,18 @@ public class Main extends Application {
                     });
                     JFXDialogLayout canvasEmptyLayout = new JFXDialogLayout();
 
-                    canvasEmptyLayout.setMinSize(500, 100);
-                    canvasEmptyLayout.setBody(textStack);
+                    ImageView errorIcon = null;
+                    try {
+                        errorIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Error.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane errorStack = new StackPane(errorIcon);
+                    errorStack.setPadding(new Insets(20, 0, 0, 0));
+                    HBox hi = new HBox(errorStack, textStack);
+                    canvasEmptyLayout.setBody(hi);
                     canvasEmptyLayout.setActions(okButton);
+                    canvasEmptyLayout.setHeading(new Label("Error"));
                     canvasEmpty.setContent(canvasEmptyLayout);
 
                     canvasEmpty.show(stackPane);
@@ -113,10 +134,10 @@ public class Main extends Application {
                     JFXButton cancelButton = new JFXButton("Cancel");
                     yesButton.setStyle("-fx-font-size: 20px;");
                     cancelButton.setStyle("-fx-font-size: 20px;");
-                    Text text = new Text("due to your specific design, a standard java code output is impossible, but Tahdig can take"
-                            + " specific actions to make it possible.\nconsidering that the result might not be identical to your design,"
-                            + " Do you wish to continue?");
-                    text.setFont(Font.font(18));
+                    Text text = new Text("Due to your specific design, a standard java code output is impossible, but\nTahdig can take"
+                            + " specific actions to make it possible. Considering that the result\nmight not be identical to your design,"
+                            + " do you wish to continue?");
+                    text.setFont(Font.font("Muli", 18));
                     StackPane textStack = new StackPane(text);
                     textStack.setPadding(new Insets(20, 0, 0, 0));
                     JFXDialog codeImpossible = new JFXDialog(new StackPane(),
@@ -143,8 +164,19 @@ public class Main extends Application {
                     JFXDialogLayout codeImpossibleLayout = new JFXDialogLayout();
 
                     codeImpossibleLayout.setMinSize(500, 100);
-                    codeImpossibleLayout.setBody(textStack);
                     codeImpossibleLayout.setActions(cancelButton, yesButton);
+                    ImageView warningIcon = null;
+                    try {
+                        warningIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Warning.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane warningStack = new StackPane(warningIcon);
+                    warningStack.setPadding(new Insets(20, 0, 0, 0));
+                    HBox hi = new HBox(warningStack, textStack);
+                    hi.setSpacing(30);
+                    codeImpossibleLayout.setBody(hi);
+                    codeImpossibleLayout.setHeading(new Label("Warning"));
                     codeImpossible.setContent(codeImpossibleLayout);
 
                     codeImpossible.show(stackPane);
@@ -169,10 +201,11 @@ public class Main extends Application {
                 if (!javaEngine.isReady()) {
 
                     JFXButton okButton = new JFXButton("OK");
-                    Text text = new Text("Canvas is empty");
-                    text.setFont(Font.font(20));
+                    okButton.setFont(new Font(20));
+                    Text text = new Text("Canvas is empty!");
+                    text.setFont(Font.font("Muli", 20));
                     StackPane textStack = new StackPane(text);
-                    textStack.setPadding(new Insets(20, 0, 0, 0));
+                    textStack.setPadding(new Insets(20, 0, 0, 60));
                     JFXDialog canvasEmpty = new JFXDialog(new StackPane(),
                             new Region(),
                             JFXDialog.DialogTransition.CENTER,
@@ -185,9 +218,18 @@ public class Main extends Application {
                     });
                     JFXDialogLayout canvasEmptyLayout = new JFXDialogLayout();
 
-                    canvasEmptyLayout.setMinSize(500, 100);
-                    canvasEmptyLayout.setBody(textStack);
+                    ImageView errorIcon = null;
+                    try {
+                        errorIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Error.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane errorStack = new StackPane(errorIcon);
+                    errorStack.setPadding(new Insets(20, 0, 0, 0));
+                    HBox hi = new HBox(errorStack, textStack);
+                    canvasEmptyLayout.setBody(hi);
                     canvasEmptyLayout.setActions(okButton);
+                    canvasEmptyLayout.setHeading(new Label("Error"));
                     canvasEmpty.setContent(canvasEmptyLayout);
 
                     canvasEmpty.show(stackPane);
@@ -199,10 +241,10 @@ public class Main extends Application {
                     JFXButton cancelButton = new JFXButton("Cancel");
                     yesButton.setStyle("-fx-font-size: 20px;");
                     cancelButton.setStyle("-fx-font-size: 20px;");
-                    Text text = new Text("due to your specific design, a standard java code output is impossible, but Tahdig can take"
-                                    + " specific actions to make it possible.\nconsidering that the result might not be identical to your design,"
-                                    + " Do you wish to continue?");
-                    text.setFont(Font.font(18));
+                    Text text = new Text("Due to your specific design, a standard java code output is impossible, but\nTahdig can take"
+                                    + " specific actions to make it possible. Considering that the result\nmight not be identical to your design,"
+                                    + " do you wish to continue?");
+                    text.setFont(Font.font("Muli", 18));
                     StackPane textStack = new StackPane(text);
                     textStack.setPadding(new Insets(20, 0, 0, 0));
                     JFXDialog codeImpossible = new JFXDialog(new StackPane(),
@@ -229,8 +271,19 @@ public class Main extends Application {
                     JFXDialogLayout codeImpossibleLayout = new JFXDialogLayout();
 
                     codeImpossibleLayout.setMinSize(500, 100);
-                    codeImpossibleLayout.setBody(textStack);
                     codeImpossibleLayout.setActions(cancelButton, yesButton);
+                    ImageView warningIcon = null;
+                    try {
+                        warningIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Warning.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane warningStack = new StackPane(warningIcon);
+                    warningStack.setPadding(new Insets(20, 0, 0, 0));
+                    HBox hi = new HBox(warningStack, textStack);
+                    hi.setSpacing(30);
+                    codeImpossibleLayout.setBody(hi);
+                    codeImpossibleLayout.setHeading(new Label("Warning"));
                     codeImpossible.setContent(codeImpossibleLayout);
 
                     codeImpossible.show(stackPane);

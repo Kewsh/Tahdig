@@ -10,16 +10,21 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPopup;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class DeleteButton {
@@ -47,7 +52,9 @@ public class DeleteButton {
                                 JFXDialog.DialogTransition.CENTER,
                                 false);
                         deleteDialogConfirmButton = new JFXButton("Yes");
+                        deleteDialogConfirmButton.setFont(new Font(20));
                         deleteDialogCancelButton = new JFXButton("Cancel");
+                        deleteDialogCancelButton.setFont(new Font(20));
 
                         deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
                             @Override
@@ -102,7 +109,25 @@ public class DeleteButton {
                         });
 
                         deleteDialogLayout = new JFXDialogLayout();
-                        deleteDialogLayout.setBody(new Text("Are you sure you want to delete " + name + "?"));
+
+                        Text text = new Text("Are you sure you want to delete " + name + "?");
+                        text.setFont(Font.font("Muli", 18));
+                        StackPane textStack = new StackPane(text);
+                        textStack.setPadding(new Insets(20, 0, 0, 0));
+
+                        ImageView warningIcon = null;
+                        try {
+                            warningIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Warning.png").getAbsolutePath())));
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        StackPane warningStack = new StackPane(warningIcon);
+                        warningStack.setPadding(new Insets(20, 0, 0, 0));
+
+                        HBox deleteHbox = new HBox(warningStack, textStack);
+                        deleteHbox.setSpacing(20);
+                        deleteDialogLayout.setHeading(new Label("Warning"));
+                        deleteDialogLayout.setBody(deleteHbox);
 
                         //TODO: fix: this name isn't updated when element name has changed
 

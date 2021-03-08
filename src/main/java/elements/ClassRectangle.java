@@ -25,6 +25,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.File;
@@ -105,18 +106,32 @@ public class ClassRectangle {
 
                     JFXTextField nameField = new JFXTextField();
                     nameField.setText(getName());
+                    nameField.setPadding(new Insets(40, 0, 0, 0));
+                    nameField.setStyle("-fx-font-size: 18px;");
 
                     JFXButton applyChangesButton = new JFXButton("Apply");
+                    applyChangesButton.setFont(new Font(18));
                     JFXDialog classEditDialog = new JFXDialog(new StackPane(),
                             new Region(),
                             JFXDialog.DialogTransition.CENTER,
                             true);
 
-                    VBox editVBox = new VBox(nameField, applyChangesButton);
-                    editVBox.setSpacing(30);
-                    editVBox.setMaxHeight(200);
+                    ImageView editIcon = null;
+                    try {
+                        editIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Edit64.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane editIconStack = new StackPane(editIcon);
+                    editIconStack.setPadding(new Insets(20, 0, 0, 0));
+
+                    HBox editHbox = new HBox(editIconStack, nameField);
+                    editHbox.setSpacing(30);
+                    VBox editVbox = new VBox(editHbox);
                     JFXDialogLayout classEditLayout = new JFXDialogLayout();
-                    classEditLayout.setBody(editVBox);
+                    classEditLayout.setBody(editVbox);
+                    classEditLayout.setActions(applyChangesButton);
+                    classEditLayout.setHeading(new Label("Edit"));
                     classEditDialog.setContent(classEditLayout);
 
                     actionsPopup.hide();
@@ -128,9 +143,9 @@ public class ClassRectangle {
 
                     boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
-                    nameNotGiven.setStyle("-fx-text-fill: red;");
-                    nameNotValid.setStyle("-fx-text-fill: red;");
-                    nameAlreadyExists.setStyle("-fx-text-fill: red;");
+                    nameNotGiven.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameNotValid.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameAlreadyExists.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override
@@ -139,19 +154,19 @@ public class ClassRectangle {
                             for (int i = 0; i < 3; i++)
                                 errorFlags[i] = false;
 
-                            if (editVBox.getChildren().contains(nameAlreadyExists))
-                                editVBox.getChildren().remove(nameAlreadyExists);
-                            if (editVBox.getChildren().contains(nameNotGiven))
-                                editVBox.getChildren().remove(nameNotGiven);
-                            if (editVBox.getChildren().contains(nameNotValid))
-                                editVBox.getChildren().remove(nameNotValid);
+                            if (editVbox.getChildren().contains(nameAlreadyExists))
+                                editVbox.getChildren().remove(nameAlreadyExists);
+                            if (editVbox.getChildren().contains(nameNotGiven))
+                                editVbox.getChildren().remove(nameNotGiven);
+                            if (editVbox.getChildren().contains(nameNotValid))
+                                editVbox.getChildren().remove(nameNotValid);
 
                             String inputName = nameField.getText();
                             if (inputName.equals("")) {
-                                editVBox.getChildren().add(nameNotGiven);
+                                editVbox.getChildren().add(nameNotGiven);
                                 errorFlags[0] = true;
                             } else if (!checkNameValidity(inputName)){
-                                editVBox.getChildren().add(nameNotValid);
+                                editVbox.getChildren().add(nameNotValid);
                                 errorFlags[1] = true;
                             } else{
                                 ObjectMapper objectMapper = new ObjectMapper();
@@ -166,7 +181,7 @@ public class ClassRectangle {
                                     ArrayNode classes = (ArrayNode) rootNode.get("classes");
                                     for (JsonNode class_iter : classes) {
                                         if (class_iter.get("name").textValue().equals(inputName)) {
-                                            editVBox.getChildren().add(nameAlreadyExists);
+                                            editVbox.getChildren().add(nameAlreadyExists);
                                             errorFlags[2] = true;
                                             break;
                                         }
@@ -175,7 +190,7 @@ public class ClassRectangle {
                                         ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
                                         for (JsonNode interf_iter : interfaces){
                                             if (interf_iter.get("name").textValue().equals(inputName)){
-                                                editVBox.getChildren().add(nameAlreadyExists);
+                                                editVbox.getChildren().add(nameAlreadyExists);
                                                 errorFlags[2] = true;
                                                 break;
                                             }
