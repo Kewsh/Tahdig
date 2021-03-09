@@ -19,8 +19,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import tools.ConnectionBuilder.Point;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -93,12 +95,14 @@ public class DeleteButton {
                                     if (object.get("info").get("x").doubleValue() == x && object.get("info").get("y").doubleValue() == y)
                                         array.remove(i);
                                 }
+                                deleteConnections(x, y, root, (ArrayNode) rootNode.get("lines"));
+
+                                //TODO: handle all relations and dependencies of this object (method paramters, return type, attribute types, etc)
                                 try {
                                     objectMapper.writeValue(CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
-                                //TODO: handle all relations and dependencies of this object
                             }
                         });
                         deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
@@ -141,6 +145,64 @@ public class DeleteButton {
                 }
             }
         });
+    }
+
+    private void deleteConnections(double x, double y, Group root, ArrayNode lines){
+
+        final int MAX_CONNECTIONS = 100;
+        int[] deleteIndices = new int[MAX_CONNECTIONS];
+        int index = 0;
+
+        for (int i = 0; i < lines.size(); i++){
+            ObjectNode line = (ObjectNode) lines.get(i);
+            if ((line.get("startX").doubleValue() == x && line.get("startY").doubleValue() == y) ||
+                    (line.get("endX").doubleValue() == x && line.get("endY").doubleValue() == y)){
+                deleteIndices[index++] = i;
+
+                double startX = line.get("startX").doubleValue();
+                double startY = line.get("startY").doubleValue();
+                double endX = line.get("endX").doubleValue();
+                double endY = line.get("endY").doubleValue();
+                Point[] endPoints;
+
+                for (Node node : root.getChildren()){
+                    if (node.getClass().toString().contains("Line")) {
+                        Line line_iter = (Line) node;
+                        endPoints = locateConnectionEnds(startX, startY, endX, endY, line_iter.getStartX(), line_iter.getStartY(),
+                                    line_iter.getEndX(), line_iter.getEndY());
+                        if (endPoints != null) {
+                            root.getChildren().remove(node);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < deleteIndices.length; i++)
+            lines.remove(deleteIndices[i]);
+    }
+
+    private Point[] locateConnectionEnds(double x1, double y1, double x2, double y2, double tX1, double tY1, double tX2, double tY2){
+
+        Point[] endPoints = new Point[2];
+        Point[] possibleStates = new Point[]{new Point(x1, y1+60), new Point(x1+50, y1), new Point(x1+100, y1+60), new Point(x1+50, y1+120),
+                                             new Point(x1, y1+60), new Point(x1+75, y1), new Point(x1+150, y1+60), new Point(x1+75, y1+120),
+                                             new Point(x1, y1+50), new Point(x1+75, y1), new Point(x1+150, y1+50), new Point(x1+75, y1+100),
+                                             new Point(x2, y2+60), new Point(x2+50, y2), new Point(x2+100, y2+60), new Point(x2+50, y2+120),
+                                             new Point(x2, y2+60), new Point(x2+75, y2), new Point(x2+150, y2+60), new Point(x2+75, y2+120),
+                                             new Point(x2, y2+50), new Point(x2+75, y2), new Point(x2+150, y2+50), new Point(x2+75, y2+100)};
+        for (Point point1 : possibleStates){
+            if (point1.x == tX1 && point1.y == tY1){
+                endPoints[0] = point1;
+                for (Point point2 : possibleStates){
+                    if (point2.x == tX2 && point2.y == tY2){
+                        endPoints[1] = point2;
+                        return endPoints;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public JFXButton getButton(){

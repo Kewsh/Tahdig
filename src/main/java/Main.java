@@ -25,15 +25,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-//TODO: implement the rest of dialog designs
-
 //TODO: clean the code :) like for real.. clean the entirety of the code
 //TODO: implement settings, help, save, open and etc
 //TODO: implement drag and drop for object that are already on the canvas
-//TODO: edit the style of all these dialogs, (i.e. better looking buttons, proper labels and etc)
-//TODO: add icons to dialogs
 //TODO: set all dialogs to overLayClose false and put a close a button for them
 //TODO: change all dialog message fonts to Muli
+//TODO: show the code output somewhere on the main stage?!
+//TODO: delete code folder before second output? (for the same language?)
 
 public class Main extends Application {
 
