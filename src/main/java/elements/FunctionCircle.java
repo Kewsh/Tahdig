@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -19,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.File;
@@ -88,22 +90,40 @@ public class FunctionCircle {
                     List<JFXRadioButton> typeButtons = new ArrayList<JFXRadioButton>();
                     ToggleGroup typeGroup = new ToggleGroup();
                     VBox typeButtonsVBox = createTypeButtonsVBox(typeButtons, typeGroup);
+                    typeButtonsVBox.setPadding(new Insets(40, 0, 0, 0));
+                    typeButtonsVBox.setStyle("-fx-font-size: 18px;");
+                    typeButtonsVBox.setMinWidth(100);
 
                     JFXTextField nameField = new JFXTextField();
                     nameField.setText(getName());
+                    nameField.setPadding(new Insets(100, 0, 0, 0));
+                    //TODO: these insets are inaccurate, however, it does not matter since we're about to change the whole
+                    //  design of these boxes, (i.e. not gonna be using radio buttons)
+                    nameField.setStyle("-fx-font-size: 18px;");
 
                     JFXButton applyChangesButton = new JFXButton("Apply");
+                    applyChangesButton.setFont(new Font(18));
                     JFXDialog functionEditDialog = new JFXDialog(new StackPane(),
                             new Region(),
                             JFXDialog.DialogTransition.CENTER,
                             true);
 
-                    HBox editHBox = new HBox(typeButtonsVBox, nameField, applyChangesButton);
-                    editHBox.setSpacing(50);
-                    editHBox.setMinWidth(450);
+                    ImageView editIcon = null;
+                    try {
+                        editIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Edit64.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane editIconStack = new StackPane(editIcon);
+                    editIconStack.setPadding(new Insets(20, 0, 0, 0));
+
+                    HBox editHBox = new HBox(editIconStack, typeButtonsVBox, nameField);
+                    editHBox.setSpacing(30);
                     VBox editVBox = new VBox(editHBox);
                     JFXDialogLayout functionEditLayout = new JFXDialogLayout();
                     functionEditLayout.setBody(editVBox);
+                    functionEditLayout.setActions(applyChangesButton);
+                    functionEditLayout.setHeading(new Label("Edit"));
                     functionEditDialog.setContent(functionEditLayout);
 
                     actionsPopup.hide();
@@ -116,10 +136,10 @@ public class FunctionCircle {
 
                     boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
 
-                    typeNotSpecified.setStyle("-fx-text-fill: red;");
-                    nameNotGiven.setStyle("-fx-text-fill: red;");
-                    nameNotValid.setStyle("-fx-text-fill: red;");
-                    nameAlreadyExists.setStyle("-fx-text-fill: red;");
+                    typeNotSpecified.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameNotGiven.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameNotValid.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameAlreadyExists.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override

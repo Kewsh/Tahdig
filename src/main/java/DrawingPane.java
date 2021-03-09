@@ -185,7 +185,7 @@ public class DrawingPane {
 
             case "ellipse":
 
-                name = "Header-File" + defaultIdArray[4];
+                name = "Header_File" + defaultIdArray[4];
                 defaultIdArray[4] += 1;
                 stack = tools.ShapeDrawer.drawEllipse(name);
                 stack.setLayoutX(x);

@@ -115,18 +115,18 @@ public class DeleteButton {
                         StackPane textStack = new StackPane(text);
                         textStack.setPadding(new Insets(20, 0, 0, 0));
 
-                        ImageView warningIcon = null;
+                        ImageView questionIcon = null;
                         try {
-                            warningIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Warning.png").getAbsolutePath())));
+                            questionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Question.png").getAbsolutePath())));
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
-                        StackPane warningStack = new StackPane(warningIcon);
-                        warningStack.setPadding(new Insets(20, 0, 0, 0));
+                        StackPane questionStack = new StackPane(questionIcon);
+                        questionStack.setPadding(new Insets(20, 0, 0, 0));
 
-                        HBox deleteHbox = new HBox(warningStack, textStack);
+                        HBox deleteHbox = new HBox(questionStack, textStack);
                         deleteHbox.setSpacing(20);
-                        deleteDialogLayout.setHeading(new Label("Warning"));
+                        deleteDialogLayout.setHeading(new Label("Delete"));
                         deleteDialogLayout.setBody(deleteHbox);
 
                         //TODO: fix: this name isn't updated when element name has changed

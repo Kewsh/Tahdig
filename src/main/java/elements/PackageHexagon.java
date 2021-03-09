@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.io.File;
@@ -83,18 +85,32 @@ public class PackageHexagon {
 
                     JFXTextField nameField = new JFXTextField();
                     nameField.setText(getName());
+                    nameField.setPadding(new Insets(40, 0, 0, 0));
+                    nameField.setStyle("-fx-font-size: 18px;");
 
                     JFXButton applyChangesButton = new JFXButton("Apply");
+                    applyChangesButton.setFont(new Font(18));
                     JFXDialog packageEditDialog = new JFXDialog(new StackPane(),
                             new Region(),
                             JFXDialog.DialogTransition.CENTER,
                             true);
 
-                    VBox editVBox = new VBox(nameField, applyChangesButton);
-                    editVBox.setSpacing(30);
-                    editVBox.setMaxHeight(200);
+                    ImageView editIcon = null;
+                    try {
+                        editIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Edit64.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    StackPane editIconStack = new StackPane(editIcon);
+                    editIconStack.setPadding(new Insets(20, 0, 0, 0));
+
+                    HBox editHbox = new HBox(editIconStack, nameField);
+                    editHbox.setSpacing(30);
+                    VBox editVBox = new VBox(editHbox);
                     JFXDialogLayout packageEditLayout = new JFXDialogLayout();
                     packageEditLayout.setBody(editVBox);
+                    packageEditLayout.setActions(applyChangesButton);
+                    packageEditLayout.setHeading(new Label("Edit"));
                     packageEditDialog.setContent(packageEditLayout);
 
                     actionsPopup.hide();
@@ -106,9 +122,9 @@ public class PackageHexagon {
 
                     boolean[] errorFlags = {false, false, false};                  //specifies whether each error label is set
 
-                    nameNotGiven.setStyle("-fx-text-fill: red;");
-                    nameNotValid.setStyle("-fx-text-fill: red;");
-                    nameAlreadyExists.setStyle("-fx-text-fill: red;");
+                    nameNotGiven.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameNotValid.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                    nameAlreadyExists.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
 
                     applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
                         @Override
