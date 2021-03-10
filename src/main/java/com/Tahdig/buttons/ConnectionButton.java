@@ -1,5 +1,6 @@
-package buttons;
+package com.Tahdig.buttons;
 
+import com.Tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -13,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
-import tools.ConnectionBuilder.Point;
+import com.Tahdig.tools.ConnectionBuilder.Point;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +23,6 @@ import java.io.IOException;
 
 public class ConnectionButton {
 
-    private File CanvasContents;
     private ObjectMapper objectMapper;
     private JsonNode rootNode;
     private HBox connectionHbox;
@@ -32,9 +32,8 @@ public class ConnectionButton {
     private JFXDialogLayout connectionsDialogLayout;
     private JFXComboBox targetsComboBox, connectionsComboBox;
 
-    public ConnectionButton(double x, double y, JFXPopup actionsPopup, StackPane baseStack, Group root, Element element, File CanvasContents){
+    public ConnectionButton(double x, double y, JFXPopup actionsPopup, StackPane baseStack, Group root, Element element){
 
-        this.CanvasContents = CanvasContents;
         this.root = root;
 
         targetsComboBox = new JFXComboBox();
@@ -112,32 +111,32 @@ public class ConnectionButton {
                 switch(element){
                     case RECTANGLE:
                         targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
-                        tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'c', "inheritance",
+                        com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'c', "inheritance",
                                 x, y, targetPoint.x, targetPoint.y);
                         break;
                     case DIAMOND:
                         targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                        tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'i', 'i', "inheritance",
+                        com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'i', 'i', "inheritance",
                                 x, y, targetPoint.x, targetPoint.y);
                 }
                 break;
             case "Implementation":          // implementation can only be from class to interface
                 targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'i', "implementation",
+                com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'i', "implementation",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
             case "Composition":             // composition can only be from class to class
                 targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
-                tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'c', 'c', "composition",
+                com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'c', "composition",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
             case "Containment":
                 targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
                 if (targetPoint == null){
                     targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                    tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'p', 'i', "containment",
+                    com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'p', 'i', "containment",
                             x, y, targetPoint.x, targetPoint.y);
-                } else tools.ConnectionBuilder.drawConnectionLine(root, CanvasContents, 'p', 'c', "containment",
+                } else com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'p', 'c', "containment",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
         }
@@ -158,7 +157,7 @@ public class ConnectionButton {
         objectMapper = new ObjectMapper();
         rootNode = null;
         try {
-            rootNode = objectMapper.readTree(CanvasContents);
+            rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
         } catch (IOException e) {
             e.printStackTrace();
         }

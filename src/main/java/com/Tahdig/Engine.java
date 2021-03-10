@@ -1,3 +1,5 @@
+package com.Tahdig;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,17 +14,14 @@ public abstract class Engine {
 
     protected ObjectMapper objectMapper;
     protected JsonNode rootNode;
-    protected File CanvasContents;
 
-    protected Engine(){
-        CanvasContents = new File("out/canvas_contents.json");
-    }
+    protected Engine(){}
 
     public abstract boolean isPossible();
 
     public boolean isReady(){
 
-        if (!CanvasContents.exists()) return false;
+        if (!DrawingPane.CanvasContents.exists()) return false;
         boolean state;
         openJsonFile();
 
@@ -64,7 +63,7 @@ public abstract class Engine {
 
     protected void updateJsonFile(){
         try {
-            objectMapper.writeValue(CanvasContents, rootNode);
+            objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,7 +73,7 @@ public abstract class Engine {
         objectMapper = new ObjectMapper();
         rootNode = null;
         try {
-            rootNode = objectMapper.readTree(CanvasContents);
+            rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
         } catch (IOException e) {
             e.printStackTrace();
         }

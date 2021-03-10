@@ -1,6 +1,7 @@
-package elements;
+package com.Tahdig.elements;
 
-import buttons.Element;
+import com.Tahdig.DrawingPane;
+import com.Tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,12 +42,12 @@ public class ClassRectangle {
 
     public ClassRectangle(){
 
-        stack = tools.ShapeDrawer.drawRectangle("Class");
+        stack = com.Tahdig.tools.ShapeDrawer.drawRectangle("Class");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            tools.DragDetector.setOnDragDetected(stack, "rectangle");
+            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "rectangle");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -61,7 +62,6 @@ public class ClassRectangle {
 
         private double x, y;
         private String name;
-        private File CanvasContents;
         private Group root;
         private VBox attributesDialogContent, methodsDialogContent;
         private StackPane stack, actionsStack;
@@ -74,16 +74,15 @@ public class ClassRectangle {
 
         //TODO: implement edit for all remaining shapes
         //TODO: implement edit for the entire class, including class name attributes and methods
-        //  for attributes, possibly open the same dialog but with the correct buttons checked, and just let the user change them?
+        //  for attributes, possibly open the same dialog but with the correct com.Kazemi.buttons checked, and just let the user change them?
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
             this.name = name;
             this.root = root;
             this.stack = stack;
-            this.CanvasContents = CanvasContents;
             addClassToCanvasContents();
 
             methodsButton = new JFXButton("Methods");
@@ -173,7 +172,7 @@ public class ClassRectangle {
                                 JsonNode rootNode = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -230,7 +229,7 @@ public class ClassRectangle {
                                     classEditDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -357,7 +356,7 @@ public class ClassRectangle {
                                 ArrayNode methods = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -423,7 +422,7 @@ public class ClassRectangle {
                                     methodGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -566,7 +565,7 @@ public class ClassRectangle {
                                 ArrayNode methods;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -631,7 +630,7 @@ public class ClassRectangle {
                                     attributeGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -665,10 +664,10 @@ public class ClassRectangle {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.RECTANGLE, CanvasContents).getButton());
+            connectionsButton = (new com.Tahdig.buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.RECTANGLE).getButton());
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, Element.RECTANGLE)).getButton();
+                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        Element.RECTANGLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -715,7 +714,7 @@ public class ClassRectangle {
             accessButtons.add(new JFXRadioButton("default"));
 
             for (int i = 0; i < 4; i++) {
-                //for some reason, after changing the styles, the text on these buttons became invisible
+                //for some reason, after changing the styles, the text on these com.Kazemi.buttons became invisible
                 //so we have to reset it to black. we're probably changing this whole button thing though, so no worries
                 accessButtons.get(i).setStyle("-fx-text-fill: black;");
                 accessButtons.get(i).setToggleGroup(accessGroup);
@@ -738,7 +737,7 @@ public class ClassRectangle {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = null;
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -751,7 +750,7 @@ public class ClassRectangle {
                 typeButtons.add(new JFXRadioButton(interf_iter.get("name").textValue()));
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -802,7 +801,7 @@ public class ClassRectangle {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -820,7 +819,7 @@ public class ClassRectangle {
 
             classes.add(thisClass);
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -847,7 +846,7 @@ public class ClassRectangle {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -932,7 +931,7 @@ public class ClassRectangle {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -955,7 +954,7 @@ public class ClassRectangle {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1040,7 +1039,7 @@ public class ClassRectangle {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }

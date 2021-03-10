@@ -1,6 +1,7 @@
-package elements;
+package com.Tahdig.elements;
 
-import buttons.Element;
+import com.Tahdig.DrawingPane;
+import com.Tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,12 +42,12 @@ public class InterfaceDiamond {
 
     public InterfaceDiamond(){
 
-        stack = tools.ShapeDrawer.drawDiamond("Interface");
+        stack = com.Tahdig.tools.ShapeDrawer.drawDiamond("Interface");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            tools.DragDetector.setOnDragDetected(stack, "diamond");
+            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "diamond");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -61,7 +62,6 @@ public class InterfaceDiamond {
 
         private double x, y;
         private String name;
-        private File CanvasContents;
         private Group root;
         private VBox methodsDialogContent;
         private StackPane stack, actionsStack;
@@ -74,13 +74,12 @@ public class InterfaceDiamond {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack) throws FileNotFoundException {
             this.x = x;
             this.y = y;
             this.name = name;
             this.root = root;
             this.stack = stack;
-            this.CanvasContents = CanvasContents;
             addInterfaceToCanvasContents();
 
             methodsButton = new JFXButton("Methods");
@@ -168,7 +167,7 @@ public class InterfaceDiamond {
                                 JsonNode rootNode = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -225,7 +224,7 @@ public class InterfaceDiamond {
                                     interfaceEditDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -340,7 +339,7 @@ public class InterfaceDiamond {
                                 ArrayNode methods = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -395,7 +394,7 @@ public class InterfaceDiamond {
                                     methodGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -428,10 +427,10 @@ public class InterfaceDiamond {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.DIAMOND, CanvasContents)).getButton();
+            connectionsButton = (new com.Tahdig.buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.DIAMOND)).getButton();
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, Element.DIAMOND)).getButton();
+                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        Element.DIAMOND)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -491,7 +490,7 @@ public class InterfaceDiamond {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = null;
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -504,7 +503,7 @@ public class InterfaceDiamond {
                 typeButtons.add(new JFXRadioButton(interf_iter.get("name").textValue()));
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -529,7 +528,7 @@ public class InterfaceDiamond {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -546,7 +545,7 @@ public class InterfaceDiamond {
 
             interfaces.add(thisInterf);
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -566,7 +565,7 @@ public class InterfaceDiamond {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -638,7 +637,7 @@ public class InterfaceDiamond {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -1,6 +1,7 @@
-package elements;
+package com.Tahdig.elements;
 
-import buttons.Element;
+import com.Tahdig.DrawingPane;
+import com.Tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -41,12 +42,12 @@ public class HeaderFileEllipse {
 
     public HeaderFileEllipse(){
 
-        stack = tools.ShapeDrawer.drawEllipse("Header-File");
+        stack = com.Tahdig.tools.ShapeDrawer.drawEllipse("Header-File");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            tools.DragDetector.setOnDragDetected(stack, "ellipse");
+            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "ellipse");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -61,7 +62,6 @@ public class HeaderFileEllipse {
 
         private double x, y;
         private String name;
-        private File CanvasContents;
         private Group root;
         private VBox variablesDialogContent, functionsDialogContent, classesDialogContent;
         private StackPane stack, actionsStack;
@@ -76,14 +76,13 @@ public class HeaderFileEllipse {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
             this.name = name;
             this.root = root;
             this.stack = stack;
-            this.CanvasContents = CanvasContents;
             addHeaderToCanvasContents();
 
             editButton = new JFXButton();
@@ -175,7 +174,7 @@ public class HeaderFileEllipse {
                                 JsonNode rootNode = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -222,7 +221,7 @@ public class HeaderFileEllipse {
                                     headerEditDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -319,7 +318,7 @@ public class HeaderFileEllipse {
                                 ArrayNode headers;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -387,7 +386,7 @@ public class HeaderFileEllipse {
                                     classGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -512,7 +511,7 @@ public class HeaderFileEllipse {
                                 ArrayNode headers;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -581,7 +580,7 @@ public class HeaderFileEllipse {
                                     functionGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -706,7 +705,7 @@ public class HeaderFileEllipse {
                                 ArrayNode headers;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -775,7 +774,7 @@ public class HeaderFileEllipse {
                                     variableGenerateDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -809,8 +808,8 @@ public class HeaderFileEllipse {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, Element.ELLIPSE)).getButton();
+                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        Element.ELLIPSE)).getButton();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -881,7 +880,7 @@ public class HeaderFileEllipse {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -900,7 +899,7 @@ public class HeaderFileEllipse {
 
             headers.add(thisHeader);
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -920,7 +919,7 @@ public class HeaderFileEllipse {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -980,7 +979,7 @@ public class HeaderFileEllipse {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1002,7 +1001,7 @@ public class HeaderFileEllipse {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1062,7 +1061,7 @@ public class HeaderFileEllipse {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1083,7 +1082,7 @@ public class HeaderFileEllipse {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -1130,7 +1129,7 @@ public class HeaderFileEllipse {
             main.getChildren().add(treeView);
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }

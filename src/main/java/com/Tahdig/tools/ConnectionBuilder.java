@@ -1,5 +1,6 @@
-package tools;
+package com.Tahdig.tools;
 
+import com.Tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,7 +9,6 @@ import javafx.scene.Group;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 
-import java.io.File;
 import java.io.IOException;
 
 public abstract class ConnectionBuilder {
@@ -17,7 +17,7 @@ public abstract class ConnectionBuilder {
     private static Point[] srcPoints;
     private static Point[] destPoints;
 
-    public static void drawConnectionLine(Group root, File CanvasContents, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
+    public static void drawConnectionLine(Group root, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
 
         if (type1 == 'c')                   // class
             srcPoints = new Point[]{new Point(srcX, srcY+60), new Point(srcX+50, srcY), new Point(srcX+100, srcY+60), new Point(srcX+50, srcY+120)};
@@ -52,7 +52,7 @@ public abstract class ConnectionBuilder {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null;
         try {
-            rootNode = objectMapper.readTree(CanvasContents);
+            rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,7 +67,7 @@ public abstract class ConnectionBuilder {
 
         lines.add(targetLine);
         try {
-            objectMapper.writeValue(CanvasContents, rootNode);
+            objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
         } catch (IOException e) {
             e.printStackTrace();
         }

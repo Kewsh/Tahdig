@@ -1,3 +1,5 @@
+package com.Tahdig;
+
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
@@ -20,6 +22,7 @@ import java.io.IOException;
 
 public class DrawingPane {
 
+    public static File CanvasContents = new File("out/Untitled.tahdig");
     private Scene scene;
     private StackPane baseStack;
     private ScrollPane scrollPane;
@@ -90,7 +93,6 @@ public class DrawingPane {
                 boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
                     File outDirectory = new File("out/");
-                    File CanvasContents = new File("out/canvas_contents.json");
                     if (!CanvasContents.exists()) {
                         try {
                             outDirectory.mkdir();
@@ -103,8 +105,9 @@ public class DrawingPane {
                             e.printStackTrace();
                         }
                     }
+                    //TODO: else, recreate the canvas
                     try {
-                        placeShapeOnCanvas(x, y, db.getString(), CanvasContents);
+                        placeShapeOnCanvas(x, y, db.getString());
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -129,7 +132,7 @@ public class DrawingPane {
         return true;
     }
 
-    private void placeShapeOnCanvas(double x, double y, String shape, File CanvasContents) throws FileNotFoundException {
+    private void placeShapeOnCanvas(double x, double y, String shape) throws FileNotFoundException {
         String name;
         StackPane stack;
 
@@ -139,10 +142,10 @@ public class DrawingPane {
 
                 name = "Function" + defaultIdArray[0];
                 defaultIdArray[0] += 1;
-                stack = tools.ShapeDrawer.drawCircle(name);
+                stack = com.Tahdig.tools.ShapeDrawer.drawCircle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.FunctionCircle.Actions(x, y, name, root, stack, baseStack, CanvasContents);
+                new com.Tahdig.elements.FunctionCircle.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -151,10 +154,10 @@ public class DrawingPane {
 
                 name = "Class" + defaultIdArray[1];
                 defaultIdArray[1] += 1;
-                stack = tools.ShapeDrawer.drawRectangle(name);
+                stack = com.Tahdig.tools.ShapeDrawer.drawRectangle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.ClassRectangle.Actions(x, y, name, root, stack, baseStack, CanvasContents);
+                new com.Tahdig.elements.ClassRectangle.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -163,10 +166,10 @@ public class DrawingPane {
 
                 name = "Interface" + defaultIdArray[2];
                 defaultIdArray[2] += 1;
-                stack = tools.ShapeDrawer.drawDiamond(name);
+                stack = com.Tahdig.tools.ShapeDrawer.drawDiamond(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.InterfaceDiamond.Actions(x, y, name, root, stack, baseStack, CanvasContents);
+                new com.Tahdig.elements.InterfaceDiamond.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -175,10 +178,10 @@ public class DrawingPane {
 
                 name = "Package" + defaultIdArray[3];
                 defaultIdArray[3] += 1;
-                stack = tools.ShapeDrawer.drawHexagon(name);
+                stack = com.Tahdig.tools.ShapeDrawer.drawHexagon(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.PackageHexagon.Actions(x, y, name, root, stack, baseStack, CanvasContents);
+                new com.Tahdig.elements.PackageHexagon.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
@@ -187,10 +190,10 @@ public class DrawingPane {
 
                 name = "Header_File" + defaultIdArray[4];
                 defaultIdArray[4] += 1;
-                stack = tools.ShapeDrawer.drawEllipse(name);
+                stack = com.Tahdig.tools.ShapeDrawer.drawEllipse(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new elements.HeaderFileEllipse.Actions(x, y, name, root, stack, baseStack, CanvasContents);
+                new com.Tahdig.elements.HeaderFileEllipse.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
         }

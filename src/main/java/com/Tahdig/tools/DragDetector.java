@@ -1,4 +1,4 @@
-package tools;
+package com.Tahdig.tools;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

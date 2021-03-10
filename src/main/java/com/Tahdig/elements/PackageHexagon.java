@@ -1,6 +1,7 @@
-package elements;
+package com.Tahdig.elements;
 
-import buttons.Element;
+import com.Tahdig.DrawingPane;
+import com.Tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -33,12 +34,12 @@ public class PackageHexagon {
 
     public PackageHexagon(){
 
-        stack = tools.ShapeDrawer.drawHexagon("Package");
+        stack = com.Tahdig.tools.ShapeDrawer.drawHexagon("Package");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            tools.DragDetector.setOnDragDetected(stack, "hexagon");
+            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "hexagon");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -53,7 +54,6 @@ public class PackageHexagon {
 
         private double x, y;
         private String name;
-        private File CanvasContents;
         private Group root;
         private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
@@ -62,13 +62,12 @@ public class PackageHexagon {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack) throws FileNotFoundException {
             this.x = x;
             this.y = y;
             this.name = name;
             this.root = root;
             this.stack = stack;
-            this.CanvasContents = CanvasContents;
             addPackageToCanvasContents();
 
             editButton = new JFXButton();
@@ -153,7 +152,7 @@ public class PackageHexagon {
                                 JsonNode rootNode = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -200,7 +199,7 @@ public class PackageHexagon {
                                     packageEditDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -219,10 +218,10 @@ public class PackageHexagon {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.HEXAGON, CanvasContents)).getButton();
+            connectionsButton = (new com.Tahdig.buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.HEXAGON)).getButton();
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, Element.HEXAGON)).getButton();
+                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        Element.HEXAGON)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -273,7 +272,7 @@ public class PackageHexagon {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -288,7 +287,7 @@ public class PackageHexagon {
 
             packages.add(thisPack);
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }

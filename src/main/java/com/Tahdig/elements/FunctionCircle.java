@@ -1,6 +1,7 @@
-package elements;
+package com.Tahdig.elements;
 
-import buttons.Element;
+import com.Tahdig.DrawingPane;
+import com.Tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -36,12 +37,12 @@ public class FunctionCircle {
 
     public FunctionCircle(){
 
-        stack = tools.ShapeDrawer.drawCircle("Function");
+        stack = com.Tahdig.tools.ShapeDrawer.drawCircle("Function");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            tools.DragDetector.setOnDragDetected(stack, "circle");
+            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "circle");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -56,7 +57,6 @@ public class FunctionCircle {
 
         private double x, y;
         private String name, returnType;
-        private File CanvasContents;
         private Group root;
         private StackPane stack, actionsStack;
         private JFXPopup actionsPopup;
@@ -64,7 +64,7 @@ public class FunctionCircle {
 
         //TODO: implement rename
 
-        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack, File CanvasContents) throws FileNotFoundException {
+        public Actions(double x, double y, String name, Group root, StackPane stack, StackPane baseStack) throws FileNotFoundException {
 
             this.x = x;
             this.y = y;
@@ -72,7 +72,6 @@ public class FunctionCircle {
             this.returnType = "void";
             this.root = root;
             this.stack = stack;
-            this.CanvasContents = CanvasContents;
             addFunctionToCanvasContents();
 
             // edit button
@@ -98,7 +97,7 @@ public class FunctionCircle {
                     nameField.setText(getName());
                     nameField.setPadding(new Insets(100, 0, 0, 0));
                     //TODO: these insets are inaccurate, however, it does not matter since we're about to change the whole
-                    //  design of these boxes, (i.e. not gonna be using radio buttons)
+                    //  design of these boxes, (i.e. not gonna be using radio com.Kazemi.buttons)
                     nameField.setStyle("-fx-font-size: 18px;");
 
                     JFXButton applyChangesButton = new JFXButton("Apply");
@@ -175,7 +174,7 @@ public class FunctionCircle {
                                 JsonNode rootNode = null;
 
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -244,7 +243,7 @@ public class FunctionCircle {
                                     functionEditDialog.close();
                                 }
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -264,8 +263,8 @@ public class FunctionCircle {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        CanvasContents, Element.CIRCLE)).getButton();
+                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                        Element.CIRCLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -323,7 +322,7 @@ public class FunctionCircle {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = null;
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -336,7 +335,7 @@ public class FunctionCircle {
                 typeButtons.add(new JFXRadioButton(interf_iter.get("name").textValue()));
 
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -357,7 +356,7 @@ public class FunctionCircle {
             JsonNode rootNode = null;
 
             try {
-                rootNode = objectMapper.readTree(CanvasContents);
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -375,7 +374,7 @@ public class FunctionCircle {
 
             functions.add(thisFunc);
             try {
-                objectMapper.writeValue(CanvasContents, rootNode);
+                objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
             } catch (IOException e) {
                 e.printStackTrace();
             }

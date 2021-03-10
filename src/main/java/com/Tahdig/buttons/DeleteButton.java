@@ -1,5 +1,6 @@
-package buttons;
+package com.Tahdig.buttons;
 
+import com.Tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -22,7 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import tools.ConnectionBuilder.Point;
+import com.Tahdig.tools.ConnectionBuilder.Point;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +37,7 @@ public class DeleteButton {
     private JFXDialogLayout deleteDialogLayout;
 
     public DeleteButton(double x, double y, String name, Group root, StackPane stack,
-                        StackPane baseStack, JFXPopup actionsPopup, File CanvasContents, Element element) throws IOException {
+                        StackPane baseStack, JFXPopup actionsPopup, Element element) throws IOException {
 
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
@@ -69,7 +70,7 @@ public class DeleteButton {
                                 ObjectMapper objectMapper = new ObjectMapper();
                                 JsonNode rootNode = null;
                                 try {
-                                    rootNode = objectMapper.readTree(CanvasContents);
+                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -99,7 +100,7 @@ public class DeleteButton {
 
                                 //TODO: handle all relations and dependencies of this object (method paramters, return type, attribute types, etc)
                                 try {
-                                    objectMapper.writeValue(CanvasContents, rootNode);
+                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

@@ -78,6 +78,18 @@
     -fx-text-fill: whitesmoke;
 }
 
+.menu-button > .arrow-button {
+    -fx-padding: 0;
+}
+
+.menu-button > .arrow-button > .arrow {
+    -fx-padding: 0;
+}
+
+.menu-item .label{
+    -fx-text-fill: black;
+}
+
 #tools {
     -fx-background-color: #4b5d67;
 }

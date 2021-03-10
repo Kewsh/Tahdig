@@ -1,4 +1,4 @@
-package tools;
+package com.Tahdig.tools;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
