@@ -1,10 +1,13 @@
-package com.Tahdig;
+package com.tahdig;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.Tahdig.elements.*;
+import com.tahdig.elements.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,18 +28,21 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.lang.System.exit;
 
 //TODO: clean the code :) like for real.. clean the entirety of the code
-//TODO: implement settings, help, save, open and etc
+//TODO: implement settings and help
 //TODO: implement drag and drop for object that are already on the canvas
-//TODO: set all dialogs to overLayClose false and put a close a button for them
+//TODO: set some dialogs to overLayClose false and put a close a button for them
+//  for the rest, if you see fit, set them to overLayClose true
 //TODO: change all dialog message fonts to Muli
 //TODO: show the code output somewhere on the main stage?!
 //TODO: delete code folder before second output? (for the same language?)
+//TODO: when reloading a file, update the default name ids for all elements
 
 public class Main extends Application {
-
-    private File CanvasContents;
 
     public static void main(String[] args) {
         launch(args);
@@ -44,7 +50,9 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) throws FileNotFoundException {
 
-        this.CanvasContents = new File("out/Untitled.tahdig");
+        AtomicBoolean exitFlag = new AtomicBoolean(false);
+        AtomicBoolean openFileFlag = new AtomicBoolean(false);
+        AtomicBoolean newFileFlag = new AtomicBoolean(false);
 
         VBox vBox = new VBox();
         StackPane stackPane = new StackPane(vBox);
@@ -56,7 +64,7 @@ public class Main extends Application {
         //scene.getStylesheets().add("https://fonts.googleapis.com/css?family=Muli&display=swap");
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Tahdig");
+        primaryStage.setTitle(tools.cutExtension(DrawingPane.CanvasContents.getName()) + " - Tahdig");
         primaryStage.setMaximized(true);
 
         Label label = new Label("Elements");
@@ -300,6 +308,20 @@ public class Main extends Application {
             }
         });
 
+        //
+
+        VBox leftControl  = new VBox(label, separator3, hBox2, hBox4);
+        Label label3 = new Label("Generate Code");
+        label3.setId("1111");
+        label3.setPadding(new Insets(450, 0, 0, 0));
+        Separator sep5 = new Separator(Orientation.HORIZONTAL);
+        leftControl.getChildren().addAll(label3, sep5, hBox3);
+        leftControl.setMinWidth(500);
+        leftControl.setId("tools");
+
+        Separator separator = new Separator(Orientation.VERTICAL);
+        HBox hBox =  new HBox(leftControl, separator, (new DrawingPane(scene, stackPane)).getPane());
+
         JFXDialog savePromptDialog = new JFXDialog(new StackPane(),
                 new Region(),
                 JFXDialog.DialogTransition.CENTER,
@@ -315,19 +337,42 @@ public class Main extends Application {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            openTahdigFile(primaryStage);
+            if (exitFlag.get()) {
+                Platform.exit();
+                exit(0);
+            }
+            if (openFileFlag.get()) {
+                openTahdigFile(primaryStage, hBox, scene, stackPane);
+                openFileFlag.set(false);
+            } else if (newFileFlag.get()) {
+                newFileFlag.set(false);
+                tools.generateNewDrawingPane(primaryStage, hBox, scene, stackPane, null);
+            }
         });
         JFXButton noButton = new JFXButton("No");
         noButton.setStyle("-fx-font-size: 20px;");
         noButton.setOnAction(event -> {
             savePromptDialog.close();
-            openTahdigFile(primaryStage);
+            if (exitFlag.get()) {
+                Platform.exit();
+                exit(0);
+            }
+            if (openFileFlag.get()) {
+                openTahdigFile(primaryStage, hBox, scene, stackPane);
+                openFileFlag.set(false);
+            } else if (newFileFlag.get()) {
+                newFileFlag.set(false);
+                tools.generateNewDrawingPane(primaryStage, hBox, scene, stackPane, null);
+            }
         });
         JFXButton cancelButton = new JFXButton("Cancel");
         cancelButton.setStyle("-fx-font-size: 20px;");
-        cancelButton.setOnAction(event -> savePromptDialog.close());
+        cancelButton.setOnAction(event -> {
+            savePromptDialog.close();
+            exitFlag.set(false);
+        });
 
-        Text text = new Text("Do you wish to save your changes?");
+        Text text = new Text("Do you want to save change to " + DrawingPane.CanvasContents.getName() + "?");
         text.setFont(Font.font("Muli", 18));
         StackPane textStack = new StackPane(text);
         textStack.setPadding(new Insets(20, 0, 0, 30));
@@ -348,29 +393,46 @@ public class Main extends Application {
         saveDialogLayout.setBody(savePromptHbox);
         savePromptDialog.setContent(saveDialogLayout);
 
-        //
+        MenuItem menuItem0 = new MenuItem("New");
+        menuItem0.setGraphic(new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/New.png").getAbsolutePath()))));
+        menuItem0.setAccelerator(KeyCombination.keyCombination("Ctrl+N"));
+        menuItem0.setOnAction(event -> {
+            if (DrawingPane.CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") && DrawingPane.CanvasContents.exists()){
 
-        VBox leftControl  = new VBox(label, separator3, hBox2, hBox4);
-        Label label3 = new Label("Generate Code");
-        label3.setId("1111");
-        label3.setPadding(new Insets(450, 0, 0, 0));
-        Separator sep5 = new Separator(Orientation.HORIZONTAL);
-        leftControl.getChildren().addAll(label3, sep5, hBox3);
-        leftControl.setMinWidth(500);
-        leftControl.setId("tools");
-
-        Separator separator = new Separator(Orientation.VERTICAL);
-        DrawingPane drawingPane = new DrawingPane(scene, stackPane);
-
-        HBox hBox =  new HBox(leftControl, separator, drawingPane.getPane());
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (!tools.isCanvasEmpty(rootNode)) {
+                    newFileFlag.set(true);
+                    savePromptDialog.show(stackPane);
+                } else tools.generateNewDrawingPane(primaryStage, hBox, scene, stackPane, null);
+            }
+            else tools.generateNewDrawingPane(primaryStage, hBox, scene, stackPane, null);
+        });
 
         MenuItem menuItem1 = new MenuItem("Open");
         menuItem1.setGraphic(new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Open.png").getAbsolutePath()))));
         menuItem1.setAccelerator(KeyCombination.keyCombination("Ctrl+O"));
         menuItem1.setOnAction(event -> {
-            if (CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
-                savePromptDialog.show(stackPane);
-            else openTahdigFile(primaryStage);
+            if (DrawingPane.CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") && DrawingPane.CanvasContents.exists()){
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (!tools.isCanvasEmpty(rootNode)) {
+                    openFileFlag.set(true);
+                    savePromptDialog.show(stackPane);
+                } else openTahdigFile(primaryStage, hBox, scene, stackPane);
+            }
+            else openTahdigFile(primaryStage, hBox, scene, stackPane);
         });
 
         MenuItem menuItem2 = new MenuItem("Save");
@@ -398,7 +460,35 @@ public class Main extends Application {
         MenuItem menuItem5 = new MenuItem("Exit");
         menuItem5.setGraphic(new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Exit.png").getAbsolutePath()))));
 
-        MenuButton menuButton = new MenuButton("File", null, menuItem1, menuItem2, menuItem3, menuItem4, menuItem5);
+        primaryStage.setOnCloseRequest(event -> {
+            event.consume();
+            menuItem5.fire();
+        });
+        menuItem5.setOnAction(event -> {
+            if (DrawingPane.CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") && DrawingPane.CanvasContents.exists()){
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = null;
+                try {
+                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (!tools.isCanvasEmpty(rootNode)) {
+                    exitFlag.set(true);
+                    savePromptDialog.show(stackPane);
+                } else {
+                    Platform.exit();
+                    exit(0);
+                }
+            }
+            else {
+                Platform.exit();
+                exit(0);
+            }
+        });
+
+        MenuButton menuButton = new MenuButton("File", null, menuItem0, menuItem1, menuItem2, menuItem3, menuItem4, menuItem5);
         menuButton.setStyle("-fx-text-fill: white;");
         menuButton.setBackground(new Background(new BackgroundFill(Paint.valueOf("#393e46"), new CornerRadii(0), new Insets(0, 0, 0, 0))));
 
@@ -415,7 +505,7 @@ public class Main extends Application {
 
     private void saveTahdigFile(Stage primaryStage) throws IOException {
 
-        if (!CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
+        if (!DrawingPane.CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") && DrawingPane.CanvasContents.exists())
             return;
         saveAsTahdigFile(primaryStage);
     }
@@ -427,10 +517,10 @@ public class Main extends Application {
         File file = fileChooser.showSaveDialog(primaryStage);
         if (file == null)
             return;
-        if (CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
-            CanvasContents.renameTo(file);
+        if (DrawingPane.CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") && DrawingPane.CanvasContents.exists())
+            DrawingPane.CanvasContents.renameTo(file);
         else {
-            FileReader myReader = new FileReader(CanvasContents.getAbsolutePath());
+            FileReader myReader = new FileReader(DrawingPane.CanvasContents.getAbsolutePath());
             FileWriter myWriter = new FileWriter(file.getAbsolutePath());
             final int MAXIMUM_FILE_SIZE = 50000;
             char[] buffer = new char[MAXIMUM_FILE_SIZE];
@@ -439,19 +529,25 @@ public class Main extends Application {
             myWriter.close();
             myReader.close();
         }
-        CanvasContents = file;
-        DrawingPane.CanvasContents = CanvasContents;
+        DrawingPane.CanvasContents = file;
+        primaryStage.setTitle(tools.cutExtension(DrawingPane.CanvasContents.getName()) + " - Tahdig");
     }
 
-    private void openTahdigFile(Stage primaryStage){
+    private void openTahdigFile(Stage primaryStage, HBox hBox, Scene scene, StackPane stackPane){
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tahdig file", "*.tahdig"));
         File file = fileChooser.showOpenDialog(primaryStage);
         if (file != null){
-            CanvasContents = file;
-            DrawingPane.CanvasContents = CanvasContents;
+            DrawingPane.CanvasContents = file;
+            primaryStage.setTitle(tools.cutExtension(DrawingPane.CanvasContents.getName()) + " - Tahdig");
+            //TODO: set up the canvas to match this file
+            DrawingPane drawingPane = tools.generateNewDrawingPane(primaryStage, hBox, scene, stackPane, file);
+            try {
+                tools.reCreateCanvas(drawingPane);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        //TODO: set up the canvas to match this file
     }
 }

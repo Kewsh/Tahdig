@@ -1,6 +1,7 @@
-package com.Tahdig.buttons;
+package com.tahdig.buttons;
 
-import com.Tahdig.DrawingPane;
+import com.tahdig.tools.Point;
+import com.tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -23,7 +24,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import com.Tahdig.tools.ConnectionBuilder.Point;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,7 +1,7 @@
-package com.Tahdig.elements;
+package com.tahdig.elements;
 
-import com.Tahdig.DrawingPane;
-import com.Tahdig.buttons.Element;
+import com.tahdig.DrawingPane;
+import com.tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -42,12 +42,12 @@ public class ClassRectangle {
 
     public ClassRectangle(){
 
-        stack = com.Tahdig.tools.ShapeDrawer.drawRectangle("Class");
+        stack = com.tahdig.tools.drawRectangle("Class");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "rectangle");
+            com.tahdig.tools.setOnDragDetected(stack, "rectangle");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -664,9 +664,9 @@ public class ClassRectangle {
             actionsStack.setMinHeight(100);
             root.getChildren().add(actionsStack);
 
-            connectionsButton = (new com.Tahdig.buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.RECTANGLE).getButton());
+            connectionsButton = (new com.tahdig.buttons.ConnectionButton(x, y, actionsPopup, baseStack, root, Element.RECTANGLE).getButton());
             try {
-                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                deleteButton = (new com.tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
                         Element.RECTANGLE)).getButton();
             } catch (IOException e) {
                 e.printStackTrace();

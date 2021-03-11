@@ -1,7 +1,7 @@
-package com.Tahdig.elements;
+package com.tahdig.elements;
 
-import com.Tahdig.DrawingPane;
-import com.Tahdig.buttons.Element;
+import com.tahdig.DrawingPane;
+import com.tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -42,12 +42,12 @@ public class HeaderFileEllipse {
 
     public HeaderFileEllipse(){
 
-        stack = com.Tahdig.tools.ShapeDrawer.drawEllipse("Header-File");
+        stack = com.tahdig.tools.drawEllipse("Header-File");
         stack.setLayoutX(30);
         stack.setLayoutY(30);
 
         stack.setOnDragDetected((MouseEvent event) -> {
-            com.Tahdig.tools.DragDetector.setOnDragDetected(stack, "ellipse");
+            com.tahdig.tools.setOnDragDetected(stack, "ellipse");
         });
         stack.setOnMouseDragged((MouseEvent event) -> {
             event.setDragDetect(true);
@@ -808,7 +808,7 @@ public class HeaderFileEllipse {
             root.getChildren().add(actionsStack);
 
             try {
-                deleteButton = (new com.Tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
+                deleteButton = (new com.tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
                         Element.ELLIPSE)).getButton();
             } catch (Exception e) {
                 e.printStackTrace();

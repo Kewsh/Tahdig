@@ -1,24 +1,35 @@
-package com.Tahdig;
+package com.tahdig;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class DrawingPane {
 
@@ -59,6 +70,73 @@ public class DrawingPane {
         scrollPane.setContent(root);
         scrollPane.setId("drawForm");
 
+        File outDirectory = new File("out/");
+        if (!CanvasContents.exists()) {
+            try {
+                outDirectory.mkdir();
+                CanvasContents.createNewFile();
+                FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
+                myWriter.write("{\"classes\": [], \"functions\": [], " + "\"interfaces\": [], \"headers\": [], " +
+                        "\"packages\": [], \"lines\": []}");
+                myWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = null;
+            try {
+                rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig") || !tools.isCanvasEmpty(rootNode)) {
+                try {
+                    tools.reCreateCanvas(this);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                JFXButton okButton = new JFXButton("OK");
+                okButton.setFont(new Font(20));
+                Text text;
+                if (CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
+                    text = new Text("Your previous unsaved session was reloaded");
+                else text = new Text("Session Loaded Successfully");
+                text.setFont(Font.font("Muli", 20));
+                StackPane textStack = new StackPane(text);
+                textStack.setPadding(new Insets(20, 0, 0, 30));
+                JFXDialog sessionLoaded = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        false);
+                okButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        sessionLoaded.close();
+                    }
+                });
+                JFXDialogLayout sessionLoadedLayout = new JFXDialogLayout();
+
+                ImageView reloadIcon = null;
+                try {
+                    reloadIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Reload.png").getAbsolutePath())));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                StackPane reloadStack = new StackPane(reloadIcon);
+                reloadStack.setPadding(new Insets(20, 0, 0, 0));
+                HBox hi = new HBox(reloadStack, textStack);
+                sessionLoadedLayout.setBody(hi);
+                sessionLoadedLayout.setActions(okButton);
+                sessionLoadedLayout.setHeading(new Label("Reload"));
+                sessionLoaded.setContent(sessionLoadedLayout);
+
+                sessionLoaded.show(baseStack);
+            }
+        }
+
         canvas.setOnDragOver(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
                 if (event.getGestureSource() != canvas && event.getDragboard().hasString()) {
@@ -92,22 +170,8 @@ public class DrawingPane {
 
                 boolean isLocationOk = checkPositionAndResize(x, y);
                 if (isLocationOk) {
-                    File outDirectory = new File("out/");
-                    if (!CanvasContents.exists()) {
-                        try {
-                            outDirectory.mkdir();
-                            CanvasContents.createNewFile();
-                            FileWriter myWriter = new FileWriter(CanvasContents.getAbsolutePath());
-                            myWriter.write("{\"classes\": [], \"functions\": [], " + "\"interfaces\": [], \"headers\": [], " +
-                                                "\"packages\": [], \"lines\": []}");
-                            myWriter.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    //TODO: else, recreate the canvas
                     try {
-                        placeShapeOnCanvas(x, y, db.getString());
+                        placeShapeOnCanvas(x, y, db.getString(), "");
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -118,7 +182,7 @@ public class DrawingPane {
         });
     }
 
-    private boolean checkPositionAndResize(double x, double y){
+    public boolean checkPositionAndResize(double x, double y){
 
         if (width == 6000 && height == 6000)
             return false;
@@ -132,68 +196,78 @@ public class DrawingPane {
         return true;
     }
 
-    private void placeShapeOnCanvas(double x, double y, String shape) throws FileNotFoundException {
-        String name;
+    public void placeShapeOnCanvas(double x, double y, String shape, String name) throws FileNotFoundException {
+
         StackPane stack;
 
         switch(shape) {
 
             case "circle":
 
-                name = "Function" + defaultIdArray[0];
-                defaultIdArray[0] += 1;
-                stack = com.Tahdig.tools.ShapeDrawer.drawCircle(name);
+                if (name == "") {
+                    name = "Function" + defaultIdArray[0];
+                    defaultIdArray[0] += 1;
+                }
+                stack = com.tahdig.tools.drawCircle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new com.Tahdig.elements.FunctionCircle.Actions(x, y, name, root, stack, baseStack);
+                new com.tahdig.elements.FunctionCircle.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
             case "rectangle":
 
-                name = "Class" + defaultIdArray[1];
-                defaultIdArray[1] += 1;
-                stack = com.Tahdig.tools.ShapeDrawer.drawRectangle(name);
+                if (name == "") {
+                    name = "Class" + defaultIdArray[1];
+                    defaultIdArray[1] += 1;
+                }
+                stack = com.tahdig.tools.drawRectangle(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new com.Tahdig.elements.ClassRectangle.Actions(x, y, name, root, stack, baseStack);
+                new com.tahdig.elements.ClassRectangle.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
             case "diamond":
 
-                name = "Interface" + defaultIdArray[2];
-                defaultIdArray[2] += 1;
-                stack = com.Tahdig.tools.ShapeDrawer.drawDiamond(name);
+                if (name == "") {
+                    name = "Interface" + defaultIdArray[2];
+                    defaultIdArray[2] += 1;
+                }
+                stack = com.tahdig.tools.drawDiamond(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new com.Tahdig.elements.InterfaceDiamond.Actions(x, y, name, root, stack, baseStack);
+                new com.tahdig.elements.InterfaceDiamond.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
             case "hexagon":
 
-                name = "Package" + defaultIdArray[3];
-                defaultIdArray[3] += 1;
-                stack = com.Tahdig.tools.ShapeDrawer.drawHexagon(name);
+                if (name == "") {
+                    name = "Package" + defaultIdArray[3];
+                    defaultIdArray[3] += 1;
+                }
+                stack = com.tahdig.tools.drawHexagon(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new com.Tahdig.elements.PackageHexagon.Actions(x, y, name, root, stack, baseStack);
+                new com.tahdig.elements.PackageHexagon.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
                 break;
 
             case "ellipse":
 
-                name = "Header_File" + defaultIdArray[4];
-                defaultIdArray[4] += 1;
-                stack = com.Tahdig.tools.ShapeDrawer.drawEllipse(name);
+                if (name == "") {
+                    name = "Header_File" + defaultIdArray[4];
+                    defaultIdArray[4] += 1;
+                }
+                stack = com.tahdig.tools.drawEllipse(name);
                 stack.setLayoutX(x);
                 stack.setLayoutY(y);
-                new com.Tahdig.elements.HeaderFileEllipse.Actions(x, y, name, root, stack, baseStack);
+                new com.tahdig.elements.HeaderFileEllipse.Actions(x, y, name, root, stack, baseStack);
                 setCursor(stack);
                 root.getChildren().add(stack);
         }
@@ -212,6 +286,10 @@ public class DrawingPane {
                 scene.setCursor(Cursor.DEFAULT);
             }
         });
+    }
+
+    public Group getRoot(){
+        return root;
     }
 
     public ScrollPane getPane(){

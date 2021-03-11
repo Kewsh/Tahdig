@@ -1,6 +1,6 @@
-package com.Tahdig.buttons;
+package com.tahdig.buttons;
 
-import com.Tahdig.DrawingPane;
+import com.tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -14,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
-import com.Tahdig.tools.ConnectionBuilder.Point;
+import com.tahdig.tools.Point;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -111,32 +111,32 @@ public class ConnectionButton {
                 switch(element){
                     case RECTANGLE:
                         targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
-                        com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'c', "inheritance",
+                        com.tahdig.tools.drawConnectionLine(root, 'c', 'c', "inheritance",
                                 x, y, targetPoint.x, targetPoint.y);
                         break;
                     case DIAMOND:
                         targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                        com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'i', 'i', "inheritance",
+                        com.tahdig.tools.drawConnectionLine(root, 'i', 'i', "inheritance",
                                 x, y, targetPoint.x, targetPoint.y);
                 }
                 break;
             case "Implementation":          // implementation can only be from class to interface
                 targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'i', "implementation",
+                com.tahdig.tools.drawConnectionLine(root, 'c', 'i', "implementation",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
             case "Composition":             // composition can only be from class to class
                 targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
-                com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'c', 'c', "composition",
+                com.tahdig.tools.drawConnectionLine(root, 'c', 'c', "composition",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
             case "Containment":
                 targetPoint = findTarget((ArrayNode) rootNode.get("classes"), targetsComboBox.getValue().toString());
                 if (targetPoint == null){
                     targetPoint = findTarget((ArrayNode) rootNode.get("interfaces"), targetsComboBox.getValue().toString());
-                    com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'p', 'i', "containment",
+                    com.tahdig.tools.drawConnectionLine(root, 'p', 'i', "containment",
                             x, y, targetPoint.x, targetPoint.y);
-                } else com.Tahdig.tools.ConnectionBuilder.drawConnectionLine(root, 'p', 'c', "containment",
+                } else com.tahdig.tools.drawConnectionLine(root, 'p', 'c', "containment",
                         x, y, targetPoint.x, targetPoint.y);
                 break;
         }

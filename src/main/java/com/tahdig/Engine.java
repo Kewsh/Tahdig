@@ -1,4 +1,4 @@
-package com.Tahdig;
+package com.tahdig;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +21,6 @@ public abstract class Engine {
 
     public boolean isReady(){
 
-        if (!DrawingPane.CanvasContents.exists()) return false;
         boolean state;
         openJsonFile();
 
