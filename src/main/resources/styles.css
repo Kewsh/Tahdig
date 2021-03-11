@@ -34,34 +34,6 @@
     -fx-font-family: Verdana;
 }
 
-#butt1, #butt2 {
-    -fx-background-color: #6593f5;
-    -fx-text-fill: black;
-    -fx-font-size: 40px;
-    -fx-background-radius: 15px;        // rounded corners
-    -fx-border-radius: 15px;
-    -fx-border-color: black;
-    -fx-border-width: 2px;
-    -fx-font-family: Arial;
-}
-
-#1111 {
-    -fx-alignment: center;
-    -fx-text-fill: black;
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-font-family: cursive;
-    -fx-padding: 400 0 0 165;            // top right bottom left
-}
-
-#11, #111 {                              // same style for multiple ids
-    -fx-text-fill: black;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-font-family: cursive;
-    -fx-padding: 25 0 0 190;
-}
-
 .separator:horizontal *.line {
     -fx-border-style: solid;
     -fx-border-width: 0 0 2 0;
@@ -88,10 +60,6 @@
 
 .menu-item .label{
     -fx-text-fill: black;
-}
-
-#tools {
-    -fx-background-color: #4b5d67;
 }
 
 #drawForm {

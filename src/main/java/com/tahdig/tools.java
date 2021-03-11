@@ -4,14 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -38,11 +43,11 @@ public abstract class tools {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        placeShapesOnCanvas((ArrayNode) rootNode.get("classes"), "rectangle", drawingPane);
-        placeShapesOnCanvas((ArrayNode) rootNode.get("interfaces"), "diamond", drawingPane);
-        placeShapesOnCanvas((ArrayNode) rootNode.get("functions"), "circle", drawingPane);
-        placeShapesOnCanvas((ArrayNode) rootNode.get("headers"), "ellipse", drawingPane);
-        placeShapesOnCanvas((ArrayNode) rootNode.get("packages"), "hexagon", drawingPane);
+        placeShapesOnCanvas((ArrayNode) rootNode.get("classes"), "rectangle", drawingPane, 1);
+        placeShapesOnCanvas((ArrayNode) rootNode.get("interfaces"), "diamond", drawingPane, 2);
+        placeShapesOnCanvas((ArrayNode) rootNode.get("functions"), "circle", drawingPane, 0);
+        placeShapesOnCanvas((ArrayNode) rootNode.get("headers"), "ellipse", drawingPane, 4);
+        placeShapesOnCanvas((ArrayNode) rootNode.get("packages"), "hexagon", drawingPane, 3);
 
         for (JsonNode line : rootNode.get("lines")){
 
@@ -79,13 +84,14 @@ public abstract class tools {
         return 0;
     }
 
-    private static void placeShapesOnCanvas(ArrayNode array, String shapeType, DrawingPane drawingPane) throws IOException{
+    private static void placeShapesOnCanvas(ArrayNode array, String shapeType, DrawingPane drawingPane, int defaultIdArrayIndex) throws IOException{
         for (JsonNode object : array){
             double x = object.get("info").get("x").doubleValue();
             double y = object.get("info").get("y").doubleValue();
             drawingPane.checkPositionAndResize(x, y);
             drawingPane.placeShapeOnCanvas(x, y, shapeType, object.get("name").textValue());
         }
+        drawingPane.setDefaultId(defaultIdArrayIndex, array.size()+1);
     }
 
     public static void drawConnectionLine(Group root, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
@@ -286,6 +292,37 @@ public abstract class tools {
                 rootNode.get("headers").size() == 0 && rootNode.get("packages").size() == 0)
             return true;
         else return false;
+    }
+
+    public static JFXDialog generateNoticeDialog(String text, String heading, String iconPath){
+
+        Text dialogText = new Text(text);
+        dialogText.setFont(Font.font("Muli", 20));
+        StackPane textStack = new StackPane(dialogText);
+        textStack.setPadding(new Insets(20, 0, 0, 0));
+
+        JFXDialog noticeDialog = new JFXDialog(new StackPane(),
+                new Region(),
+                JFXDialog.DialogTransition.CENTER,
+                true);
+        JFXDialogLayout noticeDialogLayout = new JFXDialogLayout();
+
+        ImageView noticeIcon = null;
+        try {
+            noticeIcon = new ImageView(new Image(new FileInputStream(new File(iconPath).getAbsolutePath())));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StackPane iconStack = new StackPane(noticeIcon);
+        iconStack.setPadding(new Insets(20, 0, 0, 0));
+
+        HBox hBox = new HBox(iconStack, textStack);
+        hBox.setSpacing(30);
+        noticeDialogLayout.setBody(hBox);
+        noticeDialogLayout.setHeading(new Label(heading));
+        noticeDialog.setContent(noticeDialogLayout);
+
+        return noticeDialog;
     }
 
     public static final class Point{

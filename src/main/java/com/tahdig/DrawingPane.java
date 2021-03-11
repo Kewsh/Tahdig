@@ -5,31 +5,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class DrawingPane {
 
@@ -40,8 +33,7 @@ public class DrawingPane {
     private Canvas canvas;
     private Group root;
     private int[] defaultIdArray;               // IDs for default element names
-    private int width;
-    private int height;
+    private int width, height;
 
     public DrawingPane(Scene scene, StackPane baseStack){
 
@@ -98,52 +90,26 @@ public class DrawingPane {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                String text;
+                if (CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
+                    text = "Your previous unsaved session was reloaded";
+                else
+                    text = "Session Loaded Successfully";
+                JFXDialog sessionLoaded = tools.generateNoticeDialog(text, "Reload", "src/main/resources/icons/Reload.png");
+
                 JFXButton okButton = new JFXButton("OK");
                 okButton.setFont(new Font(20));
-                Text text;
-                if (CanvasContents.getAbsolutePath().endsWith("Tahdig\\out\\Untitled.tahdig"))
-                    text = new Text("Your previous unsaved session was reloaded");
-                else text = new Text("Session Loaded Successfully");
-                text.setFont(Font.font("Muli", 20));
-                StackPane textStack = new StackPane(text);
-                textStack.setPadding(new Insets(20, 0, 0, 30));
-                JFXDialog sessionLoaded = new JFXDialog(new StackPane(),
-                        new Region(),
-                        JFXDialog.DialogTransition.CENTER,
-                        false);
-                okButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        sessionLoaded.close();
-                    }
-                });
-                JFXDialogLayout sessionLoadedLayout = new JFXDialogLayout();
-
-                ImageView reloadIcon = null;
-                try {
-                    reloadIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Reload.png").getAbsolutePath())));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                StackPane reloadStack = new StackPane(reloadIcon);
-                reloadStack.setPadding(new Insets(20, 0, 0, 0));
-                HBox hi = new HBox(reloadStack, textStack);
-                sessionLoadedLayout.setBody(hi);
-                sessionLoadedLayout.setActions(okButton);
-                sessionLoadedLayout.setHeading(new Label("Reload"));
-                sessionLoaded.setContent(sessionLoadedLayout);
+                okButton.setOnAction(event -> sessionLoaded.close());
+                ((JFXDialogLayout) sessionLoaded.getContent()).setActions(okButton);
 
                 sessionLoaded.show(baseStack);
             }
         }
 
-        canvas.setOnDragOver(new EventHandler<DragEvent>() {
-            public void handle(DragEvent event) {
-                if (event.getGestureSource() != canvas && event.getDragboard().hasString()) {
-                    event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                }
-                event.consume();
-            }
+        canvas.setOnDragOver(event -> {
+            if (event.getGestureSource() != canvas && event.getDragboard().hasString())
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
         });
 
         canvas.setOnDragDropped((DragEvent event) -> {
@@ -274,18 +240,12 @@ public class DrawingPane {
     }
 
     private void setCursor(StackPane stack){
-        stack.setOnMouseEntered(new EventHandler<MouseEvent>(){
-            @Override
-            public void handle(MouseEvent event) {
-                scene.setCursor(Cursor.HAND);
-            }
-        });
-        stack.setOnMouseExited(new EventHandler<MouseEvent>(){
-            @Override
-            public void handle(MouseEvent event) {
-                scene.setCursor(Cursor.DEFAULT);
-            }
-        });
+        stack.setOnMouseEntered(event -> scene.setCursor(Cursor.HAND));
+        stack.setOnMouseExited(event -> scene.setCursor(Cursor.DEFAULT));
+    }
+
+    public void setDefaultId(int index, int id){
+        defaultIdArray[index] = id;
     }
 
     public Group getRoot(){
