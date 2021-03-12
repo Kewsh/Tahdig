@@ -1,14 +1,12 @@
 package com.tahdig.elements;
 
-import com.tahdig.DrawingPane;
-import com.tahdig.buttons.Element;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import com.tahdig.DrawingPane;
+import com.tahdig.tools;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -74,185 +72,6 @@ public class FunctionCircle {
             this.stack = stack;
             addFunctionToCanvasContents();
 
-            // edit button
-
-            editButton = new JFXButton();
-            String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
-            editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
-            editButton.setMinSize(68,70);
-            editButton.setDisableVisualFocus(true);
-
-            editButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    List<JFXRadioButton> typeButtons = new ArrayList<JFXRadioButton>();
-                    ToggleGroup typeGroup = new ToggleGroup();
-                    VBox typeButtonsVBox = createTypeButtonsVBox(typeButtons, typeGroup);
-                    typeButtonsVBox.setPadding(new Insets(40, 0, 0, 0));
-                    typeButtonsVBox.setStyle("-fx-font-size: 18px;");
-                    typeButtonsVBox.setMinWidth(100);
-
-                    JFXTextField nameField = new JFXTextField();
-                    nameField.setText(getName());
-                    nameField.setPadding(new Insets(100, 0, 0, 0));
-                    //TODO: these insets are inaccurate, however, it does not matter since we're about to change the whole
-                    //  design of these boxes, (i.e. not gonna be using radio com.Kazemi.buttons)
-                    nameField.setStyle("-fx-font-size: 18px;");
-
-                    JFXButton applyChangesButton = new JFXButton("Apply");
-                    applyChangesButton.setFont(new Font(18));
-                    JFXDialog functionEditDialog = new JFXDialog(new StackPane(),
-                            new Region(),
-                            JFXDialog.DialogTransition.CENTER,
-                            true);
-
-                    ImageView editIcon = null;
-                    try {
-                        editIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Edit64.png").getAbsolutePath())));
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    StackPane editIconStack = new StackPane(editIcon);
-                    editIconStack.setPadding(new Insets(20, 0, 0, 0));
-
-                    HBox editHBox = new HBox(editIconStack, typeButtonsVBox, nameField);
-                    editHBox.setSpacing(30);
-                    VBox editVBox = new VBox(editHBox);
-                    JFXDialogLayout functionEditLayout = new JFXDialogLayout();
-                    functionEditLayout.setBody(editVBox);
-                    functionEditLayout.setActions(applyChangesButton);
-                    functionEditLayout.setHeading(new Label("Edit"));
-                    functionEditDialog.setContent(functionEditLayout);
-
-                    actionsPopup.hide();
-                    functionEditDialog.show(baseStack);
-
-                    Label typeNotSpecified = new Label("*no return type specified");
-                    Label nameNotGiven = new Label("*name field must not be empty");
-                    Label nameNotValid = new Label("*name contains illegal characters");
-                    Label nameAlreadyExists = new Label("*this name has already been used");
-
-                    boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
-
-                    typeNotSpecified.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
-                    nameNotGiven.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
-                    nameNotValid.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
-                    nameAlreadyExists.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
-
-                    applyChangesButton.setOnAction(new EventHandler<ActionEvent>(){
-                        @Override
-                        public void handle(ActionEvent event) {
-
-                            for (int i = 0; i < 4; i++)
-                                errorFlags[i] = false;
-
-                            if (editVBox.getChildren().contains(nameAlreadyExists))
-                                editVBox.getChildren().remove(nameAlreadyExists);
-                            if (editVBox.getChildren().contains(typeNotSpecified))
-                                editVBox.getChildren().remove(typeNotSpecified);
-                            if (editVBox.getChildren().contains(nameNotGiven))
-                                editVBox.getChildren().remove(nameNotGiven);
-                            if (editVBox.getChildren().contains(nameNotValid))
-                                editVBox.getChildren().remove(nameNotValid);
-
-                            JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
-                            if (selectedType == null) {
-                                editVBox.getChildren().add(typeNotSpecified);
-                                errorFlags[0] = true;
-                            }
-
-                            String inputName = nameField.getText();
-                            if (inputName.equals("")) {
-                                editVBox.getChildren().add(nameNotGiven);
-                                errorFlags[1] = true;
-                            } else if (!checkNameValidity(inputName)){
-                                editVBox.getChildren().add(nameNotValid);
-                                errorFlags[2] = true;
-                            } else {
-                                ObjectMapper objectMapper = new ObjectMapper();
-                                JsonNode rootNode = null;
-
-                                try {
-                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                if (!getName().equals(inputName)) {
-                                    ArrayNode classes = (ArrayNode) rootNode.get("classes");
-                                    for (JsonNode class_iter : classes) {
-                                        if (class_iter.get("name").textValue().equals(inputName)) {
-                                            editVBox.getChildren().add(nameAlreadyExists);
-                                            errorFlags[3] = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!errorFlags[3]) {
-                                        ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
-                                        for (JsonNode interf_iter : interfaces) {
-                                            if (interf_iter.get("name").textValue().equals(inputName)) {
-                                                editVBox.getChildren().add(nameAlreadyExists);
-                                                errorFlags[3] = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (!errorFlags[3]) {
-                                        ArrayNode functions = (ArrayNode) rootNode.get("functions");
-                                        for (JsonNode func_iter : functions) {
-                                            if (func_iter.get("name").textValue().equals(inputName)) {
-                                                editVBox.getChildren().add(nameAlreadyExists);
-                                                errorFlags[3] = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
-
-                                    ArrayNode functions = (ArrayNode) rootNode.get("functions");
-                                    ObjectNode function = null;
-                                    int index = 0;
-                                    for (int i = 0; i < functions.size(); i++){
-                                        ObjectNode info = (ObjectNode) functions.get(i).get("info");
-                                        if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
-                                            function = (ObjectNode) functions.get(i);
-                                            index = i;
-                                            break;
-                                        }
-                                    }
-                                    ObjectNode targetInfo = (ObjectNode) function.get("info");
-
-                                    targetInfo.put("return", selectedType.getText());
-                                    function.put("name", inputName);
-                                    function.put("info", targetInfo);
-                                    functions.remove(index);
-                                    functions.add(function);
-
-                                    setReturnType(selectedType.getText());
-                                    setName(inputName);
-
-                                    for (Node node : root.getChildren()){
-                                        if (node == stack){
-                                            Text text = (Text) stack.getChildren().get(1);
-                                            text.setText(inputName);                            // updating the name on the shape
-                                            break;
-                                        }
-                                    }
-
-                                    functionEditDialog.close();
-                                }
-                                try {
-                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-
             // actions button
 
             actionsPopup = new JFXPopup();
@@ -264,7 +83,8 @@ public class FunctionCircle {
 
             try {
                 deleteButton = (new com.tahdig.buttons.DeleteButton(x, y, name, root, stack, baseStack, actionsPopup,
-                        Element.CIRCLE)).getButton();
+                        tools.Element.CIRCLE)).getButton();
+                editButton = setUpEditButton(baseStack);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -272,12 +92,182 @@ public class FunctionCircle {
             actionsPopup.setAutoHide(true);
             actionsPopup.setHideOnEscape(true);
 
-            stack.setOnMouseClicked(new EventHandler<MouseEvent>(){
-                @Override
-                public void handle(MouseEvent event) {
-                    actionsPopup.show(actionsStack);
+            stack.setOnMouseClicked(event -> actionsPopup.show(actionsStack));
+        }
+
+        private JFXButton setUpEditButton(StackPane baseStack) throws IOException {
+
+            JFXButton editButton = new JFXButton();
+            String path = new File("src/main/resources/icons/EditPencil.png").getAbsolutePath();
+            editButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
+            editButton.setMinSize(68,70);
+            editButton.setDisableVisualFocus(true);
+
+            editButton.setOnAction(event -> {
+
+                List<JFXRadioButton> typeButtons = new ArrayList<JFXRadioButton>();
+                ToggleGroup typeGroup = new ToggleGroup();
+                VBox typeButtonsVBox = createTypeButtonsVBox(typeButtons, typeGroup);
+                typeButtonsVBox.setPadding(new Insets(40, 0, 0, 0));
+                typeButtonsVBox.setStyle("-fx-font-size: 18px;");
+                typeButtonsVBox.setMinWidth(100);
+
+                JFXTextField nameField = new JFXTextField();
+                nameField.setText(getName());
+                nameField.setPadding(new Insets(100, 0, 0, 0));
+                //TODO: these insets are inaccurate, however, it does not matter since we're about to change the whole
+                //  design of these boxes, (i.e. not gonna be using radio buttons)
+                nameField.setStyle("-fx-font-size: 18px;");
+
+                JFXButton applyChangesButton = new JFXButton("Apply");
+                applyChangesButton.setFont(new Font(18));
+                JFXDialog functionEditDialog = new JFXDialog(new StackPane(),
+                        new Region(),
+                        JFXDialog.DialogTransition.CENTER,
+                        true);
+
+                ImageView editIcon = null;
+                try {
+                    editIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Edit64.png").getAbsolutePath())));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
+                StackPane editIconStack = new StackPane(editIcon);
+                editIconStack.setPadding(new Insets(20, 0, 0, 0));
+
+                HBox editHBox = new HBox(editIconStack, typeButtonsVBox, nameField);
+                editHBox.setSpacing(30);
+                VBox editVBox = new VBox(editHBox);
+                JFXDialogLayout functionEditLayout = new JFXDialogLayout();
+                functionEditLayout.setBody(editVBox);
+                functionEditLayout.setActions(applyChangesButton);
+                functionEditLayout.setHeading(new Label("Edit"));
+                functionEditDialog.setContent(functionEditLayout);
+
+                actionsPopup.hide();
+                functionEditDialog.show(baseStack);
+
+                Label typeNotSpecified = new Label("*no return type specified");
+                Label nameNotGiven = new Label("*name field must not be empty");
+                Label nameNotValid = new Label("*name contains illegal characters");
+                Label nameAlreadyExists = new Label("*this name has already been used");
+
+                boolean[] errorFlags = {false, false, false, false};               //specifies whether each error label is set
+
+                typeNotSpecified.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                nameNotGiven.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                nameNotValid.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+                nameAlreadyExists.setStyle("-fx-text-fill: red; -fx-padding: 20 0 0 0");
+
+                applyChangesButton.setOnAction(event1 -> {
+
+                    for (int i = 0; i < 4; i++)
+                        errorFlags[i] = false;
+
+                    if (editVBox.getChildren().contains(nameAlreadyExists))
+                        editVBox.getChildren().remove(nameAlreadyExists);
+                    if (editVBox.getChildren().contains(typeNotSpecified))
+                        editVBox.getChildren().remove(typeNotSpecified);
+                    if (editVBox.getChildren().contains(nameNotGiven))
+                        editVBox.getChildren().remove(nameNotGiven);
+                    if (editVBox.getChildren().contains(nameNotValid))
+                        editVBox.getChildren().remove(nameNotValid);
+
+                    JFXRadioButton selectedType = (JFXRadioButton) typeGroup.getSelectedToggle();
+                    if (selectedType == null) {
+                        editVBox.getChildren().add(typeNotSpecified);
+                        errorFlags[0] = true;
+                    }
+
+                    String inputName = nameField.getText();
+                    if (inputName.equals("")) {
+                        editVBox.getChildren().add(nameNotGiven);
+                        errorFlags[1] = true;
+                    } else if (!checkNameValidity(inputName)){
+                        editVBox.getChildren().add(nameNotValid);
+                        errorFlags[2] = true;
+                    } else {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
+
+                        try {
+                            rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (!getName().equals(inputName)) {
+                            ArrayNode classes = (ArrayNode) rootNode.get("classes");
+                            for (JsonNode class_iter : classes) {
+                                if (class_iter.get("name").textValue().equals(inputName)) {
+                                    editVBox.getChildren().add(nameAlreadyExists);
+                                    errorFlags[3] = true;
+                                    break;
+                                }
+                            }
+                            if (!errorFlags[3]) {
+                                ArrayNode interfaces = (ArrayNode) rootNode.get("interfaces");
+                                for (JsonNode interf_iter : interfaces) {
+                                    if (interf_iter.get("name").textValue().equals(inputName)) {
+                                        editVBox.getChildren().add(nameAlreadyExists);
+                                        errorFlags[3] = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!errorFlags[3]) {
+                                ArrayNode functions = (ArrayNode) rootNode.get("functions");
+                                for (JsonNode func_iter : functions) {
+                                    if (func_iter.get("name").textValue().equals(inputName)) {
+                                        editVBox.getChildren().add(nameAlreadyExists);
+                                        errorFlags[3] = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (!errorFlags[0] && !errorFlags[1] && !errorFlags[2] && !errorFlags[3]){
+
+                            ArrayNode functions = (ArrayNode) rootNode.get("functions");
+                            ObjectNode function = null;
+                            int index = 0;
+                            for (int i = 0; i < functions.size(); i++){
+                                ObjectNode info = (ObjectNode) functions.get(i).get("info");
+                                if (info.get("x").doubleValue() == x && info.get("y").doubleValue() == y){
+                                    function = (ObjectNode) functions.get(i);
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            ObjectNode targetInfo = (ObjectNode) function.get("info");
+
+                            targetInfo.put("return", selectedType.getText());
+                            function.put("name", inputName);
+                            function.put("info", targetInfo);
+                            functions.remove(index);
+                            functions.add(function);
+
+                            setReturnType(selectedType.getText());
+                            setName(inputName);
+
+                            for (Node node : root.getChildren()){
+                                if (node == stack){
+                                    Text text = (Text) stack.getChildren().get(1);
+                                    text.setText(inputName);                            // updating the name on the shape
+                                    break;
+                                }
+                            }
+
+                            functionEditDialog.close();
+                        }
+                        try {
+                            objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             });
+            return editButton;
         }
 
         private String getName(){

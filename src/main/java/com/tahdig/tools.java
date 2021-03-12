@@ -97,8 +97,7 @@ public abstract class tools {
     public static void drawConnectionLine(Group root, char type1, char type2, String connectionType, double srcX, double srcY, double destX, double destY){
 
         Line line;
-        Point[] srcPoints;
-        Point[] destPoints;
+        Point[] srcPoints, destPoints;
 
         if (type1 == 'c')                   // class
             srcPoints = new Point[]{new Point(srcX, srcY+60), new Point(srcX+50, srcY), new Point(srcX+100, srcY+60), new Point(srcX+50, srcY+120)};
@@ -178,7 +177,7 @@ public abstract class tools {
             case "hexagon":
                 path = new File("src/main/resources/icons/PackageHexagon.png").getAbsolutePath();
                 break;
-            default:                // ellipse
+            case "ellipse":
                 path = new File("src/main/resources/icons/HeaderFileEllipse.png").getAbsolutePath();
         }
 
@@ -331,5 +330,9 @@ public abstract class tools {
             this.x = x;
             this.y = y;
         }
+    }
+
+    public enum Element {
+        CIRCLE, RECTANGLE, DIAMOND, HEXAGON, ELLIPSE;
     }
 }

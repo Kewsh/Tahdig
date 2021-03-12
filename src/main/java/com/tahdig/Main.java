@@ -340,8 +340,8 @@ public class Main extends Application {
 
     private void showCodeWarningDialog(Engine engine, StackPane stackPane){
 
-        String warningText = "Due to your specific design, a standard java code output is impossible, but\nTahdig can take"
-                + " specific actions to make it possible. Considering that the result\nmight not be identical to your design,"
+        String warningText = "Due to your specific design, a standard code output is impossible, but Tahdig\ncan take"
+                + " specific actions to make it possible. Considering that the result might\nnot be identical to your design,"
                 + " do you wish to continue?";
         JFXDialog codeImpossible = tools.generateNoticeDialog(warningText, "Warning", "src/main/resources/icons/Warning.png");
 

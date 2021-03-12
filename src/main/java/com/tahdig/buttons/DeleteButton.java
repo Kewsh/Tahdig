@@ -1,7 +1,5 @@
 package com.tahdig.buttons;
 
-import com.tahdig.tools.Point;
-import com.tahdig.DrawingPane;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,8 +8,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPopup;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import com.tahdig.DrawingPane;
+import com.tahdig.tools;
+import com.tahdig.tools.Point;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -37,112 +36,101 @@ public class DeleteButton {
     private JFXDialogLayout deleteDialogLayout;
 
     public DeleteButton(double x, double y, String name, Group root, StackPane stack,
-                        StackPane baseStack, JFXPopup actionsPopup, Element element) throws IOException {
+                        StackPane baseStack, JFXPopup actionsPopup, tools.Element element) throws IOException {
 
         deleteButton = new JFXButton();
         String path = new File("src/main/resources/icons/TrashCan.png").getAbsolutePath();
         deleteButton.setGraphic(new ImageView(new Image(new FileInputStream(path))));
         deleteButton.setDisableVisualFocus(true);
 
-        deleteButton.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent event) {
+        deleteButton.setOnAction(event -> {
 
-                for (Node node : root.getChildren()){
-                    if (node == stack){
-                        deleteDialog = new JFXDialog(new StackPane(),
-                                new Region(),
-                                JFXDialog.DialogTransition.CENTER,
-                                false);
-                        deleteDialogConfirmButton = new JFXButton("Yes");
-                        deleteDialogConfirmButton.setFont(new Font(20));
-                        deleteDialogCancelButton = new JFXButton("Cancel");
-                        deleteDialogCancelButton.setFont(new Font(20));
+            for (Node node : root.getChildren()){
+                if (node == stack){
+                    deleteDialog = new JFXDialog(new StackPane(),
+                            new Region(),
+                            JFXDialog.DialogTransition.CENTER,
+                            false);
+                    deleteDialogConfirmButton = new JFXButton("Yes");
+                    deleteDialogConfirmButton.setFont(new Font(20));
+                    deleteDialogCancelButton = new JFXButton("Cancel");
+                    deleteDialogCancelButton.setFont(new Font(20));
 
-                        deleteDialogConfirmButton.setOnAction(new EventHandler<ActionEvent>(){
-                            @Override
-                            public void handle(ActionEvent event) {
+                    deleteDialogConfirmButton.setOnAction(event1 -> {
 
-                                root.getChildren().remove(node);
-                                actionsPopup.hide();
-                                deleteDialog.close();
+                        root.getChildren().remove(node);
+                        actionsPopup.hide();
+                        deleteDialog.close();
 
-                                ObjectMapper objectMapper = new ObjectMapper();
-                                JsonNode rootNode = null;
-                                try {
-                                    rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                ArrayNode array = null;
-                                switch(element){
-                                    case CIRCLE:
-                                        array = (ArrayNode) rootNode.get("functions");
-                                        break;
-                                    case RECTANGLE:
-                                        array = (ArrayNode) rootNode.get("classes");
-                                        break;
-                                    case DIAMOND:
-                                        array = (ArrayNode) rootNode.get("interfaces");
-                                        break;
-                                    case HEXAGON:
-                                        array = (ArrayNode) rootNode.get("packages");
-                                        break;
-                                    case ELLIPSE:
-                                        array = (ArrayNode) rootNode.get("headers");
-                                }
-                                for (int i = 0; i < array.size(); i++){
-                                    ObjectNode object = (ObjectNode) array.get(i);
-                                    if (object.get("info").get("x").doubleValue() == x && object.get("info").get("y").doubleValue() == y)
-                                        array.remove(i);
-                                }
-                                deleteConnections(x, y, root, (ArrayNode) rootNode.get("lines"));
-
-                                //TODO: handle all relations and dependencies of this object (method paramters, return type, attribute types, etc)
-                                try {
-                                    objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        deleteDialogCancelButton.setOnAction(new EventHandler<ActionEvent>(){
-                            @Override
-                            public void handle(ActionEvent event) {
-                                deleteDialog.close();
-                            }
-                        });
-
-                        deleteDialogLayout = new JFXDialogLayout();
-
-                        Text text = new Text("Are you sure you want to delete " + name + "?");
-                        text.setFont(Font.font("Muli", 18));
-                        StackPane textStack = new StackPane(text);
-                        textStack.setPadding(new Insets(20, 0, 0, 0));
-
-                        ImageView questionIcon = null;
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode rootNode = null;
                         try {
-                            questionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Question.png").getAbsolutePath())));
-                        } catch (FileNotFoundException e) {
+                            rootNode = objectMapper.readTree(DrawingPane.CanvasContents);
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        StackPane questionStack = new StackPane(questionIcon);
-                        questionStack.setPadding(new Insets(20, 0, 0, 0));
+                        ArrayNode array = null;
+                        switch(element){
+                            case CIRCLE:
+                                array = (ArrayNode) rootNode.get("functions");
+                                break;
+                            case RECTANGLE:
+                                array = (ArrayNode) rootNode.get("classes");
+                                break;
+                            case DIAMOND:
+                                array = (ArrayNode) rootNode.get("interfaces");
+                                break;
+                            case HEXAGON:
+                                array = (ArrayNode) rootNode.get("packages");
+                                break;
+                            case ELLIPSE:
+                                array = (ArrayNode) rootNode.get("headers");
+                        }
+                        for (int i = 0; i < array.size(); i++){
+                            ObjectNode object = (ObjectNode) array.get(i);
+                            if (object.get("info").get("x").doubleValue() == x && object.get("info").get("y").doubleValue() == y)
+                                array.remove(i);
+                        }
+                        deleteConnections(x, y, root, (ArrayNode) rootNode.get("lines"));
 
-                        HBox deleteHbox = new HBox(questionStack, textStack);
-                        deleteHbox.setSpacing(20);
-                        deleteDialogLayout.setHeading(new Label("Delete"));
-                        deleteDialogLayout.setBody(deleteHbox);
+                        //TODO: handle all relations and dependencies of this object (method paramters, return type, attribute types, etc)
+                        try {
+                            objectMapper.writeValue(DrawingPane.CanvasContents, rootNode);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    deleteDialogCancelButton.setOnAction(event12 -> deleteDialog.close());
 
-                        //TODO: fix: this name isn't updated when element name has changed
+                    deleteDialogLayout = new JFXDialogLayout();
 
-                        deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
-                        deleteDialog.setContent(deleteDialogLayout);
+                    Text text = new Text("Are you sure you want to delete " + name + "?");
+                    text.setFont(Font.font("Muli", 18));
+                    StackPane textStack = new StackPane(text);
+                    textStack.setPadding(new Insets(20, 0, 0, 0));
 
-                        actionsPopup.hide();
-                        deleteDialog.show(baseStack);
-                        break;
+                    ImageView questionIcon = null;
+                    try {
+                        questionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Question.png").getAbsolutePath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
+                    StackPane questionStack = new StackPane(questionIcon);
+                    questionStack.setPadding(new Insets(20, 0, 0, 0));
+
+                    HBox deleteHbox = new HBox(questionStack, textStack);
+                    deleteHbox.setSpacing(20);
+                    deleteDialogLayout.setHeading(new Label("Delete"));
+                    deleteDialogLayout.setBody(deleteHbox);
+
+                    //TODO: fix: this name isn't updated when element name has changed
+
+                    deleteDialogLayout.setActions(deleteDialogCancelButton, deleteDialogConfirmButton);
+                    deleteDialog.setContent(deleteDialogLayout);
+
+                    actionsPopup.hide();
+                    deleteDialog.show(baseStack);
+                    break;
                 }
             }
         });

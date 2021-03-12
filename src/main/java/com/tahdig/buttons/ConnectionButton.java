@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.jfoenix.controls.*;
+import com.tahdig.tools;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -32,7 +33,7 @@ public class ConnectionButton {
     private JFXDialogLayout connectionsDialogLayout;
     private JFXComboBox targetsComboBox, connectionsComboBox;
 
-    public ConnectionButton(double x, double y, JFXPopup actionsPopup, StackPane baseStack, Group root, Element element){
+    public ConnectionButton(double x, double y, JFXPopup actionsPopup, StackPane baseStack, Group root, tools.Element element) throws FileNotFoundException {
 
         this.root = root;
 
@@ -65,12 +66,7 @@ public class ConnectionButton {
                 true);
         connectionsDialogLayout = new JFXDialogLayout();
 
-        ImageView connectionIcon = null;
-        try {
-            connectionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Connect.png").getAbsolutePath())));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        ImageView connectionIcon = new ImageView(new Image(new FileInputStream(new File("src/main/resources/icons/Connect.png").getAbsolutePath())));
         StackPane connectionIconStack = new StackPane(connectionIcon);
         connectionIconStack.setPadding(new Insets(20, 0, 0, 0));
 
@@ -101,7 +97,7 @@ public class ConnectionButton {
         });
     }
 
-    private void formConnection(double x, double y, Element element){
+    private void formConnection(double x, double y, tools.Element element){
 
         if (targetsComboBox.getValue() == null)
             return;         //TODO: print some error message?
@@ -152,7 +148,7 @@ public class ConnectionButton {
         return null;
     }
 
-    private void setTargets(double x, double y, Element element){
+    private void setTargets(double x, double y, tools.Element element){
 
         objectMapper = new ObjectMapper();
         rootNode = null;
@@ -220,7 +216,7 @@ public class ConnectionButton {
         }
     }
 
-    private String getSourceName(double x, double y, Element element){
+    private String getSourceName(double x, double y, tools.Element element){
 
         ArrayNode array = null;
         switch(element){
